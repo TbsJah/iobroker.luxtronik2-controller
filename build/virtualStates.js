@@ -21,53 +21,17 @@ __export(virtualStates_exports, {
   calculateTemperatureSpread: () => calculateTemperatureSpread,
   calculateTotalEnergy: () => calculateTotalEnergy,
   calculateTotalThermalEnergy: () => calculateTotalThermalEnergy,
-  initializeVirtualStates: () => initializeVirtualStates,
   updateCustomStates: () => updateCustomStates,
   updateErrorHistory: () => updateErrorHistory,
   updateOutageHistory: () => updateOutageHistory,
   updateStatusStrings: () => updateStatusStrings,
+  updateSystemInfos: () => updateSystemInfos,
   updateTimerTables: () => updateTimerTables
 });
 module.exports = __toCommonJS(virtualStates_exports);
 var import_codes = require("./codes");
 var import_logger = require("./logger");
 var import_stateMapping = require("./stateMapping");
-async function initializeVirtualStates(adapter) {
-  for (const [key, definition] of Object.entries(import_stateMapping.STATE_MAPPING)) {
-    const folderId = definition.folder;
-    const stateId = `${folderId}.${key}`;
-    try {
-      const folderParts = folderId.split(".");
-      let currentFolder = "";
-      for (const part of folderParts) {
-        currentFolder = currentFolder === "" ? part : `${currentFolder}.${part}`;
-        await adapter.setObjectNotExistsAsync(currentFolder, {
-          type: currentFolder.includes(".") ? "channel" : "folder",
-          common: { name: part },
-          native: {}
-        });
-      }
-      await adapter.setObjectNotExistsAsync(stateId, {
-        type: "state",
-        common: {
-          name: definition.name,
-          type: definition.type,
-          role: definition.role,
-          unit: definition.unit,
-          read: true,
-          write: definition.write || false,
-          def: definition.def,
-          states: definition.states
-          // <-- Extrem wichtig für Dropdown-Werte!
-        },
-        native: {}
-      });
-    } catch (err) {
-      (0, import_logger.writeLog)(`Fehler beim Erstellen des Datenpunkts ${stateId}: ${err.message}`, "error");
-    }
-  }
-  (0, import_logger.writeLog)(`Alle Datenpunkte aus dem State-Mapping wurden erfolgreich initialisiert.`, "info");
-}
 async function calculateSum(adapter, sourceId1, sourceId2, targetId, logName) {
   try {
     const [state1, state2] = await Promise.all([
@@ -369,7 +333,15 @@ async function updateCustomStates(adapter, rawValues, rawParams) {
       } else if (custom.type === "datetime") {
         const ts = Number(rawVal);
         if (!isNaN(ts) && ts > 0) {
-          finalVal = new Date(ts * 1e3).toLocaleString("de-DE");
+          finalVal = new Date(ts * 1e3).toLocaleString("de-DE", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+          });
         } else {
           finalVal = "Ung\xFCltig";
         }
@@ -387,16 +359,97 @@ async function updateCustomStates(adapter, rawValues, rawParams) {
     (0, import_logger.writeLog)(`Fehler beim Aktualisieren der benutzerdefinierten Werte: ${err.message}`, "error");
   }
 }
+async function updateSystemInfos(adapter, rawValues) {
+  try {
+    const firmwareBuf = rawValues.slice(81, 91);
+    const firmwareString = createFirmwareString(firmwareBuf);
+    const dpFirmware = (0, import_stateMapping.getDpPath)("firmware");
+    if (dpFirmware) {
+      const currentFw = await adapter.getStateAsync(dpFirmware);
+      if (!currentFw || currentFw.val !== firmwareString) {
+        await adapter.setStateAsync(dpFirmware, { val: firmwareString, ack: true });
+      }
+    }
+    const ipAddress = int2ipAddress(rawValues[91]);
+    const dpIp = (0, import_stateMapping.getDpPath)("ip_address");
+    if (dpIp) {
+      const currentIp = await adapter.getStateAsync(dpIp);
+      if (!currentIp || currentIp.val !== ipAddress) {
+        await adapter.setStateAsync(dpIp, { val: ipAddress, ack: true });
+      }
+    }
+    const subnet = int2ipAddress(rawValues[92]);
+    const dpSubnet = (0, import_stateMapping.getDpPath)("subnet");
+    if (dpSubnet) {
+      const currentSubnet = await adapter.getStateAsync(dpSubnet);
+      if (!currentSubnet || currentSubnet.val !== subnet) {
+        await adapter.setStateAsync(dpSubnet, { val: subnet, ack: true });
+      }
+    }
+    const broadcastAddress = int2ipAddress(rawValues[93]);
+    const dpBroadcast = (0, import_stateMapping.getDpPath)("broadcast_address");
+    if (dpBroadcast) {
+      const currentBroadcast = await adapter.getStateAsync(dpBroadcast);
+      if (!currentBroadcast || currentBroadcast.val !== broadcastAddress) {
+        await adapter.setStateAsync(dpBroadcast, { val: broadcastAddress, ack: true });
+      }
+    }
+    const gateway = int2ipAddress(rawValues[94]);
+    const dpGateway = (0, import_stateMapping.getDpPath)("standard_gateway");
+    if (dpGateway) {
+      const currentGateway = await adapter.getStateAsync(dpGateway);
+      if (!currentGateway || currentGateway.val !== gateway) {
+        await adapter.setStateAsync(dpGateway, { val: gateway, ack: true });
+      }
+    }
+    const hpTypeIndex = rawValues[78];
+    const hpTypeString = createHeatPumpTypeString(hpTypeIndex);
+    const dpHpType = (0, import_stateMapping.getDpPath)("heatpump_type");
+    if (dpHpType) {
+      const currentHpType = await adapter.getStateAsync(dpHpType);
+      if (!currentHpType || currentHpType.val !== hpTypeString) {
+        await adapter.setStateAsync(dpHpType, { val: hpTypeString, ack: true });
+      }
+    }
+  } catch (err) {
+    (0, import_logger.writeLog)(`Fehler beim Aktualisieren der System-Infos: ${err.message}`, "error");
+  }
+}
+function createFirmwareString(buf) {
+  if (!buf || !Array.isArray(buf)) {
+    return "Unbekannt";
+  }
+  let firmware = "";
+  for (const val of buf) {
+    if (val !== 0) {
+      firmware += String.fromCharCode(val);
+    }
+  }
+  return firmware.trim();
+}
+function int2ipAddress(value) {
+  if (value === void 0 || value === null || isNaN(value)) {
+    return "0.0.0.0";
+  }
+  const part1 = value & 255;
+  const part2 = value >>> 8 & 255;
+  const part3 = value >>> 16 & 255;
+  const part4 = value >>> 24 & 255;
+  return `${part4}.${part3}.${part2}.${part1}`;
+}
+function createHeatPumpTypeString(value) {
+  return import_codes.HP_TYPES[value] || import_codes.HP_TYPES[-1];
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   calculateTemperatureSpread,
   calculateTotalEnergy,
   calculateTotalThermalEnergy,
-  initializeVirtualStates,
   updateCustomStates,
   updateErrorHistory,
   updateOutageHistory,
   updateStatusStrings,
+  updateSystemInfos,
   updateTimerTables
 });
 //# sourceMappingURL=virtualStates.js.map

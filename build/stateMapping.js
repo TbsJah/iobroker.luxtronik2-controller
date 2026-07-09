@@ -965,47 +965,47 @@ const STATE_MAPPING = {
     dataSource: "parameter"
   },
   // 12_Systeminfo
-  typeHeatpump: {
+  heatpump_type: {
     folder: "Informationen.12_Systeminfo",
     name: "W\xE4rmepumpen-Typ",
     role: "text",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
   firmware: {
     folder: "Informationen.12_Systeminfo",
     name: "Firmware-Version",
     role: "text",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
-  AdresseIP_akt: {
+  ip_address: {
     folder: "Informationen.12_Systeminfo",
     name: "Aktuelle IP-Adresse",
     role: "info.ip",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
-  SubNetMask_akt: {
+  subnet: {
     folder: "Informationen.12_Systeminfo",
     name: "Subnetzmaske",
     role: "info.ip",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
-  Add_Broadcast: {
+  broadcast_address: {
     folder: "Informationen.12_Systeminfo",
     name: "Broadcast-Adresse",
     role: "info.ip",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
-  Add_StdGateway: {
+  standard_gateway: {
     folder: "Informationen.12_Systeminfo",
     name: "Standard-Gateway",
     role: "info.ip",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value"
   },
   LIN_exists: {
     folder: "Informationen.12_Systeminfo",
@@ -1015,12 +1015,13 @@ const STATE_MAPPING = {
     luxWriteId: "174",
     dataSource: "raw_value"
   },
-  rawDeviceTimeCalc: {
+  Ger\u00E4tezeit: {
     folder: "Informationen.12_Systeminfo",
-    name: "Berechnete Ger\xE4tezeit",
-    role: "date",
+    name: "Ger\xE4tezeit",
+    role: "value.datetime",
     type: "string",
-    dataSource: "value"
+    dataSource: "raw_value",
+    luxWriteId: "134"
   },
   // ==========================================
   // EINSTELLUNGEN & PARAMETER (Beschreibbar)

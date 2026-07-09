@@ -1,55 +1,15 @@
-import { ERROR_CODES, OUTAGE_CODES, STATE_HEATING, STATE_ZEILE_1, STATE_ZEILE_2, STATE_ZEILE_3 } from './codes';
+import {
+	ERROR_CODES,
+	HP_TYPES,
+	OUTAGE_CODES,
+	STATE_HEATING,
+	STATE_ZEILE_1,
+	STATE_ZEILE_2,
+	STATE_ZEILE_3,
+} from './codes';
 import { writeLog } from './logger';
 // Imports anpassen
-import { STATE_MAPPING, getDpPath, getLuxIdByKey } from './stateMapping';
-
-/**
- * Erstellt ALLE Datenpunkte (virtuelle und echte) dynamisch im ioBroker.
- * Liest die Struktur direkt aus dem STATE_MAPPING aus.
- *
- * @param adapter Die Instanz des ioBroker-Adapters (this)
- */
-export async function initializeVirtualStates(adapter: any): Promise<void> {
-	for (const [key, definition] of Object.entries(STATE_MAPPING)) {
-		const folderId = definition.folder;
-		const stateId = `${folderId}.${key}`;
-
-		try {
-			// 1. Ordnerstruktur sicher anlegen (unterstützt verschachtelte Ordner wie "A.B")
-			const folderParts = folderId.split('.');
-			let currentFolder = '';
-
-			for (const part of folderParts) {
-				currentFolder = currentFolder === '' ? part : `${currentFolder}.${part}`;
-				await adapter.setObjectNotExistsAsync(currentFolder, {
-					type: currentFolder.includes('.') ? 'channel' : 'folder',
-					common: { name: part },
-					native: {},
-				});
-			}
-
-			// 2. Den eigentlichen Datenpunkt anlegen
-			await adapter.setObjectNotExistsAsync(stateId, {
-				type: 'state',
-				common: {
-					name: definition.name,
-					type: definition.type,
-					role: definition.role,
-					unit: definition.unit,
-					read: true,
-					write: definition.write || false,
-					def: definition.def,
-					states: definition.states, // <-- Extrem wichtig für Dropdown-Werte!
-				},
-				native: {},
-			});
-		} catch (err: any) {
-			writeLog(`Fehler beim Erstellen des Datenpunkts ${stateId}: ${err.message}`, 'error');
-		}
-	}
-
-	writeLog(`Alle Datenpunkte aus dem State-Mapping wurden erfolgreich initialisiert.`, 'info');
-}
+import { getDpPath, getLuxIdByKey } from './stateMapping';
 
 // ==========================================
 // BERECHNUNGEN (DRY-Prinzip)
@@ -506,11 +466,18 @@ export async function updateCustomStates(adapter: any, rawValues: number[], rawP
 			} else if (custom.type === 'boolean') {
 				finalVal = rawVal === 1 || String(rawVal).toLowerCase() === 'true';
 			} else if (custom.type === 'datetime') {
-				// NEU: Unix Timestamp in ein lesbares Datum umwandeln
+				// Unix Timestamp in ein perfekt lesbares Datum mit führenden Nullen umwandeln
 				const ts = Number(rawVal);
 				if (!isNaN(ts) && ts > 0) {
-					// x 1000, da JavaScript Millisekunden erwartet
-					finalVal = new Date(ts * 1000).toLocaleString('de-DE');
+					finalVal = new Date(ts * 1000).toLocaleString('de-DE', {
+						day: '2-digit',
+						month: '2-digit',
+						year: 'numeric',
+						hour: '2-digit',
+						minute: '2-digit',
+						second: '2-digit',
+						hour12: false,
+					});
 				} else {
 					finalVal = 'Ungültig';
 				}
@@ -542,4 +509,122 @@ export async function updateCustomStates(adapter: any, rawValues: number[], rawP
 	} catch (err: any) {
 		writeLog(`Fehler beim Aktualisieren der benutzerdefinierten Werte: ${err.message}`, 'error');
 	}
+}
+
+/**
+ * Liest Firmware und IP aus den Rohwerten und schreibt sie in die Datenpunkte
+ *
+ * @param adapter Die Instanz des ioBroker-Adapters (this)
+ * @param rawValues Die Rohwerte aus der Luxtronik
+ */
+export async function updateSystemInfos(adapter: any, rawValues: number[]): Promise<void> {
+	try {
+		const firmwareBuf = rawValues.slice(81, 91);
+		const firmwareString = createFirmwareString(firmwareBuf);
+
+		// Bitte 'firmware' an den Key aus deiner stateMapping.ts anpassen, falls er anders heißt!
+		const dpFirmware = getDpPath('firmware');
+		if (dpFirmware) {
+			const currentFw = await adapter.getStateAsync(dpFirmware);
+			if (!currentFw || currentFw.val !== firmwareString) {
+				await adapter.setStateAsync(dpFirmware, { val: firmwareString, ack: true });
+			}
+		}
+
+		// 2. IP-ADRESSE (Liegt bei Luxtronik auf Index 112)
+		const ipAddress = int2ipAddress(rawValues[91]);
+		const dpIp = getDpPath('ip_address');
+		if (dpIp) {
+			const currentIp = await adapter.getStateAsync(dpIp);
+			if (!currentIp || currentIp.val !== ipAddress) {
+				await adapter.setStateAsync(dpIp, { val: ipAddress, ack: true });
+			}
+		}
+
+		const subnet = int2ipAddress(rawValues[92]);
+		const dpSubnet = getDpPath('subnet');
+		if (dpSubnet) {
+			const currentSubnet = await adapter.getStateAsync(dpSubnet);
+			if (!currentSubnet || currentSubnet.val !== subnet) {
+				await adapter.setStateAsync(dpSubnet, { val: subnet, ack: true });
+			}
+		}
+
+		const broadcastAddress = int2ipAddress(rawValues[93]);
+		const dpBroadcast = getDpPath('broadcast_address');
+		if (dpBroadcast) {
+			const currentBroadcast = await adapter.getStateAsync(dpBroadcast);
+			if (!currentBroadcast || currentBroadcast.val !== broadcastAddress) {
+				await adapter.setStateAsync(dpBroadcast, { val: broadcastAddress, ack: true });
+			}
+		}
+
+		const gateway = int2ipAddress(rawValues[94]);
+		const dpGateway = getDpPath('standard_gateway');
+		if (dpGateway) {
+			const currentGateway = await adapter.getStateAsync(dpGateway);
+			if (!currentGateway || currentGateway.val !== gateway) {
+				await adapter.setStateAsync(dpGateway, { val: gateway, ack: true });
+			}
+		}
+
+		const hpTypeIndex = rawValues[78];
+		const hpTypeString = createHeatPumpTypeString(hpTypeIndex);
+
+		const dpHpType = getDpPath('heatpump_type');
+		if (dpHpType) {
+			const currentHpType = await adapter.getStateAsync(dpHpType);
+			if (!currentHpType || currentHpType.val !== hpTypeString) {
+				await adapter.setStateAsync(dpHpType, { val: hpTypeString, ack: true });
+			}
+		}
+	} catch (err: any) {
+		writeLog(`Fehler beim Aktualisieren der System-Infos: ${err.message}`, 'error');
+	}
+}
+
+/**
+ * Konvertiert ein Array von Luxtronik-ASCII-Zahlen in einen lesbaren Firmware-String
+ *
+ * @param buf Das Array der ASCII-Werte
+ */
+function createFirmwareString(buf: number[]): string {
+	if (!buf || !Array.isArray(buf)) {
+		return 'Unbekannt';
+	}
+	let firmware = '';
+	for (const val of buf) {
+		if (val !== 0) {
+			firmware += String.fromCharCode(val);
+		}
+	}
+	return firmware.trim();
+}
+
+/**
+ * Konvertiert einen 32-Bit-Integer-Wert der Luxtronik in eine IPv4-Adresse
+ *
+ * @param value Der 32-Bit-Wert, der in eine IPv4-Adresse umgewandelt werden soll
+ */
+function int2ipAddress(value: number): string {
+	if (value === undefined || value === null || isNaN(value)) {
+		return '0.0.0.0';
+	}
+
+	// WICHTIG: >>> (unsigned right shift) statt >> (signed) verhindert Fehler bei 192.x.x.x IPs
+	const part1 = value & 255;
+	const part2 = (value >>> 8) & 255;
+	const part3 = (value >>> 16) & 255;
+	const part4 = (value >>> 24) & 255;
+
+	return `${part4}.${part3}.${part2}.${part1}`;
+}
+
+/**
+ * Liest den Klarnamen des Anlagentyps aus dem Dictionary
+ *
+ * @param value Der Wert des Anlagentyps
+ */
+function createHeatPumpTypeString(value: number): string {
+	return HP_TYPES[value] || HP_TYPES[-1];
 }

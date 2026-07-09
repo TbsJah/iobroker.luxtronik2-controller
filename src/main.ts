@@ -2,32 +2,41 @@
  * Created with @iobroker/create-adapter v3.1.5
  */
 import * as utils from '@iobroker/adapter-core';
-
+import { handleActivateZip, handleZwangsheizen, handleZwangswarmwasser } from './actionHandlers';
 import { initLogger, setCustomDebug, writeLog } from './logger';
+import { checkAndSendErrorNotifications, handleTestMessage, sendTelegramNotification } from './notificationManager';
+import {
+	cleanupCustomStates,
+	cleanupEmptyFolders,
+	cleanupStates,
+	ensureAllObjectsExist,
+	ensureCustomObjectsExist,
+	isStateEnabled,
+} from './objectManager';
 import { dumpAllRawToLog, readAllRaw, writeRawParameter } from './rawFunctions';
 import { STATE_MAPPING, getDpPath } from './stateMapping';
 import {
 	calculateTemperatureSpread,
 	calculateTotalEnergy,
 	calculateTotalThermalEnergy,
-	initializeVirtualStates,
 	updateCustomStates,
 	updateErrorHistory,
 	updateOutageHistory,
 	updateStatusStrings,
+	updateSystemInfos,
 	updateTimerTables,
 } from './virtualStates';
 
 class Luxtronik2Controller extends utils.Adapter {
+	public createdStates = new Set<string>();
+	public zipTimer?: NodeJS.Timeout;
+	public originalZipConfig: Record<string, any> | null = null;
+	public lastKnownErrorTimestamp: number | null = null;
 	private pollingInterval?: NodeJS.Timeout;
 	private pump: any;
-	private createdStates = new Set<string>();
 	private lastBzVal = '';
-	private zipTimer?: NodeJS.Timeout;
 	private isDebugLogActive = false;
 	private updateRunning = false;
-	private originalZipConfig: Record<string, any> | null = null;
-	private lastKnownErrorTimestamp: number | null = null;
 	private lastPumpOptimization: number = 0;
 
 	private writeQueue: (() => Promise<void>)[] = [];
@@ -48,214 +57,9 @@ class Luxtronik2Controller extends utils.Adapter {
 		this.on('message', this.onMessage.bind(this));
 	}
 
-	private sendTelegramNotification(message: string): void {
-		const config = this.config as Record<string, any>;
-		if (config.telegram_enabled && config.telegram_instance) {
-			const sendObj: Record<string, any> = { text: message };
-			if (config.telegram_receiver && config.telegram_receiver.trim() !== '') {
-				const receiver = config.telegram_receiver.trim();
-				if (/^-?\d+$/.test(receiver)) {
-					sendObj.chatId = parseInt(receiver, 10);
-				} else {
-					sendObj.user = receiver;
-				}
-			}
-			void this.sendTo(config.telegram_instance, 'send', sendObj);
-			writeLog(`Telegram-Nachricht gesendet an ${config.telegram_instance}`, 'debug');
-		}
-	}
-
 	private async onMessage(obj: ioBroker.Message): Promise<void> {
 		if (obj.command === 'testTelegram') {
-			try {
-				writeLog('Test-Button empfangen!', 'info');
-				const config = this.config as Record<string, any>;
-
-				// Saubere Abfrage der gespeicherten Werte
-				const isTelegramActive =
-					config.telegram_enabled === true && config.telegram_instance && config.telegram_instance !== 'none';
-				const isIoBrokerNotifyActive = config.notification_bell === true;
-
-				if (!isTelegramActive && !isIoBrokerNotifyActive) {
-					if (obj.callback) {
-						void this.sendTo(
-							obj.from,
-							obj.command,
-							{
-								error: 'Fehler: Weder Telegram noch Glocke sind aktiv gespeichert! Bitte erst SPEICHERN klicken.',
-							},
-							obj.callback,
-						);
-					}
-					return;
-				}
-
-				const lastErrorState = await this.getStateAsync(getDpPath('Fehlerspeicher'));
-				let msg = '';
-
-				if (lastErrorState && typeof lastErrorState.val === 'string') {
-					try {
-						const errorList = JSON.parse(lastErrorState.val);
-						if (Array.isArray(errorList) && errorList.length > 0) {
-							const newestError = errorList[0];
-							msg = '🚨 *Test-Alarm: Fehlerspeicher*\n\n';
-							msg += `Aktuellster Fehler:\nCode: ${newestError.code}\nFehler: ${newestError.beschreibung}\nDatum: ${newestError.datum}\n\n`;
-
-							// Historie anhängen
-							if (errorList.length > 1) {
-								msg += `Historie:\n`;
-								for (let i = 1; i < errorList.length; i++) {
-									msg += `Datum: ${errorList[i].datum} \nCode: ${errorList[i].code}\nFehler: ${errorList[i].beschreibung}\n\n`;
-								}
-							}
-						}
-					} catch (parseErr: any) {
-						writeLog(`JSON Parse-Fehler beim Test-Button: ${parseErr.message}`, 'debug');
-					}
-				}
-
-				// Wenn kein echter Fehler da ist, senden wir eine positive Testnachricht
-				if (msg === '') {
-					msg =
-						'✅ *Erfolgreicher Test*\n\nDies ist eine generierte Test-Nachricht. Die Kommunikation zu Telegram und ioBroker funktioniert einwandfrei! (Es liegen aktuell keine echten Heizungsfehler vor).';
-				}
-
-				const successMessages: string[] = [];
-
-				if (isIoBrokerNotifyActive) {
-					if (typeof this.registerNotification === 'function') {
-						await this.registerNotification('luxtronik2-controller', 'lwpError', msg);
-						writeLog('Test-Benachrichtigung an ioBroker-Glocke gesendet.', 'info');
-						successMessages.push('Glocke');
-					}
-				}
-
-				if (isTelegramActive) {
-					// Wir nutzen deine eigene, perfekte Hilfsfunktion!
-					this.sendTelegramNotification(msg);
-					writeLog(`Test-Fehlermeldung via Telegram versendet an ${config.telegram_instance}.`, 'info');
-					successMessages.push('Telegram');
-				}
-
-				if (obj.callback) {
-					void this.sendTo(
-						obj.from,
-						obj.command,
-						{ result: `Erfolgreich ausgelöst: ${successMessages.join(' & ')}` },
-						obj.callback,
-					);
-				}
-			} catch (err: any) {
-				writeLog(`Fehler beim Test-Button: ${err.message}`, 'error');
-				if (obj.callback) {
-					void this.sendTo(obj.from, obj.command, { error: `Skriptfehler: ${err.message}` }, obj.callback);
-				}
-			}
-		}
-	}
-
-	// =========================================================
-	// ZENTRALE FILTER-LOGIK (Verbindet jsonConfig mit stateMapping)
-	// =========================================================
-	private isStateEnabled(key: string, definition: any, config: Record<string, any>): boolean {
-		// Systemrelevante Objekte dürfen niemals gelöscht werden
-		if (definition.required) {
-			return true;
-		}
-
-		// 1. Basis-Prüfung für die direkte Checkbox (Falls vorhanden)
-		const configKey = `sync_${key}`;
-		let isEnabled = true;
-
-		// Wenn der Haken in der UI explizit entfernt wurde (false)
-		if (config[configKey] === false || String(config[configKey]) === 'false') {
-			isEnabled = false;
-		}
-
-		// 2. Gruppen-Abhängigkeiten (Wenn Tabellen deaktiviert werden, auch deren Parameter sofort ausblenden)
-
-		// HEIZEN
-		if (key.startsWith('HZ_MoSo_')) {
-			isEnabled = config.sync_heatingOperationTimerTableWeek !== false;
-		} else if (key.startsWith('HZ_MoFr_') || key.startsWith('HZ_SaSo_')) {
-			isEnabled = config.sync_heatingOperationTimerTable52MonFri !== false;
-		} else if (key.startsWith('HZ_Montag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDayMonday !== false;
-		} else if (key.startsWith('HZ_Dienstag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDayTuesday !== false;
-		} else if (key.startsWith('HZ_Mittwoch_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDayWednesday !== false;
-		} else if (key.startsWith('HZ_Donnerstag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDayThursday !== false;
-		} else if (key.startsWith('HZ_Freitag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDayFriday !== false;
-		} else if (key.startsWith('HZ_Samstag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDaySaturday !== false;
-		} else if (key.startsWith('HZ_Sonntag_')) {
-			isEnabled = config.sync_heatingOperationTimerTableDaySunday !== false;
-		} else if (key.startsWith('WW_MoSo_')) {
-			isEnabled = config.sync_hotWaterTableWeek !== false;
-		} else if (key.startsWith('WW_MoFr_') || key.startsWith('WW_SaSo_')) {
-			isEnabled = config.sync_hotWaterTable52MonFri !== false;
-		} else if (key.startsWith('WW_Montag_')) {
-			isEnabled = config.sync_hotWaterTableDayMonday !== false;
-		} else if (key.startsWith('WW_Dienstag_')) {
-			isEnabled = config.sync_hotWaterTableDayTuesday !== false;
-		} else if (key.startsWith('WW_Mittwoch_')) {
-			isEnabled = config.sync_hotWaterTableDayWednesday !== false;
-		} else if (key.startsWith('WW_Donnerstag_')) {
-			isEnabled = config.sync_hotWaterTableDayThursday !== false;
-		} else if (key.startsWith('WW_Freitag_')) {
-			isEnabled = config.sync_hotWaterTableDayFriday !== false;
-		} else if (key.startsWith('WW_Samstag_')) {
-			isEnabled = config.sync_hotWaterTableDaySaturday !== false;
-		} else if (key.startsWith('WW_Sonntag_')) {
-			isEnabled = config.sync_hotWaterTableDaySunday !== false;
-		} else if (key.startsWith('Zirkulation_MoSo_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableWeek !== false;
-		} else if (key.startsWith('Zirkulation_MoFr_') || key.startsWith('Zirkulation_SaSo_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTable52MonFri !== false;
-		} else if (key.startsWith('Zirkulation_Montag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDayMonday !== false;
-		} else if (key.startsWith('Zirkulation_Dienstag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDayTuesday !== false;
-		} else if (key.startsWith('Zirkulation_Mittwoch_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDayWednesday !== false;
-		} else if (key.startsWith('Zirkulation_Donnerstag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDayThursday !== false;
-		} else if (key.startsWith('Zirkulation_Freitag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDayFriday !== false;
-		} else if (key.startsWith('Zirkulation_Samstag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDaySaturday !== false;
-		} else if (key.startsWith('Zirkulation_Sonntag_')) {
-			isEnabled = config.sync_hotWaterCircPumpTimerTableDaySunday !== false;
-		}
-
-		return isEnabled;
-	}
-
-	// =========================================================
-	// AUFRÄUM-FUNKTION FÜR ABGEWÄHLTE DATENPUNKTE
-	// =========================================================
-	private async cleanupStates(): Promise<void> {
-		const config = this.config as Record<string, any>;
-
-		for (const [key, definition] of Object.entries(STATE_MAPPING)) {
-			// Filter anwenden!
-			if (!this.isStateEnabled(key, definition, config)) {
-				const stateId = `${definition.folder}.${key}`;
-
-				try {
-					await this.delStateAsync(stateId).catch(() => {});
-					await this.delObjectAsync(stateId).catch(() => {});
-
-					this.createdStates.delete(stateId); // Aus dem lokalen Gedächtnis löschen
-
-					writeLog(`Datenpunkt '${stateId}' wurde abgewählt und rigoros entfernt.`, 'info');
-				} catch (err: any) {
-					writeLog(`Fehler beim Aufräumen von ${stateId}: ${err.message}`, 'debug');
-				}
-			}
+			await handleTestMessage(this, obj);
 		}
 	}
 
@@ -263,14 +67,14 @@ class Luxtronik2Controller extends utils.Adapter {
 		const config = this.config as Record<string, any>;
 		const ip = config.host;
 		const port = config.port || 8889;
-		await this.setState('info.connection', false, true);
+		await this.setState('info.connection', { val: false, ack: true });
 		writeLog(`Verbinde mit Wärmepumpe auf ${ip}:${port}...`, 'info');
 
-		await initializeVirtualStates(this);
-		await this.cleanupStates();
-		await this.cleanupCustomStates();
-		await this.ensureAllObjectsExist();
-		await this.ensureCustomObjectsExist();
+		await cleanupStates(this);
+		await cleanupCustomStates(this);
+		await cleanupEmptyFolders(this);
+		await ensureAllObjectsExist(this);
+		await ensureCustomObjectsExist(this);
 
 		const debugState = await this.getStateAsync(getDpPath('Schreibe_Debug_Log'));
 		this.isDebugLogActive = debugState?.val === true;
@@ -307,61 +111,6 @@ class Luxtronik2Controller extends utils.Adapter {
 		this.pollingInterval = setInterval(() => {
 			void this.updateData();
 		}, intervalSeconds * 1000);
-	}
-
-	private async ensureAllObjectsExist(): Promise<void> {
-		const config = this.config as Record<string, any>;
-
-		try {
-			for (const [key, definition] of Object.entries(STATE_MAPPING)) {
-				// Wenn abgewählt -> Sofort überspringen!
-				if (!this.isStateEnabled(key, definition, config)) {
-					continue;
-				}
-
-				if (definition.isVirtual) {
-					continue;
-				}
-
-				const stateId = `${definition.folder}.${key}`;
-
-				if (!this.createdStates.has(stateId)) {
-					await this.setObjectNotExistsAsync(definition.folder, {
-						type: 'channel',
-						common: { name: definition.folder.split('.').pop() || definition.folder },
-						native: {},
-					});
-
-					let targetType: ioBroker.CommonType = definition.type === 'json' ? 'string' : definition.type;
-					if (definition.unit === 's' && definition.type === 'number') {
-						targetType = 'string';
-					}
-
-					await this.setObjectNotExistsAsync(stateId, {
-						type: 'state',
-						common: {
-							name: definition.name,
-							type: targetType,
-							role: definition.role,
-							unit: definition.unit,
-							read: true,
-							write: definition.write || false,
-							min: definition.min,
-							max: definition.max,
-							states: definition.states,
-						},
-						native: {},
-					});
-
-					if (definition.write) {
-						this.subscribeStates(stateId);
-					}
-					this.createdStates.add(stateId);
-				}
-			}
-		} catch (err: any) {
-			writeLog(`Fehler bei der Vorab-Objekterzeugung: ${err.message}`, 'error');
-		}
 	}
 
 	private async syncConfigValue(mappingKey: keyof typeof STATE_MAPPING, val: any): Promise<void> {
@@ -429,20 +178,24 @@ class Luxtronik2Controller extends utils.Adapter {
 	private async setIdleDefaults(): Promise<void> {
 		try {
 			const config = this.config as Record<string, any>;
-			await this.syncConfigValue('heating_curve_end_point', config.endpunkt);
-			await this.syncConfigValue('heating_curve_parallel_offset', config.fusspunkt);
+			// Überall mit ?? (Nullish Coalescing) den sicheren Werks-Standard hinterlegen!
+			await this.syncConfigValue('heating_curve_end_point', config.endpunkt ?? 21.5);
+			await this.syncConfigValue('heating_curve_parallel_offset', config.fusspunkt ?? 23.7);
 			await this.syncConfigValue(
 				'heating_system_circ_pump_voltage_minimal',
-				config.sync_heating_system_circ_pump_voltage_minimal_heating,
+				config.sync_heating_system_circ_pump_voltage_minimal_heating ?? 3,
 			);
 			await this.syncConfigValue(
 				'heating_system_circ_pump_voltage_nominal',
-				config.sync_heating_system_circ_pump_voltage_nominal_heating,
+				config.sync_heating_system_circ_pump_voltage_nominal_heating ?? 7,
 			);
-			await this.syncConfigValue('warmwater_temperature', config.sync_warmwater_target_temperature);
-			await this.syncConfigValue('hotWaterTemperatureHysteresis', config.sync_hotwater_temperature_hysteresis);
-			await this.syncConfigValue('returnTemperatureHysteresis', config.sync_return_temperature_hysteresis);
-			await this.syncConfigValue('zip_aktiv', config.zip_aktiv);
+			await this.syncConfigValue('warmwater_temperature', config.sync_warmwater_target_temperature ?? 54);
+			await this.syncConfigValue(
+				'hotWaterTemperatureHysteresis',
+				config.sync_hotwater_temperature_hysteresis ?? 10,
+			);
+			await this.syncConfigValue('returnTemperatureHysteresis', config.sync_return_temperature_hysteresis ?? 1.5);
+			await this.syncConfigValue('zip_aktiv', config.zip_aktiv ?? 0);
 			await this.syncConfigValue('Heizen_nach_Wasser', config.Heating_after_warmwater ?? false);
 		} catch (err: any) {
 			writeLog(`Fehler beim Setzen der Leerlauf-Vorgabewerte: ${err.message}`, 'error');
@@ -554,29 +307,29 @@ class Luxtronik2Controller extends utils.Adapter {
 				if (istLeerlauf) {
 					await this.setIdleDefaults();
 				} else if (istHeizen) {
-					await this.syncConfigValue('zip_aktiv', config.zip_aktiv);
+					await this.syncConfigValue('zip_aktiv', config.zip_aktiv ?? 0);
 					await this.syncConfigValue(
 						'heating_system_circ_pump_voltage_minimal',
-						config.sync_heating_system_circ_pump_voltage_minimal_heating,
+						config.sync_heating_system_circ_pump_voltage_minimal_heating ?? 3,
 					);
 					await this.syncConfigValue(
 						'heating_system_circ_pump_voltage_nominal',
-						config.sync_heating_system_circ_pump_voltage_nominal_heating,
+						config.sync_heating_system_circ_pump_voltage_nominal_heating ?? 7,
 					);
-					await this.syncConfigValue('Heizen_nach_Wasser', config.Heating_after_warmwater === true);
+					await this.syncConfigValue('Heizen_nach_Wasser', config.Heating_after_warmwater ?? false);
 				} else if (istWarmwasser) {
 					await this.syncConfigValue(
 						'hotWaterTemperatureHysteresis',
-						config.sync_hotwater_temperature_hysteresis,
+						config.sync_hotwater_temperature_hysteresis ?? 2,
 					);
-					await this.syncConfigValue('zip_aktiv', config.zip_aktiv_ww);
+					await this.syncConfigValue('zip_aktiv', config.zip_aktiv_ww ?? 0);
 					await this.syncConfigValue(
 						'heating_system_circ_pump_voltage_minimal',
-						config.sync_heating_system_circ_pump_voltage_minimal_water,
+						config.sync_heating_system_circ_pump_voltage_minimal_water ?? 3,
 					);
 					await this.syncConfigValue(
 						'heating_system_circ_pump_voltage_nominal',
-						config.sync_heating_system_circ_pump_voltage_nominal_water,
+						config.sync_heating_system_circ_pump_voltage_nominal_water ?? 10,
 					);
 					await this.setOwnStateIfDifferent(getDpPath('Activate_Zip'), true, false);
 				} else if (istAbtauen) {
@@ -630,7 +383,9 @@ class Luxtronik2Controller extends utils.Adapter {
 				if (aelterAls10 && vd1) {
 					const fusspunkt = (await this.getStateAsync(getDpPath('heating_curve_parallel_offset')))?.val;
 					if (fusspunkt === 35) {
-						await this.syncConfigValue('heating_curve_parallel_offset', config.fusspunkt);
+						// FIX: Fallback auf 21.5°C Fusspunkt, falls in Config nichts eingetragen wurde!
+						const fallbackFusspunkt = config.fusspunkt ?? 21.5;
+						await this.syncConfigValue('heating_curve_parallel_offset', fallbackFusspunkt);
 					}
 				}
 
@@ -663,7 +418,9 @@ class Luxtronik2Controller extends utils.Adapter {
 				}
 
 				if (wwSoll - wwIst > 2 && ruecklauf >= ruecklaufSoll + heizenHysterese - 0.1) {
-					await this.syncConfigValue('hotWaterTemperatureHysteresis', 2);
+					// FIX: Auch hier den Fallback nutzen, anstatt hart "2" reinzuschreiben!
+					const fallbackHyst = config.sync_hotwater_temperature_hysteresis ?? 2;
+					await this.syncConfigValue('hotWaterTemperatureHysteresis', fallbackHyst);
 				}
 			}
 
@@ -777,7 +534,7 @@ class Luxtronik2Controller extends utils.Adapter {
 					continue;
 				}
 
-				if (!this.isStateEnabled(key, definition, config)) {
+				if (!isStateEnabled(key, definition, config)) {
 					continue;
 				}
 
@@ -836,8 +593,8 @@ class Luxtronik2Controller extends utils.Adapter {
 
 					if (definition.unit === 's' && typeof value === 'number') {
 						value = this.formatSecondsToHMS(value);
-					} else if (definition.role === 'value.datetime') {
-						const totalSeconds = typeof value === 'number' ? value : parseInt(value, 10);
+					} else if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
+						const totalSeconds = typeof value === 'number' ? value : parseInt(value as string, 10);
 						if (!isNaN(totalSeconds) && totalSeconds >= 0) {
 							if (totalSeconds < 86400) {
 								const h = Math.floor(totalSeconds / 3600)
@@ -848,9 +605,38 @@ class Luxtronik2Controller extends utils.Adapter {
 									.padStart(2, '0');
 								value = `${h}:${m}`;
 							} else {
-								value = new Date(totalSeconds * 1000).toLocaleString('de-DE');
+								// NEU: Zwingt die Anzeige überall auf zweistellige Werte mit führender Null
+								value = new Date(totalSeconds * 1000).toLocaleString('de-DE', {
+									day: '2-digit',
+									month: '2-digit',
+									year: 'numeric',
+									hour: '2-digit',
+									minute: '2-digit',
+									second: '2-digit',
+									hour12: false,
+								});
 							}
 						}
+					}
+
+					// Wir ermitteln, welchen Typ das ioBroker-Objekt zwingend erwartet
+					let targetIoBrokerType = definition.type === 'json' ? 'string' : definition.type;
+					if (definition.unit === 's' && definition.type === 'number') {
+						targetIoBrokerType = 'string';
+					}
+
+					// Auch hier: Alle Zeitrollen als String absichern
+					if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
+						targetIoBrokerType = 'string';
+					}
+
+					// Und zwingen den Rohwert gnadenlos in diesen Typ!
+					if (targetIoBrokerType === 'string' && typeof value !== 'string') {
+						value = String(value);
+					} else if (targetIoBrokerType === 'number' && typeof value !== 'number') {
+						value = Number(value);
+					} else if (targetIoBrokerType === 'boolean' && typeof value !== 'boolean') {
+						value = Boolean(value);
 					}
 					const stateId = `${definition.folder}.${key}`;
 					statePromises.push(this.setState(stateId, { val: value, ack: true }));
@@ -870,66 +656,15 @@ class Luxtronik2Controller extends utils.Adapter {
 			const newFehlerState = await this.getStateAsync(fehlerDp);
 			const newFehlerVal = newFehlerState?.val as string | undefined;
 
-			if (newFehlerVal && newFehlerVal !== oldFehlerVal) {
-				try {
-					const oldList = oldFehlerVal ? JSON.parse(oldFehlerVal) : [];
-					const newList = JSON.parse(newFehlerVal);
-
-					if (newList.length > 0) {
-						const newestError = newList[0];
-						const oldNewestError = oldList.length > 0 ? oldList[0] : null;
-
-						// Prüfen, ob wirklich ein neuer Fehler oben in der Liste steht
-						if (!oldNewestError || newestError.timestamp !== oldNewestError.timestamp) {
-							const msg = `🚨 *Störung Wärmepumpe!*\nEin Fehler an der Wärmepumpe wurde registriert:\n\n*Code:* ${newestError.code}\n*Fehler:* ${newestError.beschreibung}\n*Datum:* ${newestError.datum}`;
-
-							// --- INTELLIGENTE FEHLER-ALARM LOGIK ---
-							// Wir nehmen die Werte jetzt direkt aus dem fertigen JSON-Objekt!
-							const currentErrorTimestamp = newestError.timestamp;
-							const currentErrorCode = newestError.code;
-
-							if (this.lastKnownErrorTimestamp === null) {
-								// 1. Adapter ist gerade gestartet. Wir merken uns den alten Zeitstempel lautlos.
-								if (currentErrorTimestamp !== undefined) {
-									this.lastKnownErrorTimestamp = currentErrorTimestamp;
-								}
-							} else if (
-								currentErrorTimestamp !== undefined &&
-								currentErrorTimestamp > this.lastKnownErrorTimestamp
-							) {
-								// 2. Die Zeit des Fehlers ist NEUER als unser Gedächtnis -> ECHTER NEUER FEHLER!
-								this.lastKnownErrorTimestamp = currentErrorTimestamp;
-
-								if (currentErrorCode !== 0) {
-									// Alarm auslösen!
-									this.sendTelegramNotification(msg);
-
-									const config = this.config as Record<string, any>;
-									if (config.notification_bell) {
-										if (typeof this.registerNotification === 'function') {
-											await this.registerNotification('luxtronik2-controller', 'lwpError', msg);
-										} else {
-											writeLog(
-												`🚨 Wärmepumpen-Fehler: Code ${newestError.code} - ${newestError.beschreibung}`,
-												'warn',
-											);
-										}
-									}
-								}
-							}
-							// ----------------------------------------
-						}
-					}
-				} catch {
-					writeLog('Konnte Fehlerhistorie für Benachrichtigungen nicht parsen.', 'debug');
-				}
-			}
+			// ---> NEUER AUFRUF DES EXTERNEN MANAGERS <---
+			await checkAndSendErrorNotifications(this, oldFehlerVal, newFehlerVal);
 
 			await updateOutageHistory(this, rawValues);
 			await calculateTemperatureSpread(this);
 			await updateStatusStrings(this, rawValues, rawParams);
 			await updateCustomStates(this, rawValues, rawParams);
 			await updateTimerTables(this);
+			await updateSystemInfos(this, rawValues);
 			await this.runOptimizationSchedule();
 		} catch (err: any) {
 			this.errorCount++;
@@ -938,7 +673,8 @@ class Luxtronik2Controller extends utils.Adapter {
 			if (this.errorCount >= this.MAX_ERRORS) {
 				await this.setState('info.connection', { val: false, ack: true });
 				writeLog('Wärmepumpe nicht erreichbar. Verbindung wurde als unterbrochen markiert.', 'warn');
-				this.sendTelegramNotification(
+				sendTelegramNotification(
+					this,
 					'Wärmepumpe nicht erreichbar. Verbindung wurde als unterbrochen markiert.',
 				);
 			}
@@ -978,7 +714,7 @@ class Luxtronik2Controller extends utils.Adapter {
 			const matchedSensor = config.motionSensors.find((s: any) => s.oid && s.oid.trim() === id);
 
 			if (matchedSensor && state.val === true) {
-				// NEU: Wenn die Zirkulationspumpe physisch bereits läuft, tun wir gar nichts.
+				// Wenn die Zirkulationspumpe physisch bereits läuft, tun wir gar nichts.
 				const zipOutState = await this.getStateAsync(getDpPath('ZIPout'));
 				if (zipOutState && zipOutState.val === 1) {
 					if (this.isDebugLogActive) {
@@ -994,7 +730,11 @@ class Luxtronik2Controller extends utils.Adapter {
 					if (this.isDebugLogActive) {
 						writeLog(`Bewegung an '${matchedSensor.name || id}' erkannt. Triggere ZIP Makro.`, 'debug');
 					}
-					await this.setState(getDpPath('Activate_Zip'), { val: true, ack: false });
+					// FIX: Volle ID mit Namespace und setForeignStateAsync für den internen Trigger nutzen
+					await this.setForeignStateAsync(`${this.namespace}.${getDpPath('Activate_Zip')}`, {
+						val: true,
+						ack: false,
+					});
 				} else {
 					if (this.isDebugLogActive) {
 						writeLog(
@@ -1012,6 +752,50 @@ class Luxtronik2Controller extends utils.Adapter {
 			return;
 		}
 
+		// =================================================================
+		// BENUTZERDEFINIERTE WERTE SCHREIBEN
+		// =================================================================
+		if (id.startsWith(`${this.namespace}.Benutzer.`)) {
+			try {
+				const obj = await this.getObjectAsync(id);
+
+				// Nur weitermachen, wenn es wirklich ein Parameter ist
+				if (obj && obj.native && obj.native.source === 'parameter') {
+					// FIX: setForeignStateAsync für die volle ID nutzen
+					await this.setForeignStateAsync(id, { val: state.val, ack: true });
+
+					let valueToWrite: any = state.val;
+
+					// Konvertierung rückgängig machen (ioBroker -> Luxtronik)
+					if (obj.native.customType === 'boolean') {
+						valueToWrite = state.val ? 1 : 0;
+					} else if (obj.native.customType === 'number' && typeof state.val === 'number') {
+						if (obj.native.factor) {
+							valueToWrite = Math.round(state.val / obj.native.factor);
+						} else {
+							valueToWrite = Math.round(state.val);
+						}
+					}
+
+					const targetWriteId = parseInt(obj.native.luxId, 10);
+					if (!isNaN(targetWriteId)) {
+						if (this.isDebugLogActive) {
+							writeLog(
+								`Schreibe benutzerdefinierten Parameter ${targetWriteId} mit Wert ${valueToWrite}`,
+								'info',
+							);
+						}
+						// Ab in die sichere Warteschlange zur Wärmepumpe!
+						await this.queueWrite(targetWriteId, valueToWrite);
+					}
+				}
+			} catch (err: any) {
+				writeLog(`Fehler beim Schreiben eines eigenen Parameters: ${err.message}`, 'error');
+			}
+			return;
+		}
+		// =================================================================
+
 		const mappingKey = id.split('.').pop();
 		if (!mappingKey) {
 			return;
@@ -1023,7 +807,8 @@ class Luxtronik2Controller extends utils.Adapter {
 
 		try {
 			if (mappingKey === 'Schreibe_Debug_Log') {
-				await this.setState(id, { val: state.val, ack: true });
+				// FIX: setForeignStateAsync nutzen
+				await this.setForeignStateAsync(id, { val: state.val, ack: true });
 
 				this.isDebugLogActive = state.val === true;
 				setCustomDebug(this.isDebugLogActive);
@@ -1031,16 +816,19 @@ class Luxtronik2Controller extends utils.Adapter {
 				return;
 			}
 			if (mappingKey === 'Regelung_Aktiv' || mappingKey === 'zip_aktiv') {
-				await this.setState(id, { val: state.val, ack: true });
+				// FIX: setForeignStateAsync nutzen
+				await this.setForeignStateAsync(id, { val: state.val, ack: true });
 				return;
 			}
 			if (mappingKey === 'Setze_Vorgabewerte' && state.val === true) {
-				await this.setState(id, { val: false, ack: true });
+				// FIX: setForeignStateAsync nutzen
+				await this.setForeignStateAsync(id, { val: false, ack: true });
 				await this.setIdleDefaults();
 				return;
 			}
 			if (mappingKey === 'Dump_Raw_To_Log' && state.val === true) {
-				await this.setState(id, { val: false, ack: true });
+				// FIX: setForeignStateAsync nutzen
+				await this.setForeignStateAsync(id, { val: false, ack: true });
 				await dumpAllRawToLog(this);
 				return;
 			}
@@ -1050,29 +838,7 @@ class Luxtronik2Controller extends utils.Adapter {
 			// ==========================================
 			if (mappingKey === 'Zwangswarmwasser') {
 				if (state.val === true) {
-					// OPTIMISTIC UPDATE: Taster sofort wieder auf false setzen
-					await this.setState(id, { val: false, ack: true });
-
-					// Werte für Ist und Soll abrufen
-					const wwIstState = await this.getStateAsync(getDpPath('Wamwassertemperatur_Ist'));
-					const wwSollState = await this.getStateAsync(getDpPath('Wamwassertemperatur_Soll'));
-
-					const wwIst = typeof wwIstState?.val === 'number' ? wwIstState.val : 0;
-					const wwSoll = typeof wwSollState?.val === 'number' ? wwSollState.val : 0;
-
-					// Prüfung: Zwangswarmwasser nur, wenn Ist < Soll - 1K
-					if (wwIst < wwSoll - 1) {
-						await this.syncConfigValue('hotWaterTemperatureHysteresis', 1);
-						writeLog(
-							`Zwangswarmwasser ausgelöst: Ist (${wwIst}°C) ist kleiner als Soll-1 (${wwSoll - 1}°C). Hysterese auf 1K gesetzt.`,
-							'info',
-						);
-					} else {
-						writeLog(
-							`Zwangswarmwasser ignoriert: Ist (${wwIst}°C) ist bereits ausreichend hoch (Soll: ${wwSoll}°C).`,
-							'info',
-						);
-					}
+					await handleZwangswarmwasser(this, id);
 				}
 				return;
 			}
@@ -1082,134 +848,22 @@ class Luxtronik2Controller extends utils.Adapter {
 			// ==========================================
 			if (mappingKey === 'Zwangsheizen') {
 				if (state.val === true) {
-					// OPTIMISTIC UPDATE: Taster sofort wieder auf false setzen
-					await this.setState(id, { val: false, ack: true });
-
-					// Alle benötigten Werte parallel abrufen
-					const [bzState, ruecklaufState, ruecklaufSollState, hystereseState] = await Promise.all([
-						this.getStateAsync(getDpPath('WP_BZ_akt')),
-						this.getStateAsync(getDpPath('temperature_return')),
-						this.getStateAsync(getDpPath('temperature_target_return')),
-						this.getStateAsync(getDpPath('returnTemperatureHysteresis')),
-					]);
-
-					const bzVal = bzState && bzState.val !== null ? Number(bzState.val) : -1;
-					const ruecklauf = typeof ruecklaufState?.val === 'number' ? ruecklaufState.val : 0;
-					const ruecklaufSoll = typeof ruecklaufSollState?.val === 'number' ? ruecklaufSollState.val : 0;
-					const hysterese = typeof hystereseState?.val === 'number' ? hystereseState.val : 0;
-
-					// Bedingung 1: Anlage muss im Leerlauf (5) sein
-					if (bzVal === 5) {
-						// Bedingung 2: Rücklauf < Rücklauf Soll + Hysterese
-						if (ruecklauf < ruecklaufSoll + hysterese) {
-							await this.syncConfigValue('heating_curve_parallel_offset', 35);
-							writeLog(
-								`Zwangsheizen ausgelöst: Anlage im Leerlauf und Rücklauf (${ruecklauf}°C) < Soll+Hysterese (${ruecklaufSoll + hysterese}°C). Fusspunkt temporär auf 35°C gesetzt.`,
-								'info',
-							);
-						} else {
-							writeLog(
-								`Zwangsheizen ignoriert: Rücklauf (${ruecklauf}°C) ist nicht größer als Soll+Hysterese (${ruecklaufSoll + hysterese}°C).`,
-								'info',
-							);
-						}
-					} else {
-						writeLog(
-							`Zwangsheizen ignoriert: Anlage ist nicht im Leerlauf (Aktueller Betriebsstatus: ${bzVal}).`,
-							'info',
-						);
-					}
+					await handleZwangsheizen(this, id);
 				}
 				return;
 			}
 
+			// ==========================================
+			// Activate_Zip
+			// ==========================================
 			if (mappingKey === 'Activate_Zip') {
 				if (state.val === true) {
-					await this.setState(id, { val: true, ack: true });
-
 					const durationState = await this.getStateAsync(getDpPath('zip_aktiv'));
 					const durationSeconds =
 						durationState && typeof durationState.val === 'number' ? durationState.val : 120;
-
-					if (durationSeconds <= 0) {
-						await this.setState(id, { val: false, ack: true });
-						return;
-					}
-
-					const bzState = await this.getStateAsync(getDpPath('WP_BZ_akt'));
-					const bzVal = bzState ? Number(bzState.val) : 5;
-
-					const [wwIstS, wwSollS, wwHystS, rLState, rSollState, hzHystState] = await Promise.all([
-						this.getStateAsync(getDpPath('Wamwassertemperatur_Ist')),
-						this.getStateAsync(getDpPath('Wamwassertemperatur_Soll')),
-						this.getStateAsync(getDpPath('hotWaterTemperatureHysteresis')),
-						this.getStateAsync(getDpPath('temperature_return')),
-						this.getStateAsync(getDpPath('temperature_target_return')),
-						this.getStateAsync(getDpPath('returnTemperatureHysteresis')),
-					]);
-
-					const useDeaeration =
-						bzVal === 5 &&
-						Number(wwIstS?.val) > Number(wwSollS?.val) - Number(wwHystS?.val) &&
-						Number(rLState?.val) > Number(rSollState?.val) - Number(hzHystState?.val);
-
-					if (this.zipTimer) {
-						clearTimeout(this.zipTimer);
-						this.zipTimer = undefined;
-					}
-
-					if (useDeaeration) {
-						await this.queueWrite(158, 1);
-						await new Promise(r => setTimeout(r, 100));
-						await this.queueWrite(684, 1);
-						await this.syncConfigValue('runDeaerate', 1);
-						await this.syncConfigValue('hotWaterCircPumpDeaerate', 1);
-					} else {
-						const onTimeMinutes = Math.ceil(durationSeconds / 60);
-						if (!this.originalZipConfig) {
-							const keysToSave = [
-								'hotWaterCircPumpTimerTableSelected',
-								'WW_MoSo_Start1',
-								'WW_MoSo_End1',
-								'WW_MoSo_Start2',
-								'WW_MoSo_End2',
-								'WW_MoSo_Start3',
-								'WW_MoSo_End3',
-								'WW_MoSo_Start4',
-								'WW_MoSo_End4',
-								'WW_MoSo_Start5',
-								'WW_MoSo_End5',
-								'hotWaterCircPumpOnTime',
-								'hotWaterCircPumpOffTime',
-							] as const;
-							this.originalZipConfig = {};
-							for (const k of keysToSave) {
-								const s = await this.getStateAsync(getDpPath(k));
-								this.originalZipConfig[k] = s ? s.val : null;
-							}
-						}
-
-						const updates = [
-							{ key: 'hotWaterCircPumpTimerTableSelected', raw: 0 },
-							{ key: 'WW_MoSo_Start1', raw: 0 },
-							{ key: 'WW_MoSo_End1', raw: 86340 },
-							{ key: 'WW_MoSo_Start2', raw: 0 },
-							{ key: 'WW_MoSo_End2', raw: 0 },
-							{ key: 'hotWaterCircPumpOnTime', raw: onTimeMinutes },
-							{ key: 'hotWaterCircPumpOffTime', raw: 60 },
-						];
-
-						for (const u of updates) {
-							await this.queueWrite(parseInt(STATE_MAPPING[u.key].luxWriteId as string, 10), u.raw);
-							await new Promise(r => setTimeout(r, 100));
-						}
-					}
-
-					this.zipTimer = setTimeout(async () => {
-						await this.stopZipAndDeaeration();
-					}, durationSeconds * 1000);
+					await handleActivateZip(this, id, durationSeconds);
 				} else {
-					await this.setState(id, { val: false, ack: true });
+					await this.setForeignStateAsync(id, { val: false, ack: true });
 					await this.stopZipAndDeaeration();
 				}
 				return;
@@ -1219,7 +873,8 @@ class Luxtronik2Controller extends utils.Adapter {
 				return;
 			}
 
-			await this.setState(id, { val: state.val, ack: true });
+			// FIX: setForeignStateAsync für alle normalen Parameter am Ende nutzen
+			await this.setForeignStateAsync(id, { val: state.val, ack: true });
 
 			let valueToWrite: any = state.val;
 
@@ -1239,114 +894,9 @@ class Luxtronik2Controller extends utils.Adapter {
 			}
 
 			const targetWriteId = definition.luxWriteId;
-			// Wir übergeben die ID jetzt immer strikt als Zahl (Parameter-ID) und ohne das dritte Argument
 			await this.queueWrite(parseInt(targetWriteId, 10), valueToWrite);
 		} catch (err: any) {
 			writeLog(`Fehler bei Befehlsausführung: ${err.message}`, 'error');
-		}
-	}
-
-	// =========================================================
-	// BENUTZERDEFINIERTE WERTE (Custom States)
-	// =========================================================
-
-	private sanitizeName(name: string): string {
-		return name
-			.replace(/ä/g, 'ae')
-			.replace(/ö/g, 'oe')
-			.replace(/ü/g, 'ue')
-			.replace(/Ä/g, 'Ae')
-			.replace(/Ö/g, 'Oe')
-			.replace(/Ü/g, 'Ue')
-			.replace(/ß/g, 'ss')
-			.replace(/[^a-zA-Z0-9_]/g, '_')
-			.replace(/_+/g, '_')
-			.replace(/^_|_$/g, '');
-	}
-
-	private async cleanupCustomStates(): Promise<void> {
-		// NEU: TypeScript sagen, dass es ein dynamisches Objekt ist
-		const config = this.config as Record<string, any>;
-		const customStates = (config.custom_states as any[]) || [];
-
-		const activeIds = customStates
-			.filter(c => c.active && c.luxId !== undefined && c.name)
-			.map(c => `Benutzer.${this.sanitizeName(c.name)}`);
-
-		try {
-			const objects = await this.getAdapterObjectsAsync();
-			for (const id in objects) {
-				if (id.startsWith(`${this.namespace}.Benutzer.`)) {
-					const shortId = id.replace(`${this.namespace}.`, '');
-					if (shortId === 'Benutzer') {
-						continue;
-					} // Ordner selbst ignorieren
-
-					if (!activeIds.includes(shortId)) {
-						await this.delStateAsync(shortId).catch(() => {});
-						await this.delObjectAsync(shortId).catch(() => {});
-						this.createdStates.delete(shortId);
-						writeLog(`Benutzerdefinierter Datenpunkt '${shortId}' entfernt.`, 'info');
-					}
-				}
-			}
-		} catch (err: any) {
-			writeLog(`Fehler beim Aufräumen benutzerdefinierter Werte: ${err.message}`, 'debug');
-		}
-	}
-
-	private async ensureCustomObjectsExist(): Promise<void> {
-		// NEU: TypeScript sagen, dass es ein dynamisches Objekt ist
-		const config = this.config as Record<string, any>;
-		const customStates = (config.custom_states as any[]) || [];
-
-		if (customStates.some(c => c.active)) {
-			await this.setObjectNotExistsAsync('Benutzer', {
-				type: 'channel',
-				common: { name: 'Benutzerdefinierte Werte' },
-				native: {},
-			});
-		}
-
-		for (const custom of customStates) {
-			if (!custom.active || custom.luxId === undefined || !custom.name) {
-				continue;
-			}
-
-			const stateId = `Benutzer.${this.sanitizeName(custom.name)}`;
-
-			let role = 'state';
-			let targetType: ioBroker.CommonType = custom.type || 'string';
-
-			if (custom.type === 'number') {
-				role = 'value';
-			} else if (custom.type === 'string') {
-				role = 'text';
-			} else if (custom.type === 'boolean') {
-				role = 'indicator';
-			} else if (custom.type === 'datetime') {
-				role = 'value.datetime';
-				targetType = 'string'; // Wir speichern das fertige Datum als lesbaren Text
-			}
-
-			if (!this.createdStates.has(stateId)) {
-				await this.setObjectNotExistsAsync(stateId, {
-					type: 'state',
-					common: {
-						name: custom.name,
-						type: targetType, // <--- HIER 'targetType' statt 'custom.type || string' nutzen!
-						role: role,
-						unit: custom.unit || '',
-						read: true,
-						write: false,
-					},
-					native: {
-						luxId: custom.luxId,
-						source: custom.source,
-					},
-				});
-				this.createdStates.add(stateId);
-			}
 		}
 	}
 }

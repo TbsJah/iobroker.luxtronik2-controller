@@ -989,47 +989,47 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		dataSource: 'parameter',
 	},
 	// 12_Systeminfo
-	typeHeatpump: {
+	heatpump_type: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Wärmepumpen-Typ',
 		role: 'text',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
 	firmware: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Firmware-Version',
 		role: 'text',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
-	AdresseIP_akt: {
+	ip_address: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Aktuelle IP-Adresse',
 		role: 'info.ip',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
-	SubNetMask_akt: {
+	subnet: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Subnetzmaske',
 		role: 'info.ip',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
-	Add_Broadcast: {
+	broadcast_address: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Broadcast-Adresse',
 		role: 'info.ip',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
-	Add_StdGateway: {
+	standard_gateway: {
 		folder: 'Informationen.12_Systeminfo',
 		name: 'Standard-Gateway',
 		role: 'info.ip',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
 	},
 	LIN_exists: {
 		folder: 'Informationen.12_Systeminfo',
@@ -1039,12 +1039,13 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		luxWriteId: '174',
 		dataSource: 'raw_value',
 	},
-	rawDeviceTimeCalc: {
+	Gerätezeit: {
 		folder: 'Informationen.12_Systeminfo',
-		name: 'Berechnete Gerätezeit',
-		role: 'date',
+		name: 'Gerätezeit',
+		role: 'value.datetime',
 		type: 'string',
-		dataSource: 'value',
+		dataSource: 'raw_value',
+		luxWriteId: '134',
 	},
 
 	// ==========================================

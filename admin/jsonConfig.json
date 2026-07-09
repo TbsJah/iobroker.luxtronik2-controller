@@ -990,7 +990,7 @@
 					"sm": 12,
 					"md": 12,
 					"items": {
-						"sync_typeHeatpump": {
+						"sync_heatpump_type": {
 							"type": "checkbox",
 							"label": "Wärmepumpen-Typ",
 							"default": true,
@@ -1004,28 +1004,28 @@
 							"sm": 12,
 							"md": 6
 						},
-						"sync_AdresseIP_akt": {
+						"sync_ip_address": {
 							"type": "checkbox",
 							"label": "Aktuelle IP-Adresse",
 							"default": true,
 							"sm": 12,
 							"md": 6
 						},
-						"sync_SubNetMask_akt": {
+						"sync_subnet": {
 							"type": "checkbox",
 							"label": "Subnetzmaske",
 							"default": true,
 							"sm": 12,
 							"md": 6
 						},
-						"sync_Add_Broadcast": {
+						"sync_broadcast_address": {
 							"type": "checkbox",
 							"label": "Broadcast-Adresse",
 							"default": true,
 							"sm": 12,
 							"md": 6
 						},
-						"sync_Add_StdGateway": {
+						"sync_standard_gateway": {
 							"type": "checkbox",
 							"label": "Standard-Gateway",
 							"default": true,
@@ -1039,9 +1039,9 @@
 							"sm": 12,
 							"md": 6
 						},
-						"sync_rawDeviceTimeCalc": {
+						"sync_Gerätezeit": {
 							"type": "checkbox",
-							"label": "Berechnete Gerätezeit",
+							"label": "Gerätezeit",
 							"default": true,
 							"sm": 12,
 							"md": 6
