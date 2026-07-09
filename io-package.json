@@ -68,6 +68,7 @@
 		"mode": "daemon",
 		"type": "climate-control",
 		"compact": true,
+		"messagebox": true,
 		"connectionType": "local",
 		"dataSource": "poll",
 		"adminUI": {
@@ -85,9 +86,59 @@
 		]
 	},
 	"native": {
-		"option1": true,
-		"option2": "42"
+		"host": "192.168.178.81",
+		"port": 8889,
+		"interval": 30,
+		"fusspunkt": 21.7,
+		"endpunkt": 23,
+		"zip_aktiv_ww": 600,
+		"zip_aktiv": 120,
+		"sync_warmwater_target_temperature": 54,
+		"sync_hotwater_temperature_hysteresis": 10,
+		"sync_heating_system_circ_pump_voltage_minimal_heating": 3,
+		"sync_heating_system_circ_pump_voltage_nominal_heating": 7,
+		"sync_heating_system_circ_pump_voltage_minimal_water": 3,
+		"sync_heating_system_circ_pump_voltage_nominal_water": 10,
+		"sync_return_temperature_hysteresis": 1.5,
+		"zip_last_run_min": 600,
+		"regelung_aktiv": false,
+		"Heating_after_warmwater": true,
+		"telegram_enabled": false,
+		"notification_bell": false,
+		"telegram_receiver": "",
+		"telegram_instance": "",
+		"motionSensors": [],
+		"motion_sensors_aktiv": false
 	},
+	"notifications": [
+		{
+			"scope": "luxtronik2-controller",
+			"name": {
+				"de": "Luxtronik2-Controller",
+				"en": "Luxtronik2-Controller"
+			},
+			"description": {
+				"de": "Benachrichtigungen vom Luxtronik2-Controller Adapter",
+				"en": "Notifications from the Luxtronik2-Controller adapter"
+			},
+			"categories": [
+				{
+					"category": "lwpError",
+					"name": {
+						"de": "Wärmepumpen-Fehler",
+						"en": "Heat Pump Errors"
+					},
+					"severity": "alert",
+					"description": {
+						"de": "Fehlermeldungen aus der Heizungsanlage",
+						"en": "Error messages from the heating system"
+					},
+					"regex": [],
+					"limit": 10
+				}
+			]
+		}
+	],
 	"objects": [],
 	"instanceObjects": [
 		{
