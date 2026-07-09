@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "news": {
+      "0.1.5": {
+        "en": "' Update Zip",
+        "de": "'Zip aktualisieren'",
+        "ru": "«Обновить ZIP-архив»",
+        "pt": "'Atualizar Zip'",
+        "nl": "Zip bijwerken",
+        "fr": "' Mettre à jour le fichier zip",
+        "it": "' Aggiorna il file ZIP",
+        "es": "Actualizar Zip",
+        "pl": "'Aktualizuj kod pocztowy",
+        "uk": "Оновити поштовий індекс",
+        "zh-cn": "更新压缩包"
+      },
       "0.1.4": {
         "en": "NPM",
         "de": "NPM",

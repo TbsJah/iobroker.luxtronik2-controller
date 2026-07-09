@@ -35,8 +35,7 @@ _This project is not affiliated with Alpha Innotec, Novelan, ait-deutschland Gmb
 // ### **WORK IN PROGRESS**
 Readme - deutsch
 Readme - english
-
-### **WORK IN PROGRESS**
+### 0.1.5 (2026-07-09)
 
 ' Update Zip
 
