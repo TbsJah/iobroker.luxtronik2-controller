@@ -77,8 +77,10 @@ Fehlerberichte, Kompatibilitätshinweise zu speziellen Firmware-Versionen oder F
 <img src="documentation/Bilder/Bewegungssensoren.png" alt="Bewegungssensoren" width="100%">
 
 // ### **WORK IN PROGRESS**
+
+### **WORK IN PROGRESS**
+
 Readme - deutsch
-Readme - english
 
 ### 0.1.5 (2026-07-09)
 
