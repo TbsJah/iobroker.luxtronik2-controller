@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "news": {
+      "0.1.4": {
+        "en": "NPM",
+        "de": "NPM",
+        "ru": "НПМ",
+        "pt": "NPM",
+        "nl": "NPM",
+        "fr": "NPM",
+        "it": "NPM",
+        "es": "NPM",
+        "pl": "NPM",
+        "uk": "НПМ",
+        "zh-cn": "NPM"
+      },
       "0.1.3": {
         "en": "Zip Prozess ausgelagert",
         "de": "Zip Prozess ausgelagert",
