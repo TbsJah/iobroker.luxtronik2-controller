@@ -80,7 +80,7 @@ Fehlerberichte, Kompatibilitätshinweise zu speziellen Firmware-Versionen oder F
 
 ### **WORK IN PROGRESS**
 
-Readme - deutsch
+- Readme - deutsch
 
 ### 0.1.5 (2026-07-09)
 
