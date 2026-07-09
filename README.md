@@ -13,7 +13,15 @@
 
 ## luxtronik2-controller adapter for ioBroker
 
-Zugriff und Steuerung von Wärmepumpen mit einer Luxtronik 2.x Steuereinheit
+Dieser ioBroker-Adapter ermöglicht die lokale Steuerung und Überwachung von Wärmepumpen mit Luxtronik 2.x Steuerung (z. B. Alpha Innotec, Novelan). Der Adapter ist vollständig in TypeScript geschrieben.
+Danksagung & Historie
+Dieses Projekt baut auf den Vorarbeiten bestehender Open-Source-Projekte auf. Ein besonderer Dank geht an:
+
+Coolchip: Für das grundlegende Reverse-Engineering des Luxtronik-Netzwerkprotokolls.
+
+UncleSamSwiss: Für den ursprünglichen ioBroker-Adapter.
+
+Neuerungen in dieser Version: Der luxtronik2-controller integriert die TCP-Kommunikation (Port 8888 / 8889) nativ und verzichtet auf externe Bibliotheken. Zusätzlich wurden steuernde Makros, eine Logik zur Verdichterschonung sowie ein automatisiertes Datenpunkt-Management implementiert.
 
 ## Developer manual
 
