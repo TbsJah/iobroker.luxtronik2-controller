@@ -40,7 +40,8 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 		let finished = false;
 		const host = adapter.config.host;
 		const port = adapter.config.port ? Number(adapter.config.port) : 8214;
-		const url = `ws://${host}:${port}`;
+		// Ein expliziter Slash am Ende der URL hilft bei einigen Firmware-Versionen
+		const url = `ws://${host}:${port}/`;
 
 		const ws = new WebSocket(url, 'Lux_WS');
 		let responseData = Buffer.alloc(0);
@@ -57,11 +58,14 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 			const buffer = Buffer.alloc(8);
 			buffer.writeInt32BE(command, 0);
 			buffer.writeInt32BE(0, 4);
-			ws.send(buffer);
+			// ZWINGEND ALS BINÄRDATEN SENDEN:
+			ws.send(buffer, { binary: true });
 		});
 
-		ws.on('message', (data: Buffer) => {
-			responseData = Buffer.concat([responseData, data]);
+		ws.on('message', (data: any) => {
+			// Sicherstellen, dass die empfangenen Daten immer als Buffer behandelt werden
+			const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data);
+			responseData = Buffer.concat([responseData, chunk]);
 
 			const is3004 = command === 3004;
 			const headerSize = is3004 ? 12 : 8;
@@ -236,7 +240,8 @@ function writeRawParameterWs(adapter: AdapterInstance, paramId: number, value: n
 		let finished = false;
 		const host = adapter.config.host;
 		const port = adapter.config.port ? Number(adapter.config.port) : 8214;
-		const url = `ws://${host}:${port}`;
+		// Ein expliziter Slash am Ende der URL hilft bei einigen Firmware-Versionen
+		const url = `ws://${host}:${port}/`;
 
 		const ws = new WebSocket(url, 'Lux_WS');
 
@@ -250,10 +255,12 @@ function writeRawParameterWs(adapter: AdapterInstance, paramId: number, value: n
 
 		ws.on('open', () => {
 			const buffer = Buffer.alloc(12);
-			buffer.writeInt32BE(3002, 0);
+			buffer.writeInt32BE(3002, 0); // Befehl 3002 = Parameter schreiben
 			buffer.writeInt32BE(paramId, 4);
 			buffer.writeInt32BE(value, 8);
-			ws.send(buffer);
+
+			// ZWINGEND ALS BINÄRDATEN SENDEN:
+			ws.send(buffer, { binary: true });
 		});
 
 		ws.on('message', () => {

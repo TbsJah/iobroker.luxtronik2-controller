@@ -51,7 +51,7 @@ function readAllRawWs(adapter, command) {
     let finished = false;
     const host = adapter.config.host;
     const port = adapter.config.port ? Number(adapter.config.port) : 8214;
-    const url = `ws://${host}:${port}`;
+    const url = `ws://${host}:${port}/`;
     const ws = new import_ws.default(url, "Lux_WS");
     let responseData = Buffer.alloc(0);
     const timeout = setTimeout(() => {
@@ -65,10 +65,11 @@ function readAllRawWs(adapter, command) {
       const buffer = Buffer.alloc(8);
       buffer.writeInt32BE(command, 0);
       buffer.writeInt32BE(0, 4);
-      ws.send(buffer);
+      ws.send(buffer, { binary: true });
     });
     ws.on("message", (data) => {
-      responseData = Buffer.concat([responseData, data]);
+      const chunk = Buffer.isBuffer(data) ? data : Buffer.from(data);
+      responseData = Buffer.concat([responseData, chunk]);
       const is3004 = command === 3004;
       const headerSize = is3004 ? 12 : 8;
       const lengthOffset = is3004 ? 8 : 4;
@@ -203,7 +204,7 @@ function writeRawParameterWs(adapter, paramId, value) {
     let finished = false;
     const host = adapter.config.host;
     const port = adapter.config.port ? Number(adapter.config.port) : 8214;
-    const url = `ws://${host}:${port}`;
+    const url = `ws://${host}:${port}/`;
     const ws = new import_ws.default(url, "Lux_WS");
     const timeout = setTimeout(() => {
       if (!finished) {
@@ -217,7 +218,7 @@ function writeRawParameterWs(adapter, paramId, value) {
       buffer.writeInt32BE(3002, 0);
       buffer.writeInt32BE(paramId, 4);
       buffer.writeInt32BE(value, 8);
-      ws.send(buffer);
+      ws.send(buffer, { binary: true });
     });
     ws.on("message", () => {
       if (!finished) {
