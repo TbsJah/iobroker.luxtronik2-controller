@@ -79,8 +79,7 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ## Changelog
 
 // ### **WORK IN PROGRESS**
-
-### **WORK IN PROGRESS**
+### 0.3.8 (2026-07-14)
 
 - Fix issues reported by RepositoryChecker
 
@@ -103,10 +102,6 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ### 0.3.4 (2026-07-14)
 
 - Update StateMapping Items
-
-### 0.3.3 (2026-07-14)
-
-- Package update
 
 ## License
 

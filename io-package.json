@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "news": {
+      "0.3.8": {
+        "en": "Fix issues reported by RepositoryChecker",
+        "de": "Behebung der von RepositoryChecker gemeldeten Probleme",
+        "ru": "Исправлены ошибки, о которых сообщила служба RepositoryChecker.",
+        "pt": "Corrigir problemas relatados pelo RepositoryChecker",
+        "nl": "Los problemen op die door RepositoryChecker zijn gemeld.",
+        "fr": "Correction des problèmes signalés par RepositoryChecker",
+        "it": "Risolvi i problemi segnalati da RepositoryChecker",
+        "es": "Solucionar los problemas reportados por RepositoryChecker.",
+        "pl": "Napraw problemy zgłoszone przez RepositoryChecker",
+        "uk": "Виправлення проблем, про які повідомляв RepositoryChecker",
+        "zh-cn": "修复 RepositoryChecker 报告的问题"
+      },
       "0.3.7": {
         "en": "[E5507] missing size attributes\n[E6001] No README.md found",
         "de": "[E5507] Fehlende Größenattribute\n[E6001] Keine README.md-Datei gefunden",
@@ -80,19 +93,6 @@
         "pl": "Naprawiono błąd zapisu Websocket\nRozszerz mapowania stanu",
         "uk": "Виправлена помилка запису в Websocket\nРозширення зіставлень станів",
         "zh-cn": "修复了 WebSocket 写入错误\n扩展状态映射"
-      },
-      "0.3.1": {
-        "en": "Fehler Websocket Abruf behoben",
-        "de": "Fehler Websocket Abruf behoben",
-        "ru": "Fehler Websocket Abruf behoben",
-        "pt": "Fehler Websocket Abruf behoben",
-        "nl": "Fehler Websocket Abruf behoben",
-        "fr": "Fehler Websocket Abruf disponible",
-        "it": "Fehler Websocket Abruf behoben",
-        "es": "Fehler Websocket Abruf behoben",
-        "pl": "Fehler Websocket Abruf behoben",
-        "uk": "Fehler Websocket Abruf behoben",
-        "zh-cn": "Fehler Websocket Abruf behoben"
       }
     },
     "titleLang": {
