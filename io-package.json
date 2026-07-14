@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.4.0",
+    "version": "0.5.0",
     "news": {
+      "0.5.0": {
+        "en": "Code-Refactoring",
+        "de": "Code-Refactoring",
+        "ru": "Рефакторинг кода",
+        "pt": "Refatoração de código",
+        "nl": "Code-refactoring",
+        "fr": "Refactorisation de code",
+        "it": "Refactoring del codice",
+        "es": "Refactorización de código",
+        "pl": "Refaktoryzacja kodu",
+        "uk": "Рефакторинг коду",
+        "zh-cn": "代码重构"
+      },
       "0.4.0": {
         "en": "prepare add latest repo",
         "de": "Bereiten Sie das Hinzufügen des neuesten Repos vor.",
@@ -80,19 +93,6 @@
         "pl": "Aktualizuj elementy StateMapping",
         "uk": "Оновлення елементів зіставлення станів",
         "zh-cn": "更新状态映射项"
-      },
-      "0.3.3": {
-        "en": "Visualization",
-        "de": "Visualisierung",
-        "ru": "Визуализация",
-        "pt": "Visualização",
-        "nl": "Visualisatie",
-        "fr": "Visualisation",
-        "it": "Visualizzazione",
-        "es": "Visualización",
-        "pl": "Wyobrażanie sobie",
-        "uk": "Візуалізація",
-        "zh-cn": "可视化"
       }
     },
     "titleLang": {

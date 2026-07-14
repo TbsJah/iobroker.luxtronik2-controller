@@ -23,6 +23,11 @@
 ### 0.1.0 (2026-07-09)
 
 - initial release
+## 0.3.5 (2026-07-14)
+
+- Config Checkbox issue resolved Temperature
+- Fix the issues reported by RepositoryChecker
+
 ## 0.3.4 (2026-07-14)
 
 - Update StateMapping Items

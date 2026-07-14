@@ -77,8 +77,7 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 <img src="documentation/Bilder/Bewegungssensoren.png" alt="Bewegungssensoren" width="100%">
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 0.5.0 (2026-07-14)
 
 - Code-Refactoring
 
@@ -99,11 +98,6 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 
 - Update StateMapping Items
 - Fixed Websocket write error
-- Fix the issues reported by RepositoryChecker
-
-### 0.3.5 (2026-07-14)
-
-- Config Checkbox issue resolved Temperature
 - Fix the issues reported by RepositoryChecker
 
 ## License
