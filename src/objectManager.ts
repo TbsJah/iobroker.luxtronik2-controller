@@ -349,7 +349,15 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 			const fullId = `${adapter.namespace}.${stateId}`;
 
 			let targetType: ioBroker.CommonType = definition.type === 'json' ? 'string' : definition.type;
-			if (definition.unit === 's' && definition.type === 'number') {
+
+			// Nur zu 'string' konvertieren, wenn die Rolle explizit auf ein Zeit/Datum-Format hindeutet.
+			// Reine Zahlen-Dauern (wie deine ZIP-Dauer in Sekunden) bleiben somit 'number'.
+			if (
+				definition.unit === 's' &&
+				definition.type === 'number' &&
+				definition.role &&
+				['value.datetime', 'value.time', 'date'].includes(definition.role)
+			) {
 				targetType = 'string';
 			}
 			if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {

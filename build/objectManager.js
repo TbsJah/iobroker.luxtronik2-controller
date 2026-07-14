@@ -223,7 +223,7 @@ async function ensureAllObjectsExist(adapter) {
       const stateId = `${definition.folder}.${key}`;
       const fullId = `${adapter.namespace}.${stateId}`;
       let targetType = definition.type === "json" ? "string" : definition.type;
-      if (definition.unit === "s" && definition.type === "number") {
+      if (definition.unit === "s" && definition.type === "number" && definition.role && ["value.datetime", "value.time", "date"].includes(definition.role)) {
         targetType = "string";
       }
       if (definition.role && ["value.datetime", "value.time", "date"].includes(definition.role)) {
