@@ -10,6 +10,7 @@
   "homepage": "https://github.com/TbsJah/ioBroker.luxtronik2-controller",
   "license": "MIT",
   "keywords": [
+    "ioBroker",
     "Luxtronik2",
     "LWD50",
     "Luft Wärme Pumpe",
