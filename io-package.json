@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "news": {
+      "0.3.2": {
+        "en": "Fixed Websocket write error\nExtend stateMappings",
+        "de": "Websocket-Schreibfehler behoben\nZustandszuordnungen erweitern",
+        "ru": "Исправлена ошибка записи в WebSocket.\nРасширить сопоставление состояний",
+        "pt": "Erro de gravação no Websocket corrigido\nEstender mapeamentos de estado",
+        "nl": "Schrijffout via WebSocket opgelost\nStateMappings uitbreiden",
+        "fr": "Correction d'une erreur d'écriture WebSocket\nÉtendre les mappages d'état",
+        "it": "Risolto l'errore di scrittura WebSocket.\nEstendere stateMappings",
+        "es": "Se corrigió el error de escritura de Websocket.\nExtender asignaciones de estado",
+        "pl": "Naprawiono błąd zapisu Websocket\nRozszerz mapowania stanu",
+        "uk": "Виправлена помилка запису в Websocket\nРозширення зіставлень станів",
+        "zh-cn": "修复了 WebSocket 写入错误\n扩展状态映射"
+      },
       "0.3.1": {
         "en": "Fehler Websocket Abruf behoben",
         "de": "Fehler Websocket Abruf behoben",
