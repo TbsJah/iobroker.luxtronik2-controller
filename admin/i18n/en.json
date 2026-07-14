@@ -182,5 +182,7 @@
 	"Wahr/Falsch": "Boolean",
 	"Datum/Uhrzeit (Unix)": "Date/Time (Unix)",
 	"Faktor (z.B. 0.1)": "Factor (e.g. 0.1)",
-	"Einheit (z.B. °C)": "Unit (e.g. °C)"
+	"Einheit (z.B. °C)": "Unit (e.g. °C)",
+	"Externe Rücklauftemperatur": "External return temperature",
+	"Standard TCP: 8889 | Firmware > 3.81 (WebSockets): 8214": "Standard TCP: 8889 | Firmware > 3.81 (WebSockets): 8214"
 }

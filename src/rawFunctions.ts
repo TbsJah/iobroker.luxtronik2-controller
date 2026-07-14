@@ -47,7 +47,7 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 
 		let responseData = Buffer.alloc(0);
 
-		const timeout = setTimeout(() => {
+		const timeout = adapter.setTimeout(() => {
 			if (!finished) {
 				finished = true;
 				ws.terminate();
@@ -81,7 +81,7 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 			if (responseCommand !== command) {
 				if (!finished) {
 					finished = true;
-					clearTimeout(timeout);
+					adapter.clearTimeout(timeout);
 					ws.terminate();
 					reject(new Error(`Unerwartete Antwort. Erwartet: ${command}, erhalten: ${responseCommand}`));
 				}
@@ -93,7 +93,7 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 			if (totalItems < 0 || totalItems > 10000) {
 				if (!finished) {
 					finished = true;
-					clearTimeout(timeout);
+					adapter.clearTimeout(timeout);
 					ws.terminate();
 					reject(new Error(`Ungültige Elementanzahl (${totalItems}) in WS Antwort ${command}`));
 				}
@@ -113,7 +113,7 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 
 			if (!finished) {
 				finished = true;
-				clearTimeout(timeout);
+				adapter.clearTimeout(timeout);
 				ws.terminate();
 				resolve(allValues);
 			}
@@ -122,7 +122,7 @@ function readAllRawWs(adapter: AdapterInstance, command: number): Promise<number
 		ws.on('error', (err: Error) => {
 			if (!finished) {
 				finished = true;
-				clearTimeout(timeout);
+				adapter.clearTimeout(timeout);
 				ws.terminate();
 				reject(err);
 			}
@@ -248,7 +248,6 @@ function writeRawParameterWs(adapter: AdapterInstance, paramId: number, value: n
 		const ws = new WebSocket(url, 'luxnet');
 		ws.binaryType = 'nodebuffer';
 
-		// Linter-konformes adapter.setTimeout verwenden (verhindert [E5005])
 		const timeout = adapter.setTimeout(() => {
 			if (!finished) {
 				finished = true;
@@ -271,7 +270,7 @@ function writeRawParameterWs(adapter: AdapterInstance, paramId: number, value: n
 			// Optimierung: Jede Antwort der Luxtronik gilt als erfolgreicher Schreib-Empfang
 			if (!finished) {
 				finished = true;
-				adapter.clearTimeout(timeout); // Linter-konformes clearTimeout
+				adapter.clearTimeout(timeout);
 				ws.terminate();
 				resolve();
 			}
