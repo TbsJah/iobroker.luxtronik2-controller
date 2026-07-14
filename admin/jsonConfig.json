@@ -474,6 +474,16 @@
 							"md": 6,
 							"lg": 6,
 							"xl": 6
+						},
+						"sync_temperature_extern_return": {
+							"type": "checkbox",
+							"label": "Externe Rücklauftemperatur",
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
 						}
 					}
 				},
