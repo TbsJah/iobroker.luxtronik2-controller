@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "news": {
+      "0.5.1": {
+        "en": "Fix issue notify last error after instance restart",
+        "de": "Problem behoben: Benachrichtigung über letzten Fehler nach Neustart der Instanz.",
+        "ru": "Исправлена ошибка, из-за которой после перезапуска экземпляра отображалось уведомление о последней ошибке.",
+        "pt": "Corrigido o problema que impedia a notificação do último erro após a reinicialização da instância.",
+        "nl": "Probleem opgelost: melding van laatste foutmelding na herstart van instantie",
+        "fr": "Correction d'un problème de notification de la dernière erreur après le redémarrage de l'instance",
+        "it": "Risolvi il problema notificando l'ultimo errore dopo il riavvio dell'istanza",
+        "es": "Solucionar el problema de notificación del último error tras el reinicio de la instancia",
+        "pl": "Naprawiono problem z powiadomieniem o ostatnim błędzie po ponownym uruchomieniu instancji",
+        "uk": "Виправлено помилку, що повідомляє про останню помилку після перезапуску екземпляра",
+        "zh-cn": "修复实例重启后通知最后错误的问题"
+      },
       "0.5.0": {
         "en": "Code-Refactoring",
         "de": "Code-Refactoring",
@@ -80,19 +93,6 @@
         "pl": "Rozwiązano problem z polem wyboru konfiguracji Temperatura",
         "uk": "Проблема з прапорцем конфігурації вирішена. Температура",
         "zh-cn": "配置复选框问题已解决 温度"
-      },
-      "0.3.4": {
-        "en": "Update StateMapping Items",
-        "de": "Statuszuordnungselemente aktualisieren",
-        "ru": "Обновить элементы сопоставления состояний",
-        "pt": "Atualizar itens de mapeamento de estado",
-        "nl": "Statusmapping-items bijwerken",
-        "fr": "Mise à jour des éléments de mappage d'état",
-        "it": "Aggiorna gli elementi di StateMapping",
-        "es": "Actualizar elementos de StateMapping",
-        "pl": "Aktualizuj elementy StateMapping",
-        "uk": "Оновлення елементів зіставлення станів",
-        "zh-cn": "更新状态映射项"
       }
     },
     "titleLang": {
