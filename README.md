@@ -77,8 +77,7 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 <img src="documentation/Bilder/Bewegungssensoren.png" alt="Bewegungssensoren" width="100%">
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 0.4.0 (2026-07-14)
 
 - prepare add latest repo
 
@@ -101,10 +100,6 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 
 - Config Checkbox issue resolved Temperature
 - Fix the issues reported by RepositoryChecker
-
-### 0.3.4 (2026-07-14)
-
-- Update StateMapping Items
 
 ## License
 

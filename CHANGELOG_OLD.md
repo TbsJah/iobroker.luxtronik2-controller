@@ -23,6 +23,10 @@
 ### 0.1.0 (2026-07-09)
 
 - initial release
+## 0.3.4 (2026-07-14)
+
+- Update StateMapping Items
+
 ## 0.3.3 (2026-07-14)
 
 - Package update
