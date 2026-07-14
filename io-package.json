@@ -69,7 +69,9 @@
 			"uk": "Zugriff und Steuerung von Wärmepumpen mit einer Luxtronik 2.x Steuereinheit",
 			"zh-cn": "Luxtronik 2.x Steuereinheit 的 Zugriff 和 Steuerung von Wärmepumpen"
 		},
-		"authors": ["TbsJah <github.tbsjah@googlemail.com>"],
+		"authors": [
+			"TbsJah <github.tbsjah@googlemail.com>"
+		],
 		"keywords": [
 			"Luxtronik2",
 			"LWD50",
