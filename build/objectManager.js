@@ -105,16 +105,20 @@ async function cleanupStates(adapter) {
       const obj = objects[fullId];
       if (obj && obj.type === "state") {
         const localId = fullId.replace(`${adapter.namespace}.`, "");
-        if (localId.startsWith("Benutzer.")) {
+        if (localId.startsWith("Custom.")) {
           continue;
         }
         if (!activeStateIds.has(localId)) {
-          deletions.push(adapter.delStateAsync(localId).catch(() => {
-          }));
-          deletions.push(adapter.delObjectAsync(localId).catch(() => {
-          }));
+          deletions.push(
+            adapter.delStateAsync(localId).catch(() => {
+            })
+          );
+          deletions.push(
+            adapter.delObjectAsync(localId).catch(() => {
+            })
+          );
           adapter.createdStates.delete(localId);
-          (0, import_logger.writeLog)(`Datenpunkt '${localId}' rigoros entfernt.`, "debug");
+          (0, import_logger.writeLog)(`Datapoint '${localId}' rigorously removed.`, "debug");
           deletedCount++;
         }
       }
@@ -123,11 +127,11 @@ async function cleanupStates(adapter) {
       await Promise.all(deletions);
     }
     if (deletedCount > 0) {
-      (0, import_logger.writeLog)(`${deletedCount} alte Datenpunkte aufger\xE4umt.`, "info");
+      (0, import_logger.writeLog)(`${deletedCount} old datapoints cleaned up.`, "info");
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aufr\xE4umen von alten Datenpunkten: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error cleaning up old datapoints: ${msg}`, "error");
   }
 }
 async function cleanupEmptyFolders(adapter) {
@@ -156,9 +160,11 @@ async function cleanupEmptyFolders(adapter) {
       }
       if (!existingParents.has(fullId)) {
         const localId = fullId.replace(`${adapter.namespace}.`, "");
-        deletions.push(adapter.delObjectAsync(localId).catch(() => {
-        }));
-        (0, import_logger.writeLog)(`Leerer Ordner '${localId}' aufger\xE4umt.`, "debug");
+        deletions.push(
+          adapter.delObjectAsync(localId).catch(() => {
+          })
+        );
+        (0, import_logger.writeLog)(`Empty folder '${localId}' cleaned up.`, "debug");
         deletedCount++;
       }
     }
@@ -166,36 +172,40 @@ async function cleanupEmptyFolders(adapter) {
       await Promise.all(deletions);
     }
     if (deletedCount > 0) {
-      (0, import_logger.writeLog)(`${deletedCount} leere Ordner aus dem Objektbaum entfernt.`, "info");
+      (0, import_logger.writeLog)(`${deletedCount} empty folders removed from object tree.`, "info");
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aufr\xE4umen leerer Ordner: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error cleaning up empty folders: ${msg}`, "error");
   }
 }
 async function cleanupCustomStates(adapter) {
   const config = adapter.config;
   const customStates = config.custom_states || [];
   const activeIds = new Set(
-    customStates.filter((c) => c.active && c.luxId !== void 0 && c.name).map((c) => `Benutzer.${sanitizeName(c.name)}`)
+    customStates.filter((c) => c.active && c.luxId !== void 0 && c.name).map((c) => `Custom.${sanitizeName(c.name)}`)
   );
   try {
     const objects = await adapter.getAdapterObjectsAsync();
     let deletedCount = 0;
     const deletions = [];
     for (const id in objects) {
-      if (id.startsWith(`${adapter.namespace}.Benutzer.`)) {
+      if (id.startsWith(`${adapter.namespace}.Custom.`)) {
         const shortId = id.replace(`${adapter.namespace}.`, "");
-        if (shortId === "Benutzer") {
+        if (shortId === "Custom") {
           continue;
         }
         if (!activeIds.has(shortId)) {
-          deletions.push(adapter.delStateAsync(shortId).catch(() => {
-          }));
-          deletions.push(adapter.delObjectAsync(shortId).catch(() => {
-          }));
+          deletions.push(
+            adapter.delStateAsync(shortId).catch(() => {
+            })
+          );
+          deletions.push(
+            adapter.delObjectAsync(shortId).catch(() => {
+            })
+          );
           adapter.createdStates.delete(shortId);
-          (0, import_logger.writeLog)(`Benutzerdefinierter Datenpunkt '${shortId}' entfernt.`, "debug");
+          (0, import_logger.writeLog)(`Custom datapoint '${shortId}' removed.`, "debug");
           deletedCount++;
         }
       }
@@ -204,11 +214,11 @@ async function cleanupCustomStates(adapter) {
       await Promise.all(deletions);
     }
     if (deletedCount > 0) {
-      (0, import_logger.writeLog)(`${deletedCount} benutzerdefinierte Werte aufger\xE4umt.`, "info");
+      (0, import_logger.writeLog)(`${deletedCount} custom values cleaned up.`, "info");
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aufr\xE4umen benutzerdefinierter Werte: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error cleaning up custom values: ${msg}`, "error");
   }
 }
 async function ensureAllObjectsExist(adapter) {
@@ -226,15 +236,12 @@ async function ensureAllObjectsExist(adapter) {
       if (definition.unit === "s" && definition.type === "number" && definition.role && ["value.datetime", "value.time", "date"].includes(definition.role)) {
         targetType = "string";
       }
-      if (definition.role && ["value.datetime", "value.time", "date"].includes(definition.role)) {
-        targetType = "string";
-      }
       const commonDef = {
         name: definition.name,
         type: targetType,
         role: definition.role,
         unit: definition.unit || "",
-        read: true,
+        read: definition.role === "button" ? false : true,
         write: definition.write || false,
         min: definition.min,
         max: definition.max,
@@ -256,43 +263,43 @@ async function ensureAllObjectsExist(adapter) {
       } else {
         let needsUpdate = false;
         const existingCommon = existingObj.common;
-        if (existingCommon.type !== targetType || existingCommon.role !== definition.role || (existingCommon.unit || "") !== (definition.unit || "") || existingCommon.name !== definition.name || existingCommon.read !== true || existingCommon.write !== (definition.write || false) || existingCommon.min !== definition.min || existingCommon.max !== definition.max || JSON.stringify(existingCommon.states) !== JSON.stringify(definition.states)) {
+        if (existingCommon.type !== targetType || existingCommon.role !== definition.role || (existingCommon.unit || "") !== (definition.unit || "") || existingCommon.name !== definition.name || existingCommon.read !== commonDef.read || existingCommon.write !== (definition.write || false) || existingCommon.min !== definition.min || existingCommon.max !== definition.max || JSON.stringify(existingCommon.states) !== JSON.stringify(definition.states)) {
           needsUpdate = true;
         }
         if (needsUpdate) {
           await adapter.extendObjectAsync(stateId, { type: "state", common: commonDef });
-          (0, import_logger.writeLog)(`Eigenschaften von '${stateId}' synchronisiert (Reparatur).`, "debug");
+          (0, import_logger.writeLog)(`Properties of '${stateId}' synchronized (Repair).`, "debug");
         }
       }
       if (definition.write) {
         adapter.subscribeStates(stateId);
       }
       adapter.createdStates.add(stateId);
-      if (definition.folder === "Aktionen") {
+      if (definition.folder === "Actions") {
         const currentState = await adapter.getStateAsync(stateId);
         if (!currentState) {
-          await adapter.setStateAsync(stateId, {
+          await adapter.setState(stateId, {
             val: definition.def !== void 0 ? definition.def : false,
             ack: true
           });
         } else if (currentState.ack === false) {
           const valToSet = definition.role === "button" ? false : currentState.val;
-          await adapter.setStateAsync(stateId, { val: valToSet, ack: true });
+          await adapter.setState(stateId, { val: valToSet, ack: true });
         }
       }
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler bei der Objekt\xFCberpr\xFCfung: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error during object validation: ${msg}`, "error");
   }
 }
 async function ensureCustomObjectsExist(adapter) {
   const config = adapter.config;
   const customStates = config.custom_states || [];
   if (customStates.some((c) => c.active)) {
-    await adapter.setObjectNotExistsAsync("Benutzer", {
+    await adapter.setObjectNotExistsAsync("Custom", {
       type: "channel",
-      common: { name: "Benutzerdefinierte Werte" },
+      common: { name: "Custom values" },
       native: {}
     });
   }
@@ -300,19 +307,19 @@ async function ensureCustomObjectsExist(adapter) {
     if (!custom.active || custom.luxId === void 0 || !custom.name) {
       continue;
     }
-    const stateId = `Benutzer.${sanitizeName(custom.name)}`;
+    const stateId = `Custom.${sanitizeName(custom.name)}`;
     let role = "state";
     const targetType = custom.type === "datetime" ? "string" : custom.type;
+    const isWritable = custom.source === "parameter";
     if (custom.type === "number") {
       role = "value";
     } else if (custom.type === "string") {
       role = "text";
     } else if (custom.type === "boolean") {
-      role = "indicator";
+      role = isWritable ? "switch" : "sensor.switch";
     } else if (custom.type === "datetime") {
-      role = "value.datetime";
+      role = "value.time";
     }
-    const isWritable = custom.source === "parameter";
     const objDef = {
       type: "state",
       common: {

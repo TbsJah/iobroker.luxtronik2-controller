@@ -25,12 +25,12 @@ __export(stateMapping_exports, {
 module.exports = __toCommonJS(stateMapping_exports);
 const STATE_MAPPING = {
   // ==========================================
-  // Informationen & Values (Lesbar)
+  // Information & Values (Read-only)
   // ==========================================
-  // Temperaturen
+  // Temperatures
   temperature_supply: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Vorlauftemperatur",
+    folder: "Information.01_Temperatures",
+    name: "Supply temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -39,8 +39,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_return: {
-    folder: "Informationen.01_Temperaturen",
-    name: "R\xFCcklauftemperatur",
+    folder: "Information.01_Temperatures",
+    name: "Return temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -50,8 +50,8 @@ const STATE_MAPPING = {
     required: true
   },
   spreizung_vorlauf_ruecklauf: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Spreizung Vorlauf - R\xFCcklauf",
+    folder: "Information.01_Temperatures",
+    name: "Temperature spread supply - return",
     role: "value.temperature",
     type: "number",
     unit: "K",
@@ -59,8 +59,8 @@ const STATE_MAPPING = {
     required: true
   },
   temperature_target_return: {
-    folder: "Informationen.01_Temperaturen",
-    name: "R\xFCckl.-Soll-Temperatur",
+    folder: "Information.01_Temperatures",
+    name: "Target return temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -70,8 +70,8 @@ const STATE_MAPPING = {
     required: true
   },
   temperature_extern_return: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Externe R\xFCcklauftemperatur",
+    folder: "Settings.02_Heating",
+    name: "External return temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -81,8 +81,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_hot_gas: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Heissgas-Temperatur",
+    folder: "Information.01_Temperatures",
+    name: "Hot gas temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -91,8 +91,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_outside: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Au\xDFentemperatur",
+    folder: "Information.01_Temperatures",
+    name: "Outside temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -102,9 +102,9 @@ const STATE_MAPPING = {
     required: true
   },
   Mitteltemperatur: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Value 16 (ID_WEB_Mitteltemperatur)",
-    role: "value",
+    folder: "Information.01_Temperatures",
+    name: "Average temperature (Value 16)",
+    role: "value.temperature",
     type: "number",
     write: false,
     luxWriteId: "16",
@@ -113,8 +113,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   Wamwassertemperatur_Ist: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Value 17 (ID_WEB_Temperatur_TBW)",
+    folder: "Information.01_Temperatures",
+    name: "Hot water temperature actual (Value 17)",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -125,8 +125,8 @@ const STATE_MAPPING = {
     required: true
   },
   Wamwassertemperatur_Soll: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Value 18 (ID_WEB_Einst_BWS_akt)",
+    folder: "Information.01_Temperatures",
+    name: "Hot water temperature target (Value 18)",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -137,8 +137,8 @@ const STATE_MAPPING = {
     required: true
   },
   temperature_heat_source_in: {
-    folder: "Informationen.01_Temperaturen",
-    name: "W\xE4rmequelle Eintritt",
+    folder: "Information.01_Temperatures",
+    name: "Heat source inlet temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -147,8 +147,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_overheating_target: {
-    folder: "Informationen.01_Temperaturen",
-    name: "\xDCberhitzung Soll",
+    folder: "Information.01_Temperatures",
+    name: "Target overheating temperature",
     role: "value.temperature",
     type: "number",
     unit: "K",
@@ -157,8 +157,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_compressor1_heating: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Hei\xDFgas Kompressor 1",
+    folder: "Information.01_Temperatures",
+    name: "Hot gas compressor 1 temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -167,8 +167,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_overheating: {
-    folder: "Informationen.01_Temperaturen",
-    name: "\xDCberhitzung Ist",
+    folder: "Information.01_Temperatures",
+    name: "Actual overheating temperature",
     role: "value.temperature",
     type: "number",
     unit: "K",
@@ -177,8 +177,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_intake_compressor1: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Saugstatus Kompressor 1 Temperatur",
+    folder: "Information.01_Temperatures",
+    name: "Intake compressor 1 temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -187,8 +187,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   temperature_intake_evaporation: {
-    folder: "Informationen.01_Temperaturen",
-    name: "Saugstatus Verdampfer Temperatur",
+    folder: "Information.01_Temperatures",
+    name: "Intake evaporator temperature",
     role: "value.temperature",
     type: "number",
     unit: "\xB0C",
@@ -196,55 +196,55 @@ const STATE_MAPPING = {
     factor: 10,
     dataSource: "raw_value"
   },
-  // Eingänge
+  // Inputs
   ASDin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Abtau-Endeschalter ASD",
+    folder: "Information.02_Inputs",
+    name: "Defrost end switch ASD",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "29",
     dataSource: "raw_value"
   },
   EVUin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "EVU-Sperre",
+    folder: "Information.02_Inputs",
+    name: "Utility block EVU",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "31",
     dataSource: "raw_value"
   },
   HDin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Hochdruckw\xE4chter HD",
+    folder: "Information.02_Inputs",
+    name: "High pressure switch HD",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "32",
     dataSource: "raw_value"
   },
   MOTin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Motorschutz MOT",
+    folder: "Information.02_Inputs",
+    name: "Motor protection MOT",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "33",
     dataSource: "raw_value"
   },
   NDin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Niederdruckw\xE4chter ND",
+    folder: "Information.02_Inputs",
+    name: "Low pressure switch ND",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "34",
     dataSource: "raw_value"
   },
   AnalogIn: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Analoger Eingang 1",
+    folder: "Information.02_Inputs",
+    name: "Analog input 1",
     role: "value",
     type: "number",
     unit: "V",
@@ -253,8 +253,8 @@ const STATE_MAPPING = {
     factor: 100
   },
   NDin_pressure: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Niederdruck-Sensorwert",
+    folder: "Information.02_Inputs",
+    name: "Low pressure sensor value",
     role: "value.pressure",
     type: "number",
     unit: "bar",
@@ -263,8 +263,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   HDin_pressure: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Hochdruck-Sensorwert",
+    folder: "Information.02_Inputs",
+    name: "High pressure sensor value",
     role: "value.pressure",
     type: "number",
     unit: "bar",
@@ -273,93 +273,93 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   BWTin: {
-    folder: "Informationen.02_Eingaenge",
-    name: "Brauchwasserthermostat BWT",
+    folder: "Information.02_Inputs",
+    name: "Domestic hot water thermostat BWT",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "30",
     dataSource: "raw_value"
   },
-  // Ausgänge
+  // Outputs
   AVout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Abtauventil AV",
+    folder: "Information.03_Outputs",
+    name: "Defrost valve AV",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "37",
     dataSource: "raw_value"
   },
   BUPout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Warmwasser-Umw\xE4lzpumpe BUP",
+    folder: "Information.03_Outputs",
+    name: "Hot water circulation pump BUP",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "38",
     dataSource: "raw_value"
   },
   HUPout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Heizungsumw\xE4lzpumpe HUP",
+    folder: "Information.03_Outputs",
+    name: "Heating circulation pump HUP",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "39",
     dataSource: "raw_value",
     required: true
   },
   VENout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Ventilator VEN",
+    folder: "Information.03_Outputs",
+    name: "Fan VEN",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "42",
     dataSource: "raw_value"
   },
   VD1out: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Verdichter 1 VD1",
+    folder: "Information.03_Outputs",
+    name: "Compressor 1 VD1",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "44",
     dataSource: "raw_value",
     required: true
   },
   ZIPout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Zirkulationspumpe ZIP",
+    folder: "Information.03_Outputs",
+    name: "Circulation pump ZIP",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "46",
     dataSource: "raw_value",
     required: true
   },
   ZUPout: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Zusatzumw\xE4lzpumpe ZUP",
+    folder: "Information.03_Outputs",
+    name: "Auxiliary circulation pump ZUP",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "47",
     dataSource: "raw_value"
   },
   ZW1out: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Zweiter W\xE4rmeerzeuger 1 ZW1",
+    folder: "Information.03_Outputs",
+    name: "Second heat generator 1 ZW1",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "48",
     dataSource: "raw_value"
   },
   analogOut1: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Analoger Ausgang 1",
+    folder: "Information.03_Outputs",
+    name: "Analog output 1",
     role: "value",
     type: "number",
     unit: "V",
@@ -368,8 +368,8 @@ const STATE_MAPPING = {
     factor: 100
   },
   analogOut2: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Analoger Ausgang 2",
+    folder: "Information.03_Outputs",
+    name: "Analog output 2",
     role: "value",
     type: "number",
     unit: "V",
@@ -378,154 +378,154 @@ const STATE_MAPPING = {
     factor: 100
   },
   defrostValve: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Status Abtauventil",
+    folder: "Information.03_Outputs",
+    name: "Status defrost valve",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "37",
     dataSource: "raw_value"
   },
   hotWaterBoilerValve: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Status Umschaltventil Warmwasser",
+    folder: "Information.03_Outputs",
+    name: "Status switching valve hot water",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "38",
     dataSource: "raw_value"
   },
   heatingSystemCircPump: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Heizungsumw\xE4lzpumpe",
+    folder: "Information.03_Outputs",
+    name: "Heating circulation pump",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "39",
     dataSource: "raw_value"
   },
   heatSourceMotor: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Motor W\xE4rmequelle",
+    folder: "Information.03_Outputs",
+    name: "Motor heat source",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "43",
     dataSource: "raw_value"
   },
   compressor1: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Status Kompressor 1 Laufr\xFCckmeldung",
+    folder: "Information.03_Outputs",
+    name: "Status compressor 1 run feedback",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "44",
     dataSource: "raw_value"
   },
   hotWaterCircPumpExtern: {
-    folder: "Informationen.03_Ausgaenge",
-    name: "Warmwasser Zirkulationspumpe Extern",
+    folder: "Information.03_Outputs",
+    name: "Hot water circulation pump external",
     role: "value",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "46",
     dataSource: "raw_value"
   },
-  // Zeiten
+  // Timers (Format HH:MM:SS mapped as 'text')
   Time_WPein_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Einschaltzeit W\xE4rmepumpe",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current switch-on time heat pump",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "67",
     dataSource: "raw_value"
   },
   Time_ZWE1_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Laufzeit ZWE1",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current runtime ZWE1",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "68",
     dataSource: "raw_value"
   },
   Timer_EinschVerz: {
-    folder: "Informationen.04_Timer",
-    name: "Einschaltverz\xF6gerung Restzeit",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Switch-on delay remaining time",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "70",
     dataSource: "raw_value"
   },
   Time_SSPAUS_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Sperrzeit AUS",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current lock time OFF",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "71",
     dataSource: "raw_value"
   },
   Time_SSPEIN_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Sperrzeit EIN",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current lock time ON",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "72",
     dataSource: "raw_value"
   },
   Time_VDStd_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Standzeit Verdichter",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current downtime compressor",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "73",
     dataSource: "raw_value"
   },
   Time_HRM_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Zeit HRM",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current time HRM",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "74",
     dataSource: "raw_value"
   },
   Time_HRW_akt: {
-    folder: "Informationen.04_Timer",
-    name: "Aktuelle Zeit HRW",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Current time HRW",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "75",
     dataSource: "raw_value"
   },
   Time_Heissgas: {
-    folder: "Informationen.04_Timer",
-    name: "Zeit Hei\xDFgas\xFCberwachung",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Time hot gas monitoring",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "158",
     dataSource: "raw_value"
   },
   ahp_Zeit: {
-    folder: "Informationen.04_Timer",
-    name: "Zeit ahp-Stufe",
-    role: "value.time",
+    folder: "Information.04_Timers",
+    name: "Time ahp stage",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "123",
     dataSource: "raw_value"
   },
-  // Betriebsstunden
+  // Operating Hours
   hours_compressor1: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Betriebsstunden Kompressor 1",
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours compressor 1",
     role: "value",
     type: "number",
     unit: "h",
@@ -534,16 +534,16 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   starts_compressor1: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Schaltspiele Kompressor 1",
+    folder: "Information.05_OperatingHours",
+    name: "Switch cycles compressor 1",
     role: "value",
     type: "number",
     luxWriteId: "57",
     dataSource: "raw_value"
   },
   hours_2nd_heat_source1: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Betriebsstunden Zweiter W\xE4rmeerzeuger 1 (Heizstab)",
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours second heat generator 1",
     role: "value",
     type: "number",
     unit: "h",
@@ -552,8 +552,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   hours_heatpump: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Betriebsstunden W\xE4rmepumpe Gesamt",
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours heat pump total",
     role: "value",
     type: "number",
     unit: "h",
@@ -562,8 +562,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   hours_heating: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Betriebsstunden Heizbetrieb",
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours heating",
     role: "value",
     type: "number",
     unit: "h",
@@ -572,8 +572,8 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   hours_warmwater: {
-    folder: "Informationen.05_Betriebsstunden",
-    name: "Betriebsstunden Warmwassererzeugung",
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours hot water",
     role: "value",
     type: "number",
     unit: "h",
@@ -581,116 +581,108 @@ const STATE_MAPPING = {
     factor: 3600,
     dataSource: "raw_value"
   },
-  // Fehlerspeicher & Abschaltungen (SYSTEMRELEVANT)
+  // Error & Outage Logs (SYSTEMRELEVANT)
   Fehlerspeicher: {
-    folder: "Informationen.06_Fehlerspeicher",
-    name: "Fehlerhistorie (Die letzten 5 Fehler)",
-    role: "string",
+    folder: "Information.06_ErrorLog",
+    name: "Error history (Last 5 errors)",
+    role: "json",
     type: "json",
     isVirtual: true,
     required: true
   },
   Abschaltungen: {
-    folder: "Informationen.07_Abschaltungen",
-    name: "Abschalthistorie (Die letzten 5 Abschaltungen)",
-    role: "string",
+    folder: "Information.07_Outages",
+    name: "Outage history (Last 5 outages)",
+    role: "json",
     type: "json",
     isVirtual: true,
     required: true
   },
-  // Betriebszustand
+  // Operating State
   WP_BZ_akt: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Aktueller Betriebszustand Code",
+    folder: "Information.08_OperatingState",
+    name: "Current operating state code",
     role: "value",
     type: "number",
     states: {
-      0: "Heizbetrieb",
-      1: "Trinkwarmwasser",
-      2: "Schwimmbad",
-      3: "EVU-Sperre",
-      4: "Abtauen",
-      5: "Leerlauf",
-      6: "Externe Energiequelle",
-      7: "K\xFChlung"
+      0: "Heating",
+      1: "Hot water",
+      2: "Swimming pool",
+      3: "Utility block",
+      4: "Defrosting",
+      5: "Idle",
+      6: "External heat source",
+      7: "Cooling"
     },
     luxWriteId: "80",
     dataSource: "raw_value",
     required: true
   },
   heatpump_extendet_state_string: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Erweiterter Status Text",
+    folder: "Information.08_OperatingState",
+    name: "Extended state text",
     role: "text",
     type: "string",
     dataSource: "value"
   },
   opStateHeating: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Betriebszustand Heizung",
+    folder: "Information.08_OperatingState",
+    name: "Operating state heating",
     role: "value",
     type: "number",
-    states: { 0: "Abgesenkt", 1: "Normal", 2: "Heizgrenze", 3: "Aus", 4: "Frostschutz" },
+    states: { 0: "Reduced", 1: "Normal", 2: "Heating limit", 3: "Off", 4: "Frost protection" },
     luxWriteId: "125",
     dataSource: "raw_value"
   },
   opStateHeatingString: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Betriebszustand Heizung",
+    folder: "Information.08_OperatingState",
+    name: "Operating state heating text",
     role: "text",
     type: "string",
     dataSource: "value",
     required: true
   },
   opStateHotWaterString: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Betriebszustand Warmwasser",
+    folder: "Information.08_OperatingState",
+    name: "Operating state hot water text",
     role: "text",
     type: "string",
     dataSource: "value"
   },
   bivalentLevel: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Bivalenzstufe",
+    folder: "Information.08_OperatingState",
+    name: "Bivalent level",
     role: "value",
     type: "number",
     states: {
-      1: "Ein Verdichter darf laufen",
-      2: "Zwei Verdichter d\xFCrfen laufen",
-      3: "Zus\xE4tzlicher W\xE4rmeerzeuger darf mitlaufen"
+      1: "One compressor allowed",
+      2: "Two compressors allowed",
+      3: "Additional heat generator allowed"
     },
     luxWriteId: "79",
     dataSource: "raw_value"
   },
   heatpump_duration: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "Dauer aktueller Zustand",
-    role: "value",
+    folder: "Information.08_OperatingState",
+    name: "Duration of current state",
+    role: "text",
     type: "string",
     unit: "s",
     luxWriteId: "120",
     dataSource: "raw_value"
   },
   heatpump_state_string: {
-    folder: "Informationen.08_Betriebszustand",
-    name: "W\xE4rmepumpen Status Text",
+    folder: "Information.08_OperatingState",
+    name: "Heat pump state text",
     role: "text",
     type: "string",
     dataSource: "value"
   },
-  Heizen_nach_Wasser: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Heizen nach Wasser aktiv",
-    role: "switch",
-    type: "boolean",
-    isVirtual: true,
-    required: true
-  },
-  // Wärmemenge
+  // Thermal Energy
   thermalenergy_heating: {
-    folder: "Informationen.09_W\xE4rmemenge",
-    name: "W\xE4rmemenge Heizung Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.09_ThermalEnergy",
+    name: "Thermal energy heating generated",
+    role: "value.energy.consumed",
     type: "number",
     unit: "kWh",
     luxWriteId: "151",
@@ -698,9 +690,9 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   thermalenergy_warmwater: {
-    folder: "Informationen.09_W\xE4rmemenge",
-    name: "W\xE4rmemenge Warmwasser Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.09_ThermalEnergy",
+    name: "Thermal energy hot water generated",
+    role: "value.energy.consumed",
     type: "number",
     unit: "kWh",
     luxWriteId: "152",
@@ -708,9 +700,9 @@ const STATE_MAPPING = {
     dataSource: "raw_value"
   },
   thermalenergy_ZWE1: {
-    folder: "Informationen.09_W\xE4rmemenge",
-    name: "W\xE4rmemenge Heizstab Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.09_ThermalEnergy",
+    name: "Thermal energy second heat generator generated",
+    role: "value.energy.consumed",
     type: "number",
     luxWriteId: "1059",
     unit: "kWh",
@@ -718,18 +710,18 @@ const STATE_MAPPING = {
     factor: 100
   },
   thermalenergy_total: {
-    folder: "Informationen.09_W\xE4rmemenge",
-    name: "W\xE4rmemenge Gesamt Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.09_ThermalEnergy",
+    name: "Thermal energy total generated",
+    role: "value.energy.consumed",
     type: "number",
     unit: "kWh",
     isVirtual: true
   },
-  // Energie
+  // Energy
   energy_heating: {
-    folder: "Informationen.10_Energie",
-    name: "Energie Heizung Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.10_Energy",
+    name: "Energy heating consumed",
+    role: "value.energy.consumed",
     luxWriteId: "1136",
     type: "number",
     unit: "kWh",
@@ -737,9 +729,9 @@ const STATE_MAPPING = {
     factor: 100
   },
   energy_warmwater: {
-    folder: "Informationen.10_Energie",
-    name: "Energie Warmwasser Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.10_Energy",
+    name: "Energy hot water consumed",
+    role: "value.energy.consumed",
     type: "number",
     luxWriteId: "1137",
     unit: "kWh",
@@ -747,9 +739,9 @@ const STATE_MAPPING = {
     factor: 100
   },
   energy_ZWE1: {
-    folder: "Informationen.10_Energie",
-    name: "Energie Heizstab Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.10_Energy",
+    name: "Energy second heat generator consumed",
+    role: "value.energy.consumed",
     type: "number",
     luxWriteId: "1059",
     unit: "kWh",
@@ -757,299 +749,299 @@ const STATE_MAPPING = {
     factor: 100
   },
   energy_total: {
-    folder: "Informationen.10_Energie",
-    name: "Energie Gesamt Erzeugt",
-    role: "value.power.consumption",
+    folder: "Information.10_Energy",
+    name: "Energy total consumed",
+    role: "value.energy.consumed",
     type: "number",
     unit: "kWh",
     isVirtual: true
   },
-  // 11_Tabellen
+  // 11_Tables
   heatingOperationTimerTable52MonFri: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Mo-Fr (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Mo-Fr (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTable52SatSun: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Sa-So (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Sa-Su (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDayFriday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Fr (Day Friday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Fr",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDayMonday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Mo (Day Monday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Mo",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDaySaturday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Sa (Day Saturday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Sa",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDaySunday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle So (Day Sunday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Su",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDayThursday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Do (Day Thursday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Th",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDayTuesday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Di (Day Tuesday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Tu",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableDayWednesday: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Mi (Day Wednesday)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table We",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   heatingOperationTimerTableWeek: {
-    folder: "Informationen.11_Tabellen.Heizen",
-    name: "Heizbetrieb Timer Tabelle Wo (Day Week)",
-    role: "string",
+    folder: "Information.11_Tables.Heating",
+    name: "Heating timer table Week (Mo-Su)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTable52MonFri: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Mo-Fr (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Mo-Fr (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTable52SatSun: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Sa-So (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Sa-Su (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDayFriday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Fr (Day Friday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Fr",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDayMonday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Mo (Day Monday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Mo",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDaySaturday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Sa (Day Saturday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Sa",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDaySunday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle So (Day Sunday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Su",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDayThursday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Do (Day Thursday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Th",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDayTuesday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Di (Day Tuesday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Tu",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableDayWednesday: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Mi (Day Wednesday)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table We",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterTableWeek: {
-    folder: "Informationen.11_Tabellen.Warmwasser",
-    name: "Warmwasserbetrieb Timer Tabelle Wo (Day Week)",
-    role: "string",
+    folder: "Information.11_Tables.HotWater",
+    name: "Hot water timer table Week (Mo-Su)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTable52MonFri: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Mo-Fr (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Mo-Fr (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTable52SatSun: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Sa-So (5+2)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Sa-Su (5+2)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDayFriday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Fr (Day Friday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Fr",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDayMonday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Mo (Day Monday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Mo",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDaySaturday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Sa (Day Saturday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Sa",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDaySunday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle So (Day Sunday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Su",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDayThursday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Do (Day Thursday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Th",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDayTuesday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Di (Day Tuesday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Tu",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableDayWednesday: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Mi (Day Wednesday)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table We",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   hotWaterCircPumpTimerTableWeek: {
-    folder: "Informationen.11_Tabellen.Zirkulation",
-    name: "Zirkulationsbetrieb Timer Tabelle Wo (Day Week)",
-    role: "string",
+    folder: "Information.11_Tables.Circulation",
+    name: "Circulation timer table Week (Mo-Su)",
+    role: "json",
     type: "json",
     dataSource: "parameter"
   },
   // 12_Systeminfo
   heatpump_type: {
-    folder: "Informationen.12_Systeminfo",
-    name: "W\xE4rmepumpen-Typ",
+    folder: "Information.12_SystemInfo",
+    name: "Heat pump type",
     role: "text",
     type: "string",
     dataSource: "raw_value"
   },
   firmware: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Firmware-Version",
+    folder: "Information.12_SystemInfo",
+    name: "Firmware version",
     role: "text",
     type: "string",
     dataSource: "raw_value"
   },
   ip_address: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Aktuelle IP-Adresse",
+    folder: "Information.12_SystemInfo",
+    name: "Current IP address",
     role: "info.ip",
     type: "string",
     dataSource: "raw_value"
   },
   subnet: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Subnetzmaske",
-    role: "info.ip",
+    folder: "Information.12_SystemInfo",
+    name: "Subnet mask",
+    role: "info.address",
     type: "string",
     dataSource: "raw_value"
   },
   broadcast_address: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Broadcast-Adresse",
-    role: "info.ip",
+    folder: "Information.12_SystemInfo",
+    name: "Broadcast address",
+    role: "info.address",
     type: "string",
     dataSource: "raw_value"
   },
   standard_gateway: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Standard-Gateway",
-    role: "info.ip",
+    folder: "Information.12_SystemInfo",
+    name: "Standard gateway",
+    role: "info.address",
     type: "string",
     dataSource: "raw_value"
   },
   LIN_exists: {
-    folder: "Informationen.12_Systeminfo",
-    name: "LIN-Bus vorhanden",
+    folder: "Information.12_SystemInfo",
+    name: "LIN bus available",
     role: "indicator",
     type: "boolean",
     luxWriteId: "174",
     dataSource: "raw_value"
   },
   Ger\u00E4tezeit: {
-    folder: "Informationen.12_Systeminfo",
-    name: "Ger\xE4tezeit",
-    role: "value.datetime",
+    folder: "Information.12_SystemInfo",
+    name: "Device time",
+    role: "value.time",
     type: "string",
     dataSource: "raw_value",
     luxWriteId: "134"
   },
   // ==========================================
-  // KÜHLUNG (COOLING)
+  // COOLING
   // ==========================================
   cooling_operation_mode: {
-    folder: "Informationen.13_Kuehlung",
-    name: "Betriebsart K\xFChlung",
-    role: "value",
+    folder: "Information.13_Cooling",
+    name: "Cooling operation mode",
+    role: "level.mode.thermostat",
     type: "number",
     write: true,
     luxWriteId: "108",
-    states: { 0: "Aus", 1: "Automatik" },
+    states: { 0: "Off", 1: "Automatic" },
     dataSource: "raw_parameter"
   },
   cooling_release_temp: {
-    folder: "Informationen.13_Kuehlung",
-    name: "K\xFChlfreigabe Temperatur",
+    folder: "Information.13_Cooling",
+    name: "Cooling release temperature",
     role: "level.temperature",
     type: "number",
     unit: "\xB0C",
@@ -1059,8 +1051,8 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   cooling_inlet_temp: {
-    folder: "Informationen.13_Kuehlung",
-    name: "K\xFChlmitteleinlasstemperatur",
+    folder: "Information.13_Cooling",
+    name: "Cooling inlet temperature",
     role: "level.temperature",
     type: "number",
     unit: "\xB0C",
@@ -1070,9 +1062,9 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   cooling_start_after_hours: {
-    folder: "Informationen.13_Kuehlung",
-    name: "cooling_start_after_hours",
-    role: "level.temperature",
+    folder: "Information.13_Cooling",
+    name: "Cooling start after hours",
+    role: "level.timer",
     type: "number",
     unit: "h",
     write: true,
@@ -1081,9 +1073,9 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   cooling_end_after_hours: {
-    folder: "Informationen.13_Kuehlung",
-    name: "cooling_end_after_hours",
-    role: "level.temperature",
+    folder: "Information.13_Cooling",
+    name: "Cooling end after hours",
+    role: "level.timer",
     type: "number",
     unit: "h",
     write: true,
@@ -1092,9 +1084,9 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   hours_cooling: {
-    folder: "Informationen.13_Kuehlung",
-    name: "hours_cooling",
-    role: "level.temperature",
+    folder: "Information.13_Cooling",
+    name: "Operating hours cooling",
+    role: "value.timer",
     type: "number",
     unit: "h",
     write: false,
@@ -1103,34 +1095,34 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   // ==========================================
-  // EINSTELLUNGEN & PARAMETER (Beschreibbar)
+  // SETTINGS & PARAMETERS (Writable)
   // ==========================================
-  // Betriebsmodus
+  // Operating Mode
   heating_operation_mode: {
-    folder: "Einstellungen.01_Betriebsmodus",
-    name: "Betriebsart Heizung",
-    role: "level.mode",
+    folder: "Settings.01_OperatingMode",
+    name: "Operating mode heating",
+    role: "level.mode.thermostat",
     type: "number",
     write: true,
-    states: { 0: "Automatik", 1: "Zweites WEZ", 2: "Party", 3: "Ferien", 4: "Aus" },
+    states: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
     luxWriteId: "3",
     dataSource: "raw_parameter"
   },
   warmwater_operation_mode: {
-    folder: "Einstellungen.01_Betriebsmodus",
-    name: "Betriebsart Warmwasser",
-    role: "level.mode",
+    folder: "Settings.01_OperatingMode",
+    name: "Operating mode hot water",
+    role: "level.mode.thermostat",
     type: "number",
     write: true,
-    states: { 0: "Automatik", 1: "Zweites WEZ", 2: "Party", 3: "Ferien", 4: "Aus" },
+    states: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
     luxWriteId: "4",
     dataSource: "raw_parameter"
   },
-  // Heizung
+  // Heating
   heating_curve_end_point: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Heizkurve Endpunkt (R\xFCcklauf)",
-    role: "value.temperature",
+    folder: "Settings.02_Heating",
+    name: "Heating curve end point (Return)",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     write: true,
@@ -1142,9 +1134,9 @@ const STATE_MAPPING = {
     required: true
   },
   heating_curve_parallel_offset: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Heizkurve Fusspunkt",
-    role: "value.temperature",
+    folder: "Settings.02_Heating",
+    name: "Heating curve parallel offset",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     write: true,
@@ -1156,9 +1148,9 @@ const STATE_MAPPING = {
     required: true
   },
   deltaHeatingReduction: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Heizung Nachtabsenkung (Delta)",
-    role: "value.temperature",
+    folder: "Settings.02_Heating",
+    name: "Heating night reduction (Delta)",
+    role: "level.temperature",
     type: "number",
     unit: "K",
     write: true,
@@ -1169,9 +1161,9 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   heating_temperature: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Heizung Verschiebng Soll-Temperatur (Wunschwert)",
-    role: "value.temperature",
+    folder: "Settings.02_Heating",
+    name: "Heating target temperature offset",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     write: true,
@@ -1182,9 +1174,9 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   returnTemperatureHysteresis: {
-    folder: "Einstellungen.02_Heizung",
-    name: "R\xFCcklauftemperatur Hysterese",
-    role: "value.temperature",
+    folder: "Settings.02_Heating",
+    name: "Return temperature hysteresis",
+    role: "level.temperature",
     type: "number",
     unit: "K",
     write: true,
@@ -1196,9 +1188,9 @@ const STATE_MAPPING = {
     required: true
   },
   thresholdHeatingLimit: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Parameter 700 (ID_Einst_Heizgrenze_Temp)",
-    role: "value",
+    folder: "Settings.02_Heating",
+    name: "Heating limit temperature (Parameter 700)",
+    role: "level.temperature",
     type: "number",
     write: true,
     luxWriteId: "700",
@@ -1207,20 +1199,28 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter"
   },
   heatingLimit: {
-    folder: "Einstellungen.02_Heizung",
-    name: "Parameter 699 (ID_Einst_Heizgrenze)",
+    folder: "Settings.02_Heating",
+    name: "Heating limit active (Parameter 699)",
     write: true,
-    role: "value",
+    role: "sensor.switch",
     type: "number",
     luxWriteId: "699",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     dataSource: "raw_parameter"
   },
-  // Warmwasser
+  Heizen_nach_Wasser: {
+    folder: "Settings.02_Heating",
+    name: "Heating by water active",
+    role: "sensor.switch",
+    type: "boolean",
+    isVirtual: true,
+    required: true
+  },
+  // Hot Water
   warmwater_temperature: {
-    folder: "Einstellungen.03_Warmwasser",
-    name: "Warmwasser Soll-Temperatur",
-    role: "value.temperature",
+    folder: "Settings.03_HotWater",
+    name: "Hot water target temperature",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     write: true,
@@ -1232,9 +1232,9 @@ const STATE_MAPPING = {
     required: true
   },
   temperature_hot_water_target: {
-    folder: "Einstellungen.03_Warmwasser",
-    name: "Warmwasser Soll-Temperatur",
-    role: "value.temperature",
+    folder: "Settings.03_HotWater",
+    name: "Hot water target temperature (Parameter 105)",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     write: true,
@@ -1246,9 +1246,9 @@ const STATE_MAPPING = {
     required: true
   },
   hotWaterTemperatureHysteresis: {
-    folder: "Einstellungen.03_Warmwasser",
-    name: "Warmwasser Hysterese",
-    role: "value.temperature",
+    folder: "Settings.03_HotWater",
+    name: "Hot water hysteresis",
+    role: "level.temperature",
     type: "number",
     unit: "K",
     write: true,
@@ -1259,11 +1259,11 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter",
     required: true
   },
-  // Pumpe (HUP)
+  // Circulation Pumps (HUP)
   heating_system_circ_pump_voltage_nominal: {
-    folder: "Einstellungen.04_HUP",
-    name: "Heizungsumw\xE4lzpumpe Nennspannung",
-    role: "value.voltage",
+    folder: "Settings.04_HUP",
+    name: "Heating circulation pump nominal voltage",
+    role: "level.voltage",
     type: "number",
     unit: "V",
     write: true,
@@ -1275,9 +1275,9 @@ const STATE_MAPPING = {
     required: true
   },
   heating_system_circ_pump_voltage_minimal: {
-    folder: "Einstellungen.04_HUP",
-    name: "Heizungsumw\xE4lzpumpe Minimalspannung",
-    role: "value.voltage",
+    folder: "Settings.04_HUP",
+    name: "Heating circulation pump minimal voltage",
+    role: "level.voltage",
     type: "number",
     unit: "V",
     write: true,
@@ -1288,44 +1288,43 @@ const STATE_MAPPING = {
     dataSource: "raw_parameter",
     required: true
   },
-  // Zip
+  // Zip (Hot Water Circulation)
   runDeaerate: {
-    folder: "Einstellungen.05_ZIP",
-    name: "Entl\xFCftungsprogramm starten",
-    role: "value",
+    folder: "Settings.05_ZIP",
+    name: "Start deaeration program",
+    role: "switch",
     type: "number",
     write: true,
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     luxWriteId: "158",
     dataSource: "raw_parameter",
     required: true
   },
   hotWaterCircPumpDeaerate: {
-    folder: "Einstellungen.05_ZIP",
-    name: "Zirkulationspumpe entl\xFCften",
-    role: "value",
+    folder: "Settings.05_ZIP",
+    name: "Deaerate circulation pump",
+    role: "switch",
     type: "number",
-    states: { 0: "Aus", 1: "Ein" },
+    states: { 0: "Off", 1: "On" },
     write: true,
     luxWriteId: "684",
     dataSource: "raw_parameter",
     required: true
   },
   Activate_Zip: {
-    folder: "Einstellungen.05_ZIP",
-    name: "Makro: ZIP starten",
+    folder: "Settings.05_ZIP",
+    name: "Macro: Start ZIP",
     role: "switch",
     type: "boolean",
     write: true,
-    states: { 0: "Aus", 1: "Ein" },
     luxWriteId: "Activate_Zip",
     isVirtual: true,
     required: true
   },
   hotWaterCircPumpOnTime: {
-    folder: "Einstellungen.05_ZIP",
-    name: "Laufzeit ZIP aktiv",
-    role: "value",
+    folder: "Settings.05_ZIP",
+    name: "Runtime ZIP active",
+    role: "level.timer",
     type: "number",
     write: true,
     unit: "min",
@@ -1335,9 +1334,9 @@ const STATE_MAPPING = {
     required: true
   },
   hotWaterCircPumpOffTime: {
-    folder: "Einstellungen.05_ZIP",
-    name: "Laufzeit ZIP inaktiv",
-    role: "value",
+    folder: "Settings.05_ZIP",
+    name: "Runtime ZIP inactive",
+    role: "level.timer",
     type: "number",
     write: true,
     unit: "min",
@@ -1347,9 +1346,9 @@ const STATE_MAPPING = {
     required: true
   },
   zip_aktiv: {
-    folder: "Einstellungen.05_ZIP",
-    name: "ZIP Dauer (Normal)",
-    role: "value",
+    folder: "Settings.05_ZIP",
+    name: "ZIP duration (Normal)",
+    role: "level.timer",
     type: "number",
     unit: "s",
     isVirtual: true,
@@ -1357,21 +1356,21 @@ const STATE_MAPPING = {
     def: 120,
     required: true
   },
-  // Systemeinstellungen
+  // System Settings
   Pumpenoptimierung: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Parameter 49 (ID_Einst_Popt_akt)",
-    role: "value",
+    folder: "Settings.06_SystemSettings",
+    name: "Pump optimization (Parameter 49)",
+    role: "switch",
     type: "number",
     write: true,
     luxWriteId: "49",
     dataSource: "raw_parameter",
-    states: { 0: "Aus", 1: "Ein" }
+    states: { 0: "Off", 1: "On" }
   },
   Pumpen_Nachlauf: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Parameter 864 (ID_Einst_Popt_Nachlauf_akt)",
-    role: "value",
+    folder: "Settings.06_SystemSettings",
+    name: "Pump run-on time (Parameter 864)",
+    role: "level.timer",
     type: "number",
     write: true,
     luxWriteId: "864",
@@ -1380,9 +1379,9 @@ const STATE_MAPPING = {
     factor: 1
   },
   temperature_supply_limit: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Vorlauftemperatur Maximum",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Supply temperature maximum",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "149",
@@ -1392,9 +1391,9 @@ const STATE_MAPPING = {
     write: true
   },
   temperature_return_limit: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "R\xFCcklauftemperatur Soll Minimum",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Return temperature target minimum",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "87",
@@ -1406,9 +1405,9 @@ const STATE_MAPPING = {
     write: true
   },
   temperature_outdoor_max: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "TAussen max",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Outside temperature maximum",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "91",
@@ -1420,9 +1419,9 @@ const STATE_MAPPING = {
     write: true
   },
   temperature_outdoor_min: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "TAussen min",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Outside temperature minimum",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "92",
@@ -1434,9 +1433,9 @@ const STATE_MAPPING = {
     write: true
   },
   temperature_ZWE_possible: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Freig. ZWE",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Release second heat generator",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "90",
@@ -1447,9 +1446,9 @@ const STATE_MAPPING = {
     max: 20
   },
   temperature_hot_water_limit: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Max.Warmwassertemp.",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Max. hot water temperature",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "47",
@@ -1460,9 +1459,9 @@ const STATE_MAPPING = {
     max: 65
   },
   thresholdTemperatureSetBack: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Absenk. bis",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Reduction until outside temperature",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "111",
@@ -1473,9 +1472,9 @@ const STATE_MAPPING = {
     max: 10
   },
   returnTemperatureTargetMin: {
-    folder: "Einstellungen.06_System-Einstellung",
-    name: "Min. R\xFCckl.Solltemp.",
-    role: "value.temperature",
+    folder: "Settings.06_SystemSettings",
+    name: "Min. return target temperature",
+    role: "level.temperature",
     type: "number",
     unit: "\xB0C",
     luxWriteId: "979",
@@ -1487,590 +1486,590 @@ const STATE_MAPPING = {
   },
   // Timer Tables Selection
   heatingOperationTimerTableSelected: {
-    folder: "Einstellungen.07_Tabellen",
-    name: "Aktuell ausgew\xE4hlte Tabelle Heizbetrieb Timer",
-    role: "value",
+    folder: "Settings.07_Tables",
+    name: "Currently selected heating timer table",
+    role: "level.mode",
     type: "number",
     luxWriteId: "222",
     dataSource: "raw_parameter",
-    states: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" }
+    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" }
   },
   hotWaterCircPumpTimerTableSelected: {
-    folder: "Einstellungen.07_Tabellen",
-    name: "Aktuell ausgew\xE4hlte Tabelle Zirkulationsbetrieb Timer",
-    role: "value",
+    folder: "Settings.07_Tables",
+    name: "Currently selected circulation timer table",
+    role: "level.mode",
     type: "number",
     luxWriteId: "506",
     dataSource: "raw_parameter",
-    states: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" },
+    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
     required: true
   },
   hotWaterOperationTimerTableSelected: {
-    folder: "Einstellungen.07_Tabellen",
-    name: "Aktuell ausgew\xE4hlte Tabelle Warmwasserbetrieb Timer",
-    role: "value",
+    folder: "Settings.07_Tables",
+    name: "Currently selected hot water timer table",
+    role: "level.mode",
     type: "number",
     luxWriteId: "405",
     dataSource: "raw_parameter",
-    states: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" },
+    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
     required: true
   },
   // =========================================================
-  // HEIZEN TIMER: WOCHE (MO-SO)
+  // HEATING TIMER: WEEK (MO-SU)
   // =========================================================
   HZ_MoSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Start 1 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer start 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "223",
     write: true
   },
   HZ_MoSo_End1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Ende 1 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer end 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "224",
     write: true
   },
   HZ_MoSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Start 2 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer start 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "225",
     write: true
   },
   HZ_MoSo_End2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Ende 2 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer end 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "226",
     write: true
   },
   HZ_MoSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Start 3 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer start 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "227",
     write: true
   },
   HZ_MoSo_End3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Mo-So",
-    name: "Heizen Timer Tabelle Ende 3 Woche (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Mo-Su",
+    name: "Heating timer end 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "228",
     write: true
   },
   // =========================================================
-  // HEIZEN TIMER: 5+2 (MO-FR & SA-SO)
+  // HEATING TIMER: 5+2 (MO-FR & SA-SU)
   // =========================================================
   HZ_MoFr_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "229",
     write: true
   },
   HZ_MoFr_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "230",
     write: true
   },
   HZ_MoFr_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "231",
     write: true
   },
   HZ_MoFr_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "232",
     write: true
   },
   HZ_MoFr_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "233",
     write: true
   },
   HZ_MoFr_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "234",
     write: true
   },
   HZ_SaSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "235",
     write: true
   },
   HZ_SaSo_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "236",
     write: true
   },
   HZ_SaSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "237",
     write: true
   },
   HZ_SaSo_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "238",
     write: true
   },
   HZ_SaSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Start 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer start 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "239",
     write: true
   },
   HZ_SaSo_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.52_MoFr_SaSo",
-    name: "Heizen Timer Tabelle Ende 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.52_MoFr_SaSu",
+    name: "Heating timer end 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "240",
     write: true
   },
   // =========================================================
-  // HEIZEN TIMER: EINZELTAGE
+  // HEATING TIMER: SINGLE DAYS
   // =========================================================
   HZ_Sonntag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Start 1 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer start 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "241",
     write: true
   },
   HZ_Sonntag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Ende 1 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer end 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "242",
     write: true
   },
   HZ_Sonntag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Start 2 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer start 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "243",
     write: true
   },
   HZ_Sonntag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Ende 2 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer end 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "244",
     write: true
   },
   HZ_Sonntag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Start 3 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer start 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "245",
     write: true
   },
   HZ_Sonntag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Sonntag",
-    name: "Heizen Timer Tabelle Ende 3 Sonntag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Sunday",
+    name: "Heating timer end 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "246",
     write: true
   },
   HZ_Montag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Start 1 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer start 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "247",
     write: true
   },
   HZ_Montag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Ende 1 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer end 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "248",
     write: true
   },
   HZ_Montag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Start 2 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer start 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "249",
     write: true
   },
   HZ_Montag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Ende 2 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer end 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "250",
     write: true
   },
   HZ_Montag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Start 3 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer start 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "251",
     write: true
   },
   HZ_Montag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Montag",
-    name: "Heizen Timer Tabelle Ende 3 Montag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Monday",
+    name: "Heating timer end 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "252",
     write: true
   },
   HZ_Dienstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Start 1 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer start 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "253",
     write: true
   },
   HZ_Dienstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Ende 1 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer end 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "254",
     write: true
   },
   HZ_Dienstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Start 2 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer start 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "255",
     write: true
   },
   HZ_Dienstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Ende 2 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer end 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "256",
     write: true
   },
   HZ_Dienstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Start 3 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer start 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "257",
     write: true
   },
   HZ_Dienstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Dienstag",
-    name: "Heizen Timer Tabelle Ende 3 Dienstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Tuesday",
+    name: "Heating timer end 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "258",
     write: true
   },
   HZ_Mittwoch_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Start 1 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer start 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "259",
     write: true
   },
   HZ_Mittwoch_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Ende 1 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer end 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "260",
     write: true
   },
   HZ_Mittwoch_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Start 2 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer start 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "261",
     write: true
   },
   HZ_Mittwoch_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Ende 2 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer end 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "262",
     write: true
   },
   HZ_Mittwoch_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Start 3 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer start 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "263",
     write: true
   },
   HZ_Mittwoch_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Mittwoch",
-    name: "Heizen Timer Tabelle Ende 3 Mittwoch",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Wednesday",
+    name: "Heating timer end 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "264",
     write: true
   },
   HZ_Donnerstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Start 1 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer start 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "265",
     write: true
   },
   HZ_Donnerstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Ende 1 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer end 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "266",
     write: true
   },
   HZ_Donnerstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Start 2 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer start 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "267",
     write: true
   },
   HZ_Donnerstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Ende 2 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer end 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "268",
     write: true
   },
   HZ_Donnerstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Start 3 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer start 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "269",
     write: true
   },
   HZ_Donnerstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Donnerstag",
-    name: "Heizen Timer Tabelle Ende 3 Donnerstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Thursday",
+    name: "Heating timer end 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "270",
     write: true
   },
   HZ_Freitag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Start 1 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer start 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "271",
     write: true
   },
   HZ_Freitag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Ende 1 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer end 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "272",
     write: true
   },
   HZ_Freitag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Start 2 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer start 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "273",
     write: true
   },
   HZ_Freitag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Ende 2 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer end 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "274",
     write: true
   },
   HZ_Freitag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Start 3 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer start 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "275",
     write: true
   },
   HZ_Freitag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Freitag",
-    name: "Heizen Timer Tabelle Ende 3 Freitag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Friday",
+    name: "Heating timer end 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "276",
     write: true
   },
   HZ_Samstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Start 1 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer start 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "277",
     write: true
   },
   HZ_Samstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Ende 1 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer end 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "278",
     write: true
   },
   HZ_Samstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Start 2 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer start 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "279",
     write: true
   },
   HZ_Samstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Ende 2 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer end 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "280",
     write: true
   },
   HZ_Samstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Start 3 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer start 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "281",
     write: true
   },
   HZ_Samstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Heizen.Parameter.Days.Samstag",
-    name: "Heizen Timer Tabelle Ende 3 Samstag",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Heating.Parameter.Days.Saturday",
+    name: "Heating timer end 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "282",
     write: true
   },
   // =========================================================
-  // WARMWASSER TIMER: WOCHE (MO-SO)
+  // HOT WATER TIMER: WEEK (MO-SU)
   // =========================================================
   WW_MoSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Start 1 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer start 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "507",
@@ -2078,9 +2077,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_End1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Ende 1 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer end 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "508",
@@ -2088,9 +2087,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Start 2 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer start 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "509",
@@ -2098,9 +2097,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_End2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Ende 2 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer end 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "510",
@@ -2108,9 +2107,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Start 3 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer start 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "511",
@@ -2118,9 +2117,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_End3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Ende 3 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer end 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "512",
@@ -2128,9 +2127,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Start 4 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer start 4 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "513",
@@ -2138,9 +2137,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_End4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Ende 4 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer end 4 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "514",
@@ -2148,9 +2147,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Start 5 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer start 5 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "515",
@@ -2158,9 +2157,9 @@ const STATE_MAPPING = {
     required: true
   },
   WW_MoSo_End5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Mo-So",
-    name: "Warmwasser Timer Ende 5 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Mo-Su",
+    name: "Hot water timer end 5 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "516",
@@ -2168,828 +2167,828 @@ const STATE_MAPPING = {
     required: true
   },
   // =========================================================
-  // WARMWASSER TIMER: 5+2 (MO-FR & SA-SO)
+  // HOT WATER TIMER: 5+2 (MO-FR & SA-SU)
   // =========================================================
   WW_MoFr_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "416",
     write: true
   },
   WW_MoFr_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "417",
     write: true
   },
   WW_MoFr_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "418",
     write: true
   },
   WW_MoFr_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "419",
     write: true
   },
   WW_MoFr_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "420",
     write: true
   },
   WW_MoFr_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "421",
     write: true
   },
   WW_MoFr_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 4 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 4 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "422",
     write: true
   },
   WW_MoFr_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 4 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 4 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "423",
     write: true
   },
   WW_MoFr_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 5 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 5 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "424",
     write: true
   },
   WW_MoFr_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 5 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 5 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "425",
     write: true
   },
   WW_SaSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "426",
     write: true
   },
   WW_SaSo_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "427",
     write: true
   },
   WW_SaSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "428",
     write: true
   },
   WW_SaSo_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "429",
     write: true
   },
   WW_SaSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "430",
     write: true
   },
   WW_SaSo_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "431",
     write: true
   },
   WW_SaSo_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 4 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 4 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "432",
     write: true
   },
   WW_SaSo_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 4 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 4 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "433",
     write: true
   },
   WW_SaSo_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Start 5 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer start 5 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "434",
     write: true
   },
   WW_SaSo_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.52_MoFr_SaSo",
-    name: "Warmwasser Timer Ende 5 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.52_MoFr_SaSu",
+    name: "Hot water timer end 5 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "435",
     write: true
   },
   // =========================================================
-  // WARMWASSER TIMER: EINZELTAGE
+  // HOT WATER TIMER: SINGLE DAYS
   // =========================================================
   WW_Sonntag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Start 1 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer start 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "436",
     write: true
   },
   WW_Sonntag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Ende 1 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer end 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "437",
     write: true
   },
   WW_Sonntag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Start 2 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer start 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "438",
     write: true
   },
   WW_Sonntag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Ende 2 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer end 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "439",
     write: true
   },
   WW_Sonntag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Start 3 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer start 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "440",
     write: true
   },
   WW_Sonntag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Ende 3 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer end 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "441",
     write: true
   },
   WW_Sonntag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Start 4 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer start 4 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "442",
     write: true
   },
   WW_Sonntag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Ende 4 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer end 4 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "443",
     write: true
   },
   WW_Sonntag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Start 5 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer start 5 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "444",
     write: true
   },
   WW_Sonntag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Sonntag",
-    name: "Warmwasser Timer Ende 5 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Sunday",
+    name: "Hot water timer end 5 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "445",
     write: true
   },
   WW_Montag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Start 1 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer start 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "446",
     write: true
   },
   WW_Montag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Ende 1 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer end 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "447",
     write: true
   },
   WW_Montag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Start 2 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer start 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "448",
     write: true
   },
   WW_Montag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Ende 2 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer end 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "449",
     write: true
   },
   WW_Montag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Start 3 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer start 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "450",
     write: true
   },
   WW_Montag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Ende 3 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer end 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "451",
     write: true
   },
   WW_Montag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Start 4 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer start 4 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "452",
     write: true
   },
   WW_Montag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Ende 4 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer end 4 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "453",
     write: true
   },
   WW_Montag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Start 5 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer start 5 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "454",
     write: true
   },
   WW_Montag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Montag",
-    name: "Warmwasser Timer Ende 5 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Monday",
+    name: "Hot water timer end 5 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "455",
     write: true
   },
   WW_Dienstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Start 1 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer start 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "456",
     write: true
   },
   WW_Dienstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Ende 1 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer end 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "457",
     write: true
   },
   WW_Dienstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Start 2 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer start 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "458",
     write: true
   },
   WW_Dienstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Ende 2 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer end 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "459",
     write: true
   },
   WW_Dienstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Start 3 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer start 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "460",
     write: true
   },
   WW_Dienstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Ende 3 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer end 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "461",
     write: true
   },
   WW_Dienstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Start 4 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer start 4 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "462",
     write: true
   },
   WW_Dienstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Ende 4 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer end 4 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "463",
     write: true
   },
   WW_Dienstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Start 5 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer start 5 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "464",
     write: true
   },
   WW_Dienstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Dienstag",
-    name: "Warmwasser Timer Ende 5 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Tuesday",
+    name: "Hot water timer end 5 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "465",
     write: true
   },
   WW_Mittwoch_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Start 1 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer start 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "466",
     write: true
   },
   WW_Mittwoch_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Ende 1 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer end 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "467",
     write: true
   },
   WW_Mittwoch_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Start 2 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer start 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "468",
     write: true
   },
   WW_Mittwoch_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Ende 2 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer end 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "469",
     write: true
   },
   WW_Mittwoch_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Start 3 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer start 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "470",
     write: true
   },
   WW_Mittwoch_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Ende 3 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer end 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "471",
     write: true
   },
   WW_Mittwoch_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Start 4 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer start 4 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "472",
     write: true
   },
   WW_Mittwoch_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Ende 4 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer end 4 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "473",
     write: true
   },
   WW_Mittwoch_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Start 5 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer start 5 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "474",
     write: true
   },
   WW_Mittwoch_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Mittwoch",
-    name: "Warmwasser Timer Ende 5 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Wednesday",
+    name: "Hot water timer end 5 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "475",
     write: true
   },
   WW_Donnerstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Start 1 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer start 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "476",
     write: true
   },
   WW_Donnerstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Ende 1 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer end 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "477",
     write: true
   },
   WW_Donnerstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Start 2 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer start 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "478",
     write: true
   },
   WW_Donnerstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Ende 2 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer end 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "479",
     write: true
   },
   WW_Donnerstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Start 3 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer start 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "480",
     write: true
   },
   WW_Donnerstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Ende 3 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer end 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "481",
     write: true
   },
   WW_Donnerstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Start 4 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer start 4 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "482",
     write: true
   },
   WW_Donnerstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Ende 4 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer end 4 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "483",
     write: true
   },
   WW_Donnerstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Start 5 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer start 5 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "484",
     write: true
   },
   WW_Donnerstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Donnerstag",
-    name: "Warmwasser Timer Ende 5 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Thursday",
+    name: "Hot water timer end 5 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "485",
     write: true
   },
   WW_Freitag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Start 1 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer start 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "486",
     write: true
   },
   WW_Freitag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Ende 1 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer end 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "487",
     write: true
   },
   WW_Freitag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Start 2 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer start 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "488",
     write: true
   },
   WW_Freitag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Ende 2 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer end 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "489",
     write: true
   },
   WW_Freitag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Start 3 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer start 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "490",
     write: true
   },
   WW_Freitag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Ende 3 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer end 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "491",
     write: true
   },
   WW_Freitag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Start 4 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer start 4 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "492",
     write: true
   },
   WW_Freitag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Ende 4 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer end 4 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "493",
     write: true
   },
   WW_Freitag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Start 5 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer start 5 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "494",
     write: true
   },
   WW_Freitag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Freitag",
-    name: "Warmwasser Timer Ende 5 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Friday",
+    name: "Hot water timer end 5 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "495",
     write: true
   },
   WW_Samstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Start 1 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer start 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "496",
     write: true
   },
   WW_Samstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Ende 1 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer end 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "497",
     write: true
   },
   WW_Samstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Start 2 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer start 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "498",
     write: true
   },
   WW_Samstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Ende 2 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer end 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "499",
     write: true
   },
   WW_Samstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Start 3 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer start 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "500",
     write: true
   },
   WW_Samstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Ende 3 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer end 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "501",
     write: true
   },
   WW_Samstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Start 4 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer start 4 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "502",
     write: true
   },
   WW_Samstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Ende 4 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer end 4 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "503",
     write: true
   },
   WW_Samstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Start 5 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer start 5 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "504",
     write: true
   },
   WW_Samstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Warmwasser.Parameter.Days.Samstag",
-    name: "Warmwasser Timer Ende 5 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.HotWater.Parameter.Days.Saturday",
+    name: "Hot water timer end 5 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "505",
     write: true
   },
   // =========================================================
-  // Zirkulation TIMER: WOCHE (MO-SO)
+  // CIRCULATION TIMER: WEEK (MO-SU)
   // =========================================================
   Zirkulation_MoSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Start 1 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer start 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "507",
@@ -2997,9 +2996,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_End1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Ende 1 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer end 1 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "508",
@@ -3007,9 +3006,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Start 2 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer start 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "509",
@@ -3017,9 +3016,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_End2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Ende 2 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer end 2 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "510",
@@ -3027,9 +3026,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Start 3 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer start 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "511",
@@ -3037,9 +3036,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_End3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Ende 3 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer end 3 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "512",
@@ -3047,9 +3046,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Start 4 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer start 4 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "513",
@@ -3057,9 +3056,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_End4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Ende 4 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer end 4 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "514",
@@ -3067,9 +3066,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Start 5 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer start 5 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "515",
@@ -3077,9 +3076,9 @@ const STATE_MAPPING = {
     required: true
   },
   Zirkulation_MoSo_End5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Mo-So",
-    name: "Zirkulation Timer Ende 5 (Mo-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Mo-Su",
+    name: "Circulation timer end 5 (Mo-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "516",
@@ -3087,827 +3086,827 @@ const STATE_MAPPING = {
     required: true
   },
   // =========================================================
-  // Zirkulation TIMER: 5+2 (MO-FR & SA-SO)
+  // CIRCULATION TIMER: 5+2 (MO-FR & SA-SU)
   // =========================================================
   Zirkulation_MoFr_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "517",
     write: true
   },
   Zirkulation_MoFr_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 1 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 1 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "518",
     write: true
   },
   Zirkulation_MoFr_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "519",
     write: true
   },
   Zirkulation_MoFr_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 2 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 2 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "520",
     write: true
   },
   Zirkulation_MoFr_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "521",
     write: true
   },
   Zirkulation_MoFr_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 3 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 3 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "522",
     write: true
   },
   Zirkulation_MoFr_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 4 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 4 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "523",
     write: true
   },
   Zirkulation_MoFr_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 4 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 4 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "524",
     write: true
   },
   Zirkulation_MoFr_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 5 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 5 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "525",
     write: true
   },
   Zirkulation_MoFr_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 5 (Mo-Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 5 (Mo-Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "526",
     write: true
   },
   Zirkulation_SaSo_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "527",
     write: true
   },
   Zirkulation_SaSo_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 1 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 1 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "528",
     write: true
   },
   Zirkulation_SaSo_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "529",
     write: true
   },
   Zirkulation_SaSo_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 2 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 2 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "530",
     write: true
   },
   Zirkulation_SaSo_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "531",
     write: true
   },
   Zirkulation_SaSo_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 3 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 3 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "532",
     write: true
   },
   Zirkulation_SaSo_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 4 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 4 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "533",
     write: true
   },
   Zirkulation_SaSo_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 4 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 4 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "534",
     write: true
   },
   Zirkulation_SaSo_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Start 5 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer start 5 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "535",
     write: true
   },
   Zirkulation_SaSo_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.52_MoFr_SaSo",
-    name: "Zirkulation Timer Ende 5 (Sa-So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.52_MoFr_SaSu",
+    name: "Circulation timer end 5 (Sa-Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "536",
     write: true
   },
   // =========================================================
-  // Zirkulation TIMER: EINZELTAGE
+  // CIRCULATION TIMER: SINGLE DAYS
   // =========================================================
   Zirkulation_Sonntag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Start 1 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer start 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "537",
     write: true
   },
   Zirkulation_Sonntag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Ende 1 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer end 1 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "538",
     write: true
   },
   Zirkulation_Sonntag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Start 2 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer start 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "539",
     write: true
   },
   Zirkulation_Sonntag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Ende 2 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer end 2 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "540",
     write: true
   },
   Zirkulation_Sonntag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Start 3 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer start 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "541",
     write: true
   },
   Zirkulation_Sonntag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Ende 3 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer end 3 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "542",
     write: true
   },
   Zirkulation_Sonntag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Start 4 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer start 4 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "543",
     write: true
   },
   Zirkulation_Sonntag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Ende 4 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer end 4 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "544",
     write: true
   },
   Zirkulation_Sonntag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Start 5 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer start 5 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "545",
     write: true
   },
   Zirkulation_Sonntag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Sonntag",
-    name: "Zirkulation Timer Ende 5 (So)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Sunday",
+    name: "Circulation timer end 5 (Su)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "546",
     write: true
   },
   Zirkulation_Montag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Start 1 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer start 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "547",
     write: true
   },
   Zirkulation_Montag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Ende 1 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer end 1 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "548",
     write: true
   },
   Zirkulation_Montag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Start 2 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer start 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "549",
     write: true
   },
   Zirkulation_Montag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Ende 2 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer end 2 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "550",
     write: true
   },
   Zirkulation_Montag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Start 3 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer start 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "551",
     write: true
   },
   Zirkulation_Montag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Ende 3 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer end 3 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "552",
     write: true
   },
   Zirkulation_Montag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Start 4 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer start 4 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "553",
     write: true
   },
   Zirkulation_Montag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Ende 4 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer end 4 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "554",
     write: true
   },
   Zirkulation_Montag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Start 5 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer start 5 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "555",
     write: true
   },
   Zirkulation_Montag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Montag",
-    name: "Zirkulation Timer Ende 5 (Mo)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Monday",
+    name: "Circulation timer end 5 (Mo)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "556",
     write: true
   },
   Zirkulation_Dienstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Start 1 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer start 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "557",
     write: true
   },
   Zirkulation_Dienstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Ende 1 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer end 1 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "558",
     write: true
   },
   Zirkulation_Dienstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Start 2 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer start 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "559",
     write: true
   },
   Zirkulation_Dienstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Ende 2 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer end 2 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "560",
     write: true
   },
   Zirkulation_Dienstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Start 3 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer start 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "561",
     write: true
   },
   Zirkulation_Dienstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Ende 3 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer end 3 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "562",
     write: true
   },
   Zirkulation_Dienstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Start 4 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer start 4 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "563",
     write: true
   },
   Zirkulation_Dienstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Ende 4 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer end 4 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "564",
     write: true
   },
   Zirkulation_Dienstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Start 5 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer start 5 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "565",
     write: true
   },
   Zirkulation_Dienstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Dienstag",
-    name: "Zirkulation Timer Ende 5 (Di)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Tuesday",
+    name: "Circulation timer end 5 (Tu)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "566",
     write: true
   },
   Zirkulation_Mittwoch_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Start 1 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer start 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "567",
     write: true
   },
   Zirkulation_Mittwoch_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Ende 1 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer end 1 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "568",
     write: true
   },
   Zirkulation_Mittwoch_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Start 2 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer start 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "569",
     write: true
   },
   Zirkulation_Mittwoch_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Ende 2 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer end 2 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "570",
     write: true
   },
   Zirkulation_Mittwoch_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Start 3 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer start 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "571",
     write: true
   },
   Zirkulation_Mittwoch_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Ende 3 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer end 3 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "572",
     write: true
   },
   Zirkulation_Mittwoch_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Start 4 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer start 4 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "573",
     write: true
   },
   Zirkulation_Mittwoch_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Ende 4 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer end 4 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "574",
     write: true
   },
   Zirkulation_Mittwoch_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Start 5 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer start 5 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "575",
     write: true
   },
   Zirkulation_Mittwoch_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Mittwoch",
-    name: "Zirkulation Timer Ende 5 (Mi)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Wednesday",
+    name: "Circulation timer end 5 (We)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "576",
     write: true
   },
   Zirkulation_Donnerstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Start 1 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer start 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "577",
     write: true
   },
   Zirkulation_Donnerstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Ende 1 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer end 1 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "578",
     write: true
   },
   Zirkulation_Donnerstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Start 2 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer start 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "579",
     write: true
   },
   Zirkulation_Donnerstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Ende 2 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer end 2 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "580",
     write: true
   },
   Zirkulation_Donnerstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Start 3 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer start 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "581",
     write: true
   },
   Zirkulation_Donnerstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Ende 3 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer end 3 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "582",
     write: true
   },
   Zirkulation_Donnerstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Start 4 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer start 4 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "583",
     write: true
   },
   Zirkulation_Donnerstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Ende 4 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer end 4 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "584",
     write: true
   },
   Zirkulation_Donnerstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Start 5 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer start 5 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "585",
     write: true
   },
   Zirkulation_Donnerstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Donnerstag",
-    name: "Zirkulation Timer Ende 5 (Do)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Thursday",
+    name: "Circulation timer end 5 (Th)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "586",
     write: true
   },
   Zirkulation_Freitag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Start 1 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer start 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "587",
     write: true
   },
   Zirkulation_Freitag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Ende 1 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer end 1 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "588",
     write: true
   },
   Zirkulation_Freitag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Start 2 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer start 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "589",
     write: true
   },
   Zirkulation_Freitag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Ende 2 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer end 2 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "590",
     write: true
   },
   Zirkulation_Freitag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Start 3 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer start 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "591",
     write: true
   },
   Zirkulation_Freitag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Ende 3 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer end 3 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "592",
     write: true
   },
   Zirkulation_Freitag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Start 4 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer start 4 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "593",
     write: true
   },
   Zirkulation_Freitag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Ende 4 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer end 4 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "594",
     write: true
   },
   Zirkulation_Freitag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Start 5 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer start 5 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "595",
     write: true
   },
   Zirkulation_Freitag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Freitag",
-    name: "Zirkulation Timer Ende 5 (Fr)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Friday",
+    name: "Circulation timer end 5 (Fr)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "596",
     write: true
   },
   Zirkulation_Samstag_Start1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Start 1 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer start 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "597",
     write: true
   },
   Zirkulation_Samstag_Ende1: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Ende 1 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer end 1 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "598",
     write: true
   },
   Zirkulation_Samstag_Start2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Start 2 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer start 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "599",
     write: true
   },
   Zirkulation_Samstag_Ende2: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Ende 2 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer end 2 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "600",
     write: true
   },
   Zirkulation_Samstag_Start3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Start 3 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer start 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "601",
     write: true
   },
   Zirkulation_Samstag_Ende3: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Ende 3 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer end 3 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "602",
     write: true
   },
   Zirkulation_Samstag_Start4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Start 4 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer start 4 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "603",
     write: true
   },
   Zirkulation_Samstag_Ende4: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Ende 4 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer end 4 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "604",
     write: true
   },
   Zirkulation_Samstag_Start5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Start 5 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer start 5 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "605",
     write: true
   },
   Zirkulation_Samstag_Ende5: {
-    folder: "Einstellungen.07_Tabellen.Zirkulation.Parameter.Days.Samstag",
-    name: "Zirkulation Timer Ende 5 (Sa)",
-    role: "value.datetime",
+    folder: "Settings.07_Tables.Circulation.Parameter.Days.Saturday",
+    name: "Circulation timer end 5 (Sa)",
+    role: "text",
     type: "string",
     dataSource: "raw_parameter",
     luxWriteId: "606",
     write: true
   },
   // ==========================================
-  // AKTIONEN & VIRTUELL
+  // Actions & VIRTUAL
   // ==========================================
   Dump_Raw_To_Log: {
-    folder: "Aktionen",
-    name: "Raw Data in Log schreiben",
+    folder: "Actions",
+    name: "Write raw data to log",
     role: "button",
     type: "boolean",
     isVirtual: true,
@@ -3916,8 +3915,8 @@ const STATE_MAPPING = {
     required: true
   },
   Regelung_Aktiv: {
-    folder: "Aktionen",
-    name: "Automatische Anlagenregelung ein-/ausschalten",
+    folder: "Actions",
+    name: "Toggle automatic system control",
     role: "switch",
     type: "boolean",
     isVirtual: true,
@@ -3926,8 +3925,8 @@ const STATE_MAPPING = {
     required: true
   },
   Schreibe_Debug_Log: {
-    folder: "Aktionen",
-    name: "Erweiterte Logging-Ausgaben ein-/ausschalten",
+    folder: "Actions",
+    name: "Toggle extended debug logging",
     role: "switch",
     type: "boolean",
     isVirtual: true,
@@ -3936,8 +3935,8 @@ const STATE_MAPPING = {
     required: true
   },
   Setze_Vorgabewerte: {
-    folder: "Aktionen",
-    name: "Vorgabewerte (wie Leerlauf) manuell setzen",
+    folder: "Actions",
+    name: "Set default values manually (e.g. idle)",
     role: "button",
     type: "boolean",
     isVirtual: true,
@@ -3946,8 +3945,8 @@ const STATE_MAPPING = {
     required: true
   },
   Zwangsheizen: {
-    folder: "Aktionen",
-    name: "Heizen starten auch wenn kein Bedarf besteht (Zwangsheizen)",
+    folder: "Actions",
+    name: "Force heating (even without demand)",
     role: "button",
     type: "boolean",
     isVirtual: true,
@@ -3956,8 +3955,8 @@ const STATE_MAPPING = {
     required: true
   },
   Zwangswarmwasser: {
-    folder: "Aktionen",
-    name: "Warmwasser erzwingen",
+    folder: "Actions",
+    name: "Force hot water",
     role: "button",
     type: "boolean",
     isVirtual: true,
@@ -3967,7 +3966,7 @@ const STATE_MAPPING = {
   },
   connection: {
     folder: "info",
-    name: "Verbindungsstatus",
+    name: "Connection status",
     role: "indicator.connected",
     type: "boolean",
     isVirtual: true,

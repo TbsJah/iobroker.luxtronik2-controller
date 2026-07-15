@@ -44,25 +44,25 @@ async function calculateSum(adapter, sourceId1, sourceId2, targetId, logName) {
     await adapter.setStateChangedAsync(targetId, val1 + val2, true);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler bei der Berechnung der ${logName}: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error calculating ${logName}: ${msg}`, "error");
   }
 }
 async function calculateTotalThermalEnergy(adapter) {
   await calculateSum(
     adapter,
-    "Informationen.09_W\xE4rmemenge.thermalenergy_heating",
-    "Informationen.09_W\xE4rmemenge.thermalenergy_warmwater",
-    "Informationen.09_W\xE4rmemenge.thermalenergy_total",
-    "Gesamt-W\xE4rmemenge"
+    (0, import_stateMapping.getDpPath)("thermalenergy_heating"),
+    (0, import_stateMapping.getDpPath)("thermalenergy_warmwater"),
+    (0, import_stateMapping.getDpPath)("thermalenergy_total"),
+    "Total Thermal Energy"
   );
 }
 async function calculateTotalEnergy(adapter) {
   await calculateSum(
     adapter,
-    "Informationen.10_Energie.energy_heating",
-    "Informationen.10_Energie.energy_warmwater",
-    "Informationen.10_Energie.energy_total",
-    "Gesamt-Energie"
+    (0, import_stateMapping.getDpPath)("energy_heating"),
+    (0, import_stateMapping.getDpPath)("energy_warmwater"),
+    (0, import_stateMapping.getDpPath)("energy_total"),
+    "Total Energy"
   );
 }
 async function updateHistory(adapter, rawValues, timeStartIndex, codeStartIndex, targetStateId, fallbackPrefix, codeMap) {
@@ -73,7 +73,7 @@ async function updateHistory(adapter, rawValues, timeStartIndex, codeStartIndex,
       const timestamp = rawValues[timeStartIndex + i];
       if (timestamp !== void 0 && timestamp > 0) {
         const date = new Date(timestamp * 1e3);
-        const formattedDate = date.toLocaleString("de-DE");
+        const formattedDate = date.toISOString().replace("T", " ").substring(0, 19);
         let beschreibung = `${fallbackPrefix} (${code})`;
         if (codeMap[code] !== void 0) {
           beschreibung = codeMap[code];
@@ -83,7 +83,6 @@ async function updateHistory(adapter, rawValues, timeStartIndex, codeStartIndex,
           beschreibung,
           datum: formattedDate,
           timestamp
-          // Behoben: Timestamp ist wieder enthalten!
         });
       }
     }
@@ -98,34 +97,24 @@ async function updateHistory(adapter, rawValues, timeStartIndex, codeStartIndex,
     const jsonStr = JSON.stringify(cleanList);
     const result = await adapter.setStateChangedAsync(targetStateId, { val: jsonStr, ack: true });
     if (result && result.numChanges > 0) {
-      (0, import_logger.writeLog)(`Historie f\xFCr ${targetStateId} aus Rohdaten aktualisiert.`, "info");
+      (0, import_logger.writeLog)(`History for ${targetStateId} updated from raw data.`, "info");
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aktualisieren der Historie: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error updating history: ${msg}`, "error");
   }
 }
 async function updateErrorHistory(adapter, rawValues) {
-  await updateHistory(
-    adapter,
-    rawValues,
-    95,
-    100,
-    "Informationen.06_Fehlerspeicher.Fehlerspeicher",
-    "Unbekannter Fehler",
-    import_codes.ERROR_CODES
-  );
+  const dpPath = (0, import_stateMapping.getDpPath)("Fehlerspeicher");
+  if (dpPath) {
+    await updateHistory(adapter, rawValues, 95, 100, dpPath, "Unknown error", import_codes.ERROR_CODES);
+  }
 }
 async function updateOutageHistory(adapter, rawValues) {
-  await updateHistory(
-    adapter,
-    rawValues,
-    111,
-    106,
-    "Informationen.07_Abschaltungen.Abschaltungen",
-    "Unbekannter Abschaltgrund",
-    import_codes.OUTAGE_CODES
-  );
+  const dpPath = (0, import_stateMapping.getDpPath)("Abschaltungen");
+  if (dpPath) {
+    await updateHistory(adapter, rawValues, 111, 106, dpPath, "Unknown outage cause", import_codes.OUTAGE_CODES);
+  }
 }
 async function calculateTemperatureSpread(adapter) {
   try {
@@ -147,7 +136,7 @@ async function calculateTemperatureSpread(adapter) {
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler bei der Berechnung der Temperatur-Spreizung: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error calculating temperature spread: ${msg}`, "error");
   }
 }
 async function updateStatusStrings(adapter, rawValues, rawParams) {
@@ -160,13 +149,13 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     const BetriebsartHeizung = rawParams[(0, import_stateMapping.getLuxIdByKey)("heating_operation_mode")] || 0;
     const Au\u00DFentemperatur = (rawValues[(0, import_stateMapping.getLuxIdByKey)("temperature_outside")] || 0) / 10;
     const Mitteltemperatur = (rawValues[(0, import_stateMapping.getLuxIdByKey)("Mitteltemperatur")] || 0) / 10;
-    let heatingStr = "Unbekannt";
+    let heatingStr = "Unknown";
     if (BetriebsartHeizung === 0 && Mitteltemperatur >= Heizgrenze && (R\u00FCcklaufSoll === R\u00FCcklaufSollMin || R\u00FCcklaufSoll === 20 && Au\u00DFentemperatur < 10)) {
-      heatingStr = Au\u00DFentemperatur >= 10 ? `Heizgrenze (Soll ${R\u00FCcklaufSollMin} \xB0C)` : "Frostschutz (Soll 20 \xB0C)";
+      heatingStr = Au\u00DFentemperatur >= 10 ? `Heating limit (Target ${R\u00FCcklaufSollMin} \xB0C)` : "Frost protection (Target 20 \xB0C)";
     } else {
-      heatingStr = import_codes.STATE_HEATING[BetriebsartHeizung] || `unbekannt (${BetriebsartHeizung})`;
+      heatingStr = import_codes.STATE_HEATING[BetriebsartHeizung] || `Unknown (${BetriebsartHeizung})`;
       if (BetriebsartHeizung === 0) {
-        heatingStr = AbsenkungMax <= Au\u00DFentemperatur ? `${heatingStr} ${Absenkung} \xB0C` : `Normal da < ${AbsenkungMax} \xB0C`;
+        heatingStr = AbsenkungMax <= Au\u00DFentemperatur ? `${heatingStr} ${Absenkung} \xB0C` : `Normal as < ${AbsenkungMax} \xB0C`;
       }
     }
     const dpHeating = (0, import_stateMapping.getDpPath)("opStateHeatingString");
@@ -183,29 +172,29 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     const m = Math.floor((zeitSec || 0) % 3600 / 60);
     const s = (zeitSec || 0) % 60;
     const zeitString = `${h < 10 ? "0" : ""}${h}:${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
-    const stateStr = import_codes.STATE_ZEILE_3[codeZ3] || "Unbekannt";
+    const stateStr = import_codes.STATE_LINE_3[codeZ3] || "Unknown";
     const dpExtState = (0, import_stateMapping.getDpPath)("heatpump_extendet_state_string");
     if (dpExtState) {
       await adapter.setStateChangedAsync(dpExtState, stateStr, true);
     }
-    let extStateStr = "Unbekannt";
-    if (import_codes.STATE_ZEILE_1[codeZ1]) {
-      const textZ2 = import_codes.STATE_ZEILE_2[codeZ2] || "";
-      extStateStr = `${import_codes.STATE_ZEILE_1[codeZ1]} ${textZ2} ${zeitString}`.trim();
+    let extStateStr = "Unknown";
+    if (import_codes.STATE_LINE_1[codeZ1]) {
+      const textZ2 = import_codes.STATE_LINE_2[codeZ2] || "";
+      extStateStr = `${import_codes.STATE_LINE_1[codeZ1]} ${textZ2} ${zeitString}`.trim();
     }
     const dpState = (0, import_stateMapping.getDpPath)("heatpump_state_string");
     if (dpState) {
       await adapter.setStateChangedAsync(dpState, extStateStr, true);
     }
-    let hotWaterStr = "Unbekannt";
+    let hotWaterStr = "Unknown";
     if (opStateHotWaterOriginal === 0) {
-      hotWaterStr = "Sperrzeit";
+      hotWaterStr = "Lock time";
     } else if (opStateHotWaterOriginal === 1 && hotWaterBoilerValve === 1) {
-      hotWaterStr = "Aufheizen";
+      hotWaterStr = "Heating up";
     } else if (opStateHotWaterOriginal === 1 && hotWaterBoilerValve === 0) {
       hotWaterStr = "Temp. OK";
     } else if (opStateHotWaterOriginal === 3) {
-      hotWaterStr = "Aus";
+      hotWaterStr = "Off";
     } else {
       hotWaterStr = `Unknown [${opStateHotWaterOriginal}/${hotWaterBoilerValve}]`;
     }
@@ -215,7 +204,7 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aktualisieren der Status-Strings: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error updating status strings: ${msg}`, "error");
   }
 }
 async function updateTimerTables(adapter) {
@@ -263,8 +252,7 @@ async function updateTimerTables(adapter) {
       }
     };
     const configs = [
-      // === HEIZEN (3 Slots) ===
-      { target: "heatingOperationTimerTableWeek", prefix: "HZ_MoSo_", end: "End", slots: 3 },
+      { target: "heatingOperationTimerTableWeek", prefix: "HZ_MoSo_", end: "End1", slots: 3 },
       { target: "heatingOperationTimerTable52MonFri", prefix: "HZ_MoFr_", end: "Ende", slots: 3 },
       { target: "heatingOperationTimerTable52SatSun", prefix: "HZ_SaSo_", end: "Ende", slots: 3 },
       { target: "heatingOperationTimerTableDayMonday", prefix: "HZ_Montag_", end: "Ende", slots: 3 },
@@ -274,7 +262,6 @@ async function updateTimerTables(adapter) {
       { target: "heatingOperationTimerTableDayFriday", prefix: "HZ_Freitag_", end: "Ende", slots: 3 },
       { target: "heatingOperationTimerTableDaySaturday", prefix: "HZ_Samstag_", end: "Ende", slots: 3 },
       { target: "heatingOperationTimerTableDaySunday", prefix: "HZ_Sonntag_", end: "Ende", slots: 3 },
-      // === WARMWASSER (5 Slots) ===
       { target: "hotWaterTableWeek", prefix: "WW_MoSo_", end: "End", slots: 5 },
       { target: "hotWaterTable52MonFri", prefix: "WW_MoFr_", end: "Ende", slots: 5 },
       { target: "hotWaterTable52SatSun", prefix: "WW_SaSo_", end: "Ende", slots: 5 },
@@ -285,7 +272,6 @@ async function updateTimerTables(adapter) {
       { target: "hotWaterTableDayFriday", prefix: "WW_Freitag_", end: "Ende", slots: 5 },
       { target: "hotWaterTableDaySaturday", prefix: "WW_Samstag_", end: "Ende", slots: 5 },
       { target: "hotWaterTableDaySunday", prefix: "WW_Sonntag_", end: "Ende", slots: 5 },
-      // === ZIRKULATION (5 Slots) ===
       { target: "hotWaterCircPumpTimerTableWeek", prefix: "Zirkulation_MoSo_", end: "End", slots: 5 },
       { target: "hotWaterCircPumpTimerTable52MonFri", prefix: "Zirkulation_MoFr_", end: "Ende", slots: 5 },
       { target: "hotWaterCircPumpTimerTable52SatSun", prefix: "Zirkulation_SaSo_", end: "Ende", slots: 5 },
@@ -310,7 +296,7 @@ async function updateTimerTables(adapter) {
     await Promise.all(configs.map((cfg) => processTable(cfg.target, cfg.prefix, cfg.end, cfg.slots)));
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Erstellen der JSON-Timer-Tabellen: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error generating JSON timer tables: ${msg}`, "error");
   }
 }
 async function updateCustomStates(adapter, rawValues, rawParams) {
@@ -337,28 +323,20 @@ async function updateCustomStates(adapter, rawValues, rawParams) {
       } else if (custom.type === "datetime") {
         const ts = Number(rawVal);
         if (!isNaN(ts) && ts > 0) {
-          finalVal = new Date(ts * 1e3).toLocaleString("de-DE", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: false
-          });
+          finalVal = new Date(ts * 1e3).toISOString().replace("T", " ").substring(0, 19);
         } else {
-          finalVal = "Ung\xFCltig";
+          finalVal = "Invalid";
         }
       } else {
         finalVal = String(rawVal);
       }
       const cleanId = (0, import_objectManager.sanitizeName)(custom.name);
-      const stateId = `${adapter.namespace}.Benutzer.${cleanId}`;
+      const stateId = `${adapter.namespace}.Custom.${cleanId}`;
       await adapter.setForeignStateChangedAsync(stateId, finalVal, true);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aktualisieren der benutzerdefinierten Werte: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error updating custom values: ${msg}`, "error");
   }
 }
 async function setChangedSystemState(adapter, key, value) {
@@ -385,12 +363,12 @@ async function updateSystemInfos(adapter, rawValues) {
     await setChangedSystemState(adapter, "heatpump_type", hpTypeString);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Aktualisieren der System-Infos: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error updating system information: ${msg}`, "error");
   }
 }
 function createFirmwareString(buf) {
   if (!buf || !Array.isArray(buf)) {
-    return "Unbekannt";
+    return "Unknown";
   }
   return buf.filter((v) => v !== 0).map((v) => String.fromCharCode(v)).join("").trim();
 }

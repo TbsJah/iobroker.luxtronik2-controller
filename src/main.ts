@@ -28,22 +28,43 @@ import {
 } from './virtualStates';
 import { handleActivateZip, stopZipAndDeaeration } from './zipManager';
 
+/**
+ * Main class for the Luxtronik2 Controller ioBroker Adapter.
+ */
 class Luxtronik2Controller extends utils.Adapter {
-	public createdStates = new Set<string>();
+	/** Set of all active namespaced state IDs created or managed by the adapter */
+	public createdStates: Set<string> = new Set<string>();
+	/** ioBroker timeout handle for the hot water circulation pump macro */
 	public zipTimer?: ioBroker.Timeout;
+	/** Cached copy of the original circulation pump settings before macro activation */
 	public originalZipConfig: Record<string, any> | null = null;
+	/** Unix timestamp of the last error dispatched to prevent duplicate notification triggers */
 	public lastKnownErrorTimestamp: number | null = null;
-	public isDebugLogActive = false;
+	/** Determines whether verbose debugging output is enabled */
+	public isDebugLogActive: boolean = false;
+	/** ioBroker interval handle for the main data polling loop */
 	private pollingInterval: ioBroker.Interval | undefined;
-	private lastBzVal = '';
-	private updateRunning = false;
+	/** Cache for the last evaluated heat pump operating state code */
+	private lastBzVal: string = '';
+	/** Lock flag preventing concurrent execution of the polling updates */
+	private updateRunning: boolean = false;
+	/** Timestamp tracking the last dynamic pump voltage optimization execution */
 	private lastPumpOptimization: number = 0;
 
+	/** Internal array storing pending serial hardware write tasks */
 	private writeQueue: (() => Promise<void>)[] = [];
-	private isWriting = false;
-	private errorCount = 0;
-	private readonly MAX_ERRORS = 3;
+	/** Lock flag indicating that the write queue is currently being processed */
+	private isWriting: boolean = false;
+	/** Counter tracking sequential communication timeouts/failures */
+	private errorCount: number = 0;
+	/** Maximum allowed sequential request failures before connection is flagged as interrupted */
+	private readonly MAX_ERRORS: number = 3;
 
+	/**
+	 * Initializes a new instance of the Luxtronik2Controller class.
+	 *
+	 * @param options - Optional core configuration overrides passed by the ioBroker host.
+	 */
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
 			...options,
@@ -57,25 +78,38 @@ class Luxtronik2Controller extends utils.Adapter {
 		this.on('message', this.onMessage.bind(this));
 	}
 
+	/**
+	 * Processes incoming inter-adapter messages or commands dispatched from the Admin UI.
+	 *
+	 * @param obj - The standardized ioBroker message structure containing parameters and optional callbacks.
+	 * @returns A promise that resolves once the message has been processed.
+	 */
 	private async onMessage(obj: ioBroker.Message): Promise<void> {
 		if (obj.command === 'testTelegram') {
 			await handleTestMessage(this, obj);
 		}
 	}
 
+	/**
+	 * Callback executed once the ioBroker host framework completely initializes the adapter subsystem.
+	 * Sets up database objects, applies configurations, subscribes to states, and triggers the polling loop.
+	 *
+	 * @returns A promise that resolves when initialization completes.
+	 */
 	private async onReady(): Promise<void> {
 		const config = this.config as Record<string, any>;
 		const ip = config.host;
 		const port = config.port || 8889;
+
 		await this.setState('info.connection', { val: false, ack: true });
-		writeLog(`Verbinde mit Wärmepumpe auf ${ip}:${port}...`, 'info');
+		writeLog(`Connecting to heat pump at ${ip}:${port}...`, 'info');
 
 		await cleanupStates(this);
 		await cleanupCustomStates(this);
 		await cleanupEmptyFolders(this);
 		await ensureAllObjectsExist(this);
 		await ensureCustomObjectsExist(this);
-		// Synchronisiere das virtuelle Objekt mit der neuen Konfigurations-Checkbox
+
 		await this.setState(getDpPath('Regelung_Aktiv'), { val: config.regelung_aktiv !== false, ack: true });
 
 		const debugState = await this.getStateAsync(getDpPath('Schreibe_Debug_Log'));
@@ -83,7 +117,7 @@ class Luxtronik2Controller extends utils.Adapter {
 		setCustomDebug(this.isDebugLogActive);
 
 		if (this.isDebugLogActive) {
-			writeLog('Synchronisiere Konfigurationswerte mit der Wärmepumpe...', 'info');
+			writeLog('Synchronizing configuration values with the heat pump...', 'info');
 		}
 		await this.setIdleDefaults();
 
@@ -92,7 +126,7 @@ class Luxtronik2Controller extends utils.Adapter {
 				if (sensor.oid && typeof sensor.oid === 'string' && sensor.oid.trim() !== '') {
 					this.subscribeForeignStates(sensor.oid.trim());
 					if (this.isDebugLogActive) {
-						writeLog(`Bewegungssensor abonniert: ${sensor.name} (${sensor.oid})`, 'info');
+						writeLog(`Motion sensor subscribed: ${sensor.name} (${sensor.oid})`, 'info');
 					}
 				}
 			}
@@ -101,31 +135,45 @@ class Luxtronik2Controller extends utils.Adapter {
 		this.subscribeStates('*');
 
 		try {
-			// Wir versuchen die Anlage einmalig beim Start auszulesen
 			await this.updateData();
 		} catch (error: any) {
-			// Wenn die Pumpe beim Start offline ist, stürzt der Adapter nicht mehr ab!
-			this.log.error(`Fehler bei der initialen Datenabfrage (Pumpe offline?): ${error.message}`);
+			this.log.error(`Initial data retrieval failed (device offline?): ${error.message}`);
 		}
 
 		let intervalSeconds = this.config.interval ? Number(this.config.interval) : 45;
 		if (intervalSeconds < 10) {
 			intervalSeconds = 10;
-			writeLog('Eingestelltes Intervall war zu kurz. Wurde zum Schutz auf 10 Sekunden korrigiert.', 'warn');
+			writeLog(
+				'Configured polling interval was too short. Forced to minimum threshold of 10 seconds for protection.',
+				'warn',
+			);
+		}
+		if (intervalSeconds > 3600) {
+			intervalSeconds = 3600;
+			writeLog(
+				'Configured polling interval exceeded maximum boundary. Restricted to 3600 seconds to prevent overflow issues.',
+				'warn',
+			);
 		}
 
 		this.pollingInterval = this.setInterval(async () => {
-			// Auch im Intervall selbst fangen wir Fehler ab, damit ein Timeout den ioBroker nicht crasht
 			try {
 				await this.updateData();
 			} catch (error: any) {
-				this.log.error(`Fehler während des zyklischen Datenabrufs: ${error.message}`);
+				this.log.error(`Error during cyclic data retrieval loop: ${error.message}`);
 			}
 		}, intervalSeconds * 1000);
 
 		await this.setState('info.connection', true, true);
 	}
 
+	/**
+	 * Synchronizes a single state configuration parameter with the Luxtronik physical controller.
+	 *
+	 * @param mappingKey - The unique key identifier within the STATE_MAPPING structure.
+	 * @param val - The raw or parsed value to apply.
+	 * @returns A promise that resolves when the synchronization task finishes.
+	 */
 	public async syncConfigValue(mappingKey: keyof typeof STATE_MAPPING, val: any): Promise<void> {
 		if (val === undefined || val === null) {
 			return;
@@ -142,7 +190,7 @@ class Luxtronik2Controller extends utils.Adapter {
 			await this.setState(id, { val: val, ack: true });
 
 			if (this.isDebugLogActive) {
-				writeLog(`Schreibe Wert direkt in Wärmepumpe: ${mappingKey} = ${val}`, 'info');
+				writeLog(`Writing value directly into heat pump controller: ${mappingKey} = ${val}`, 'info');
 			}
 
 			if (definition.write === true && !definition.isVirtual && definition.luxWriteId) {
@@ -165,12 +213,23 @@ class Luxtronik2Controller extends utils.Adapter {
 					await this.queueWrite(writeId, valueToWrite);
 					await new Promise(r => global.setTimeout(r, 200));
 				} catch (err: any) {
-					writeLog(`Fehler beim Schreiben von ${mappingKey} an die Pumpe: ${err.message}`, 'error');
+					writeLog(
+						`Failed to transmit ${mappingKey} to the heat pump hardware interface: ${err.message}`,
+						'error',
+					);
 				}
 			}
 		}
 	}
 
+	/**
+	 * Safely updates an internal database state value only if the newly supplied value differs from the existing entry.
+	 *
+	 * @param id - The relative state path ID.
+	 * @param val - The updated value to process.
+	 * @param ack - Explicit acknowledgment flag status to set.
+	 * @returns A promise that resolves when the verification and write operation completes.
+	 */
 	public async setOwnStateIfDifferent(id: string, val: any, ack = false): Promise<void> {
 		try {
 			if (val === undefined) {
@@ -180,18 +239,22 @@ class Luxtronik2Controller extends utils.Adapter {
 			if (!state || state.val !== val) {
 				await this.setState(id, { val: val, ack: ack });
 				if (this.isDebugLogActive) {
-					writeLog(`Setze Werte für ${id}: ${val}`, 'debug');
+					writeLog(`Applying specific update for local state ${id}: ${val}`, 'debug');
 				}
 			}
 		} catch (err: any) {
-			writeLog(`Fehler in setOwnStateIfDifferent für ${id}: ${err.message}`, 'error');
+			writeLog(`Error occurred during setOwnStateIfDifferent operation for state ${id}: ${err.message}`, 'error');
 		}
 	}
 
+	/**
+	 * Configures fallback factory parameter baselines for the heat pump when in an idle state.
+	 *
+	 * @returns A promise that resolves when all default configuration tasks resolve.
+	 */
 	private async setIdleDefaults(): Promise<void> {
 		try {
 			const config = this.config as Record<string, any>;
-			// Überall mit ?? (Nullish Coalescing) den sicheren Werks-Standard hinterlegen!
 			await this.syncConfigValue('heating_curve_end_point', config.endpunkt ?? 23);
 			await this.syncConfigValue('heating_curve_parallel_offset', config.fusspunkt ?? 21.7);
 			await this.syncConfigValue(
@@ -211,10 +274,15 @@ class Luxtronik2Controller extends utils.Adapter {
 			await this.syncConfigValue('zip_aktiv', config.zip_aktiv ?? 0);
 			await this.syncConfigValue('Heizen_nach_Wasser', config.Heating_after_warmwater ?? false);
 		} catch (err: any) {
-			writeLog(`Fehler beim Setzen der Leerlauf-Vorgabewerte: ${err.message}`, 'error');
+			writeLog(`Failed to apply the baseline idle configuration defaults: ${err.message}`, 'error');
 		}
 	}
 
+	/**
+	 * Evaluates whether the current active operating state timestamp is older than ten minutes.
+	 *
+	 * @returns A promise that resolves to true if the state has remained unaltered for at least 10 minutes.
+	 */
 	private async istBetriebszustandAelterAls10Min(): Promise<boolean> {
 		try {
 			const state = await this.getStateAsync(getDpPath('WP_BZ_akt'));
@@ -224,6 +292,13 @@ class Luxtronik2Controller extends utils.Adapter {
 			return false;
 		}
 	}
+
+	/**
+	 * Primary intelligent engine analyzing live telemetry values to execute continuous performance optimizations.
+	 * Manages dynamic heating curves, anti-cycling protective delays, and voltage scaling algorithms.
+	 *
+	 * @returns A promise that resolves when the execution cycle finishes.
+	 */
 	private async runOptimizationSchedule(): Promise<void> {
 		try {
 			const config = this.config as Record<string, any>;
@@ -235,22 +310,19 @@ class Luxtronik2Controller extends utils.Adapter {
 			const istAbtauen = bzVal === '4';
 			const istLeerlauf = bzVal === '5';
 
-			// Wenn kein relevanter Status aktiv ist, abbrechen
 			if (!istHeizen && !istWarmwasser && !istLeerlauf && !istAbtauen) {
 				return;
 			}
 
 			// =========================================================
-			// 1. DYNAMISCHE PARAMETER-ANPASSUNG BEI STATUSWECHSEL
+			// 1. DYNAMIC PARAMETER ADJUSTMENT UPON STATE SWITCH
 			// =========================================================
 			if (bzVal !== this.lastBzVal) {
 				if (istLeerlauf) {
-					// Checkbox: Standardwerte im Leerlauf erzwingen
 					if (config.idle_defaults_aktiv !== false) {
 						await this.setIdleDefaults();
 					}
 				} else if (istHeizen) {
-					// Checkbox: ZIP- & HUP-Spannungsoptimierung
 					if (config.zip_optimierung_aktiv !== false) {
 						await this.syncConfigValue('zip_aktiv', config.zip_aktiv ?? 0);
 						await this.syncConfigValue(
@@ -262,12 +334,10 @@ class Luxtronik2Controller extends utils.Adapter {
 							config.sync_heating_system_circ_pump_voltage_nominal_heating ?? 7,
 						);
 					}
-					// Checkbox: Takt-Optimierung (Heizen nach Wasser zurücksetzen)
 					if (config.regelung_aktiv !== false) {
 						await this.syncConfigValue('Heizen_nach_Wasser', config.Heating_after_warmwater ?? false);
 					}
 				} else if (istWarmwasser) {
-					// Checkbox: ZIP- & HUP-Spannungsoptimierung
 					if (config.zip_optimierung_aktiv !== false) {
 						await this.syncConfigValue(
 							'hotWaterTemperatureHysteresis',
@@ -286,7 +356,6 @@ class Luxtronik2Controller extends utils.Adapter {
 						);
 					}
 				} else if (istAbtauen) {
-					// Checkbox: ZIP- & HUP-Spannungsoptimierung
 					if (config.zip_optimierung_aktiv !== false) {
 						await this.syncConfigValue('heating_system_circ_pump_voltage_nominal', 10);
 					}
@@ -294,7 +363,6 @@ class Luxtronik2Controller extends utils.Adapter {
 				this.lastBzVal = bzVal;
 			}
 
-			// Paralleler Abruf aller Telemetriedaten für die laufende Zyklus-Überwachung
 			const [
 				wwSollState,
 				wwIstState,
@@ -334,13 +402,11 @@ class Luxtronik2Controller extends utils.Adapter {
 			const hupAktiv = (hupAktivState?.val as number) ?? 0;
 			const heizenHysterese = (heizenHystereseState?.val as number) ?? 0;
 			const nachWasser = nachWasserState?.val;
-			const betriebsart = (bzState?.val as number) ?? 0;
 
 			// =========================================================
-			// 2. KONTINUIERLICHE ÜBERWACHUNG WÄHREND DES BETRIEBS
+			// 2. CONTINUOUS IN-SERVICE TELEMETRY EVALUATION
 			// =========================================================
 			if (istHeizen) {
-				// Takt-Optimierung: Anhebung des Fußpunkts nach 10 min stabilisieren
 				if (config.regelung_aktiv !== false && aelterAls10 && vd1) {
 					const fusspunkt = (await this.getStateAsync(getDpPath('heating_curve_parallel_offset')))?.val;
 					if (fusspunkt === 35) {
@@ -349,7 +415,6 @@ class Luxtronik2Controller extends utils.Adapter {
 					}
 				}
 
-				// ZIP- & HUP-Spannungsoptimierung: Dynamische Spreizungsregelung der HUP
 				if (config.zip_optimierung_aktiv !== false) {
 					const now = Date.now();
 					if (now - this.lastPumpOptimization > 300000) {
@@ -357,21 +422,20 @@ class Luxtronik2Controller extends utils.Adapter {
 							await this.syncConfigValue('heating_system_circ_pump_voltage_nominal', hupAktiv - 0.25);
 							this.lastPumpOptimization = now;
 							writeLog(
-								`Spreizung zu gering (${spreizung}K). HUP-Spannung auf ${hupAktiv - 0.25}V gesenkt.`,
+								`Temperature spread too low (${spreizung}K). Scaling down HUP nominal target to ${hupAktiv - 0.25}V.`,
 								'info',
 							);
 						} else if (spreizung > 7.5 && hupAktiv < 10) {
 							await this.syncConfigValue('heating_system_circ_pump_voltage_nominal', hupAktiv + 0.25);
 							this.lastPumpOptimization = now;
 							writeLog(
-								`Spreizung zu hoch (${spreizung}K). HUP-Spannung auf ${hupAktiv + 0.25}V erhöht.`,
+								`Temperature spread too high (${spreizung}K). Scaling up HUP nominal target to ${hupAktiv + 0.25}V.`,
 								'info',
 							);
 						}
 					}
 				}
 
-				// Takt-Optimierung: "Heizen nach Wasser" und Hysteresen-Management
 				if (config.regelung_aktiv !== false) {
 					if (ruecklauf >= ruecklaufSoll + heizenHysterese - 0.1) {
 						if (aelterAls10) {
@@ -389,45 +453,47 @@ class Luxtronik2Controller extends utils.Adapter {
 			}
 
 			if (istWarmwasser && nachWasser) {
-				// Takt-Optimierung: Fußpunkt anheben bei Heizen nach Wasser
 				if (config.regelung_aktiv !== false) {
 					await this.syncConfigValue('heating_curve_parallel_offset', 35);
 				}
 			}
 
 			if (istLeerlauf) {
-				// ZIP- & HUP-Spannungsoptimierung: ZIP bei erreichten Sollwerten beenden
 				if (config.zip_optimierung_aktiv !== false) {
 					if (wwIst <= wwSoll - wwHysterese || ruecklauf <= ruecklaufSoll - heizenHysterese) {
 						await stopZipAndDeaeration(this);
 					}
 				}
 
-				// Takt-Optimierung: Heiztakt vor einer nahenden Warmwasserladung vorziehen
 				if (config.regelung_aktiv !== false) {
 					if (
 						wwSoll - wwIst >= wwHysterese - 1.5 &&
 						ruecklauf <= ruecklaufSoll &&
-						betriebsart !== 4 &&
-						heatingStateStr !== 'Heizgrenze'
+						heatingStateStr !== 'Heating limit'
 					) {
 						await this.syncConfigValue('heating_curve_parallel_offset', 35);
 					}
 				}
 			}
 		} catch (err: any) {
-			writeLog(`Fehler im runOptimizationSchedule-Ablauf: ${err.message}`, 'error');
+			writeLog(`Error occurred during runOptimizationSchedule loop execution: ${err.message}`, 'error');
 		}
 	}
 
+	/**
+	 * Directly transmits a raw command block buffer over the chosen communications channel.
+	 *
+	 * @param cmd - The parameter numeric index code.
+	 * @param val - The compiled target payload value.
+	 * @returns A promise that resolves when the transmission finishes.
+	 */
 	private async writePumpAsync(cmd: string | number, val: any): Promise<void> {
 		if (this.isDebugLogActive) {
-			writeLog(`writePumpAsync Raw-Befehl: ID ${cmd}, val: ${val}`, 'debug');
+			writeLog(`writePumpAsync direct interface command triggered: Register ${cmd}, value: ${val}`, 'debug');
 		}
 		const paramId = typeof cmd === 'string' ? parseInt(cmd, 10) : cmd;
 		let value = typeof val === 'string' ? parseInt(val, 10) : val;
 
-		// Boolean-Werte in 1/0 umwandeln
 		if (typeof value === 'boolean') {
 			value = value ? 1 : 0;
 		}
@@ -435,6 +501,13 @@ class Luxtronik2Controller extends utils.Adapter {
 		await writeRawParameter(this, paramId, value);
 	}
 
+	/**
+	 * Pushes a hardware write task into a single-threaded execution queue to guarantee transmission safety.
+	 *
+	 * @param cmd - Target parameter register ID.
+	 * @param val - The value payload to map.
+	 * @returns A promise that completes once the queue executes this task.
+	 */
 	public async queueWrite(cmd: string | number, val: any): Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.writeQueue.push(async () => {
@@ -449,46 +522,46 @@ class Luxtronik2Controller extends utils.Adapter {
 		});
 	}
 
+	/**
+	 * Iteratively processes sequential write tasks inside the internal queue buffer.
+	 * Enforces defensive execution delay separation spacing to secure hardware stability.
+	 *
+	 * @returns A promise that resolves when processing cycles resolve.
+	 */
 	private async processQueue(): Promise<void> {
-		// Wenn die Queue bereits abgearbeitet wird oder leer ist, brechen wir ab
 		if (this.isWriting || this.writeQueue.length === 0) {
 			return;
 		}
 
-		// Warteschlange wird jetzt blockiert, damit keine parallelen Schreibzugriffe stattfinden
 		this.isWriting = true;
 
 		try {
-			// Solange noch Aufträge in der Liste sind, arbeiten wir sie der Reihe nach ab
 			while (this.writeQueue.length > 0) {
-				const task = this.writeQueue.shift(); // Nimmt den ältesten Auftrag aus der Liste
+				const task = this.writeQueue.shift();
 
 				if (task) {
 					try {
-						// Versuche, den Schreibbefehl an die Luxtronik zu senden
 						await task();
-
-						// Hardware-Schutz: Zwingende Pause (z.B. 300ms) nach jedem Schreibbefehl,
-						// damit sich der Controller der Wärmepumpe nicht verschluckt.
 						await new Promise(resolve => global.setTimeout(resolve, 300));
 					} catch (taskError: any) {
-						// Wenn ein einzelner Schreibbefehl fehlschlägt, fangen wir das HIER ab.
-						// Dadurch stürzt die Schleife nicht ab, sondern macht einfach mit dem
-						// nächsten Befehl in der Warteschlange weiter!
 						writeLog(
-							`Fehler beim Ausführen eines Schreibbefehls in der Queue: ${taskError.message}`,
+							`Error processing specific serial write task sequence in queue: ${taskError.message}`,
 							'error',
 						);
 					}
 				}
 			}
 		} finally {
-			// oder mit einem schweren Fehler (Exception) abgebrochen ist.
-			// So ist garantiert, dass die Warteschlange immer wieder für neue Befehle freigegeben wird!
 			this.isWriting = false;
 		}
 	}
 
+	/**
+	 * Standardizes raw seconds telemetry counters into readable zero-padded "HH:MM:SS" time blocks.
+	 *
+	 * @param totalSeconds - Total input seconds configuration value.
+	 * @returns Legible time block string.
+	 */
 	private formatSecondsToHMS(totalSeconds: number): string {
 		if (totalSeconds < 0 || isNaN(totalSeconds)) {
 			return '00:00:00';
@@ -499,32 +572,39 @@ class Luxtronik2Controller extends utils.Adapter {
 		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 	}
 
+	/**
+	 * Fetches, parses, converts types, and populates live data registries over the configured TCP socket.
+	 * Dispatches calculation and history logging subroutines accordingly.
+	 *
+	 * @returns A promise that resolves when the internal update registers conclude.
+	 */
 	private async updateData(): Promise<void> {
 		if (this.updateRunning) {
 			return;
 		}
 		this.updateRunning = true;
 		try {
-			const delay = (ms: number): Promise<void> => new Promise(resolve => this.setTimeout(resolve, ms));
+			const delayHelper = (ms: number): Promise<void> => new Promise(resolve => this.setTimeout(resolve, ms));
 
 			let rawParams: number[] = [];
 			let rawValues: number[] = [];
 
-			// 1. Parameter (3003) auslesen
 			try {
 				rawParams = await readAllRaw(this, 3003);
 			} catch (err: unknown) {
-				this.log.debug(`Raw 3003 Fehler: ${err instanceof Error ? err.message : String(err)}`);
+				this.log.debug(
+					`Raw parameter acquisition response error (Command 3003): ${err instanceof Error ? err.message : String(err)}`,
+				);
 			}
 
-			// Kurze Atempause für die CPU der Wärmepumpe (statt 3,5 Sekunden!)
-			await delay(200);
+			await delayHelper(200);
 
-			// 2. Messwerte (3004) auslesen
 			try {
 				rawValues = await readAllRaw(this, 3004);
 			} catch (err: unknown) {
-				this.log.debug(`Raw 3004 Fehler: ${err instanceof Error ? err.message : String(err)}`);
+				this.log.debug(
+					`Raw telemetry value acquisition response error (Command 3004): ${err instanceof Error ? err.message : String(err)}`,
+				);
 			}
 
 			this.errorCount = 0;
@@ -562,21 +642,17 @@ class Luxtronik2Controller extends utils.Adapter {
 						case 'parameter':
 						case 'value':
 						case 'additional':
-							// Die alte coolchip-Bibliothek ist entfernt.
-							// Diese alten Text-Werte (z. B. Firmware) werden ignoriert.
 							value = undefined;
 							break;
 					}
 				} else {
 					if (/^\d+$/.test(luxId)) {
 						const idx = parseInt(luxId, 10);
-						// Logik: Einstellungen sind meist Parameter (3003), Infos sind Messwerte (3004)
-						value = definition.folder.startsWith('Einstellungen') ? rawParams?.[idx] : rawValues?.[idx];
+						value = definition.folder.startsWith('Settings') ? rawParams?.[idx] : rawValues?.[idx];
 						if (value !== undefined && definition.factor) {
 							value /= definition.factor;
 						}
 					} else {
-						// Fallback für alte Text-IDs (z.B. "firmware" statt einer Nummer)
 						value = undefined;
 					}
 				}
@@ -595,7 +671,7 @@ class Luxtronik2Controller extends utils.Adapter {
 						value = JSON.stringify(value);
 					}
 
-					if (definition.unit === 's' && typeof value === 'number') {
+					if (definition.unit === 's' && definition.type === 'number') {
 						value = this.formatSecondsToHMS(value);
 					} else if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
 						const totalSeconds = typeof value === 'number' ? value : parseInt(value as string, 10);
@@ -609,32 +685,20 @@ class Luxtronik2Controller extends utils.Adapter {
 									.padStart(2, '0');
 								value = `${h}:${m}`;
 							} else {
-								// NEU: Zwingt die Anzeige überall auf zweistellige Werte mit führender Null
-								value = new Date(totalSeconds * 1000).toLocaleString('de-DE', {
-									day: '2-digit',
-									month: '2-digit',
-									year: 'numeric',
-									hour: '2-digit',
-									minute: '2-digit',
-									second: '2-digit',
-									hour12: false,
-								});
+								value = new Date(totalSeconds * 1000).toISOString().replace('T', ' ').substring(0, 19);
 							}
 						}
 					}
 
-					// Wir ermitteln, welchen Typ das ioBroker-Objekt zwingend erwartet
 					let targetIoBrokerType = definition.type === 'json' ? 'string' : definition.type;
 					if (definition.unit === 's' && definition.type === 'number') {
 						targetIoBrokerType = 'string';
 					}
 
-					// Auch hier: Alle Zeitrollen als String absichern
 					if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
 						targetIoBrokerType = 'string';
 					}
 
-					// Und zwingen den Rohwert gnadenlos in diesen Typ!
 					if (targetIoBrokerType === 'string' && typeof value !== 'string') {
 						value = String(value);
 					} else if (targetIoBrokerType === 'number' && typeof value !== 'number') {
@@ -660,7 +724,6 @@ class Luxtronik2Controller extends utils.Adapter {
 			const newFehlerState = await this.getStateAsync(fehlerDp);
 			const newFehlerVal = newFehlerState?.val as string | undefined;
 
-			// ---> NEUER AUFRUF DES EXTERNEN MANAGERS <---
 			await checkAndSendErrorNotifications(this, oldFehlerVal, newFehlerVal);
 
 			await updateOutageHistory(this, rawValues);
@@ -672,14 +735,17 @@ class Luxtronik2Controller extends utils.Adapter {
 			await this.runOptimizationSchedule();
 		} catch (err: any) {
 			this.errorCount++;
-			writeLog(`Abfragefehler (${this.errorCount}/${this.MAX_ERRORS}): ${err.message}`, 'error');
+			writeLog(
+				`Communication error encountered (${this.errorCount}/${this.MAX_ERRORS}): ${err.message}`,
+				'error',
+			);
 
 			if (this.errorCount >= this.MAX_ERRORS) {
 				await this.setState('info.connection', { val: false, ack: true });
-				writeLog('Wärmepumpe nicht erreichbar. Verbindung wurde als unterbrochen markiert.', 'warn');
+				writeLog('Heat pump controller unreachable. Flagging connection status as disconnected.', 'warn');
 				sendTelegramNotification(
 					this,
-					'Wärmepumpe nicht erreichbar. Verbindung wurde als unterbrochen markiert.',
+					'Heat pump controller unreachable. Flagging connection status as disconnected.',
 				);
 			}
 		} finally {
@@ -687,6 +753,11 @@ class Luxtronik2Controller extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Callback issued by the ioBroker framework during adapter shutdown sequences.
+	 *
+	 * @param callback - Termination completion trigger function.
+	 */
 	private onUnload(callback: () => void): void {
 		try {
 			if (this.pollingInterval) {
@@ -698,29 +769,40 @@ class Luxtronik2Controller extends utils.Adapter {
 
 			void this.setState('info.connection', { val: false, ack: true });
 
-			writeLog('Adapter wird beendet. Alle Timer und Verbindungen sauber gestoppt.', 'info');
+			writeLog(
+				'Adapter is shutting down. Cleared all active intervals and terminated open socket configurations cleanly.',
+				'info',
+			);
 			callback();
 		} catch {
 			callback();
 		}
 	}
 
+	/**
+	 * Central observer callback executed whenever a subscribed state receives an update.
+	 *
+	 * @param id - The explicit full namespaced state identifier path.
+	 * @param state - The newly applied state context or null context if dropped.
+	 * @returns A promise that resolves when operations complete.
+	 */
 	private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
 		if (!state) {
 			return;
 		}
 
-		// 1. Bewegungssensoren Logik
 		const config = this.config as Record<string, any>;
 		if (config.motion_sensors_aktiv && config.motionSensors && Array.isArray(config.motionSensors)) {
 			const matchedSensor = config.motionSensors.find((s: any) => s.oid && s.oid.trim() === id);
 
 			if (matchedSensor && state.val === true) {
-				// Wenn die Zirkulationspumpe physisch bereits läuft, tun wir gar nichts.
 				const zipOutState = await this.getStateAsync(getDpPath('ZIPout'));
 				if (zipOutState && zipOutState.val === 1) {
 					if (this.isDebugLogActive) {
-						writeLog(`Bewegung an '${matchedSensor.name}' ignoriert, da ZIP bereits läuft.`, 'debug');
+						writeLog(
+							`Motion registered at sensor '${matchedSensor.name}' but circulation pump ZIP is already running. Action ignored.`,
+							'debug',
+						);
 					}
 					return;
 				}
@@ -730,17 +812,19 @@ class Luxtronik2Controller extends utils.Adapter {
 
 				if (now - lastZipChange > (config.zip_last_run_min || 600) * 1000) {
 					if (this.isDebugLogActive) {
-						writeLog(`Bewegung an '${matchedSensor.name || id}' erkannt. Triggere ZIP Makro.`, 'debug');
+						writeLog(
+							`Motion registered at sensor '${matchedSensor.name || id}'. Launching circulation pump ZIP macro sequence.`,
+							'debug',
+						);
 					}
-					// FIX: Volle ID mit Namespace und setForeignStateAsync für den internen Trigger nutzen
-					await this.setForeignStateAsync(`${this.namespace}.${getDpPath('Activate_Zip')}`, {
+					await this.setState(getDpPath('Activate_Zip'), {
 						val: true,
 						ack: false,
 					});
 				} else {
 					if (this.isDebugLogActive) {
 						writeLog(
-							`Bewegung an '${matchedSensor.name || id}' erkannt, aber ZIP hat kürzlich gearbeitet.`,
+							`Motion registered at sensor '${matchedSensor.name || id}' but circulation pump execution suppressed due to anti-cycling protective interval timer.`,
 							'debug',
 						);
 					}
@@ -749,26 +833,20 @@ class Luxtronik2Controller extends utils.Adapter {
 			}
 		}
 
-		// 2. Eigene Datenpunkte
 		if (state.ack) {
 			return;
 		}
 
-		// =================================================================
-		// BENUTZERDEFINIERTE WERTE SCHREIBEN
-		// =================================================================
-		if (id.startsWith(`${this.namespace}.Benutzer.`)) {
+		if (id.startsWith(`${this.namespace}.Custom.`)) {
 			try {
 				const obj = await this.getObjectAsync(id);
 
-				// Nur weitermachen, wenn es wirklich ein Parameter ist
 				if (obj && obj.native && obj.native.source === 'parameter') {
-					// FIX: setForeignStateAsync für die volle ID nutzen
-					await this.setForeignStateAsync(id, { val: state.val, ack: true });
+					const relativeId = id.replace(`${this.namespace}.`, '');
+					await this.setState(relativeId, { val: state.val, ack: true });
 
 					let valueToWrite: any = state.val;
 
-					// Konvertierung rückgängig machen (ioBroker -> Luxtronik)
 					if (obj.native.customType === 'boolean') {
 						valueToWrite = state.val ? 1 : 0;
 					} else if (obj.native.customType === 'number' && typeof state.val === 'number') {
@@ -783,20 +861,18 @@ class Luxtronik2Controller extends utils.Adapter {
 					if (!isNaN(targetWriteId)) {
 						if (this.isDebugLogActive) {
 							writeLog(
-								`Schreibe benutzerdefinierten Parameter ${targetWriteId} mit Wert ${valueToWrite}`,
+								`Transmitting modified custom configuration parameter ${targetWriteId} to hardware layer with payload value ${valueToWrite}`,
 								'info',
 							);
 						}
-						// Ab in die sichere Warteschlange zur Wärmepumpe!
 						await this.queueWrite(targetWriteId, valueToWrite);
 					}
 				}
 			} catch (err: any) {
-				writeLog(`Fehler beim Schreiben eines eigenen Parameters: ${err.message}`, 'error');
+				writeLog(`Failed to compile custom value parameter adjustment payload write: ${err.message}`, 'error');
 			}
 			return;
 		}
-		// =================================================================
 
 		const mappingKey = id.split('.').pop();
 		if (!mappingKey) {
@@ -808,36 +884,34 @@ class Luxtronik2Controller extends utils.Adapter {
 		}
 
 		try {
+			const relativeId = id.replace(`${this.namespace}.`, '');
+
 			if (mappingKey === 'Schreibe_Debug_Log') {
-				// FIX: setForeignStateAsync nutzen
-				await this.setForeignStateAsync(id, { val: state.val, ack: true });
+				await this.setState(relativeId, { val: state.val, ack: true });
 
 				this.isDebugLogActive = state.val === true;
 				setCustomDebug(this.isDebugLogActive);
-				writeLog(`Erweitertes Logging ist nun ${this.isDebugLogActive ? 'aktiviert' : 'deaktiviert'}`, 'info');
+				writeLog(
+					`Extended debugging telemetry logging mode has been ${this.isDebugLogActive ? 'enabled' : 'disabled'}.`,
+					'info',
+				);
 				return;
 			}
 			if (mappingKey === 'Regelung_Aktiv' || mappingKey === 'zip_aktiv') {
-				// FIX: setForeignStateAsync nutzen
-				await this.setForeignStateAsync(id, { val: state.val, ack: true });
+				await this.setState(relativeId, { val: state.val, ack: true });
 				return;
 			}
 			if (mappingKey === 'Setze_Vorgabewerte' && state.val === true) {
-				// FIX: setForeignStateAsync nutzen
-				await this.setForeignStateAsync(id, { val: false, ack: true });
+				await this.setState(relativeId, { val: false, ack: true });
 				await this.setIdleDefaults();
 				return;
 			}
 			if (mappingKey === 'Dump_Raw_To_Log' && state.val === true) {
-				// FIX: setForeignStateAsync nutzen
-				await this.setForeignStateAsync(id, { val: false, ack: true });
+				await this.setState(relativeId, { val: false, ack: true });
 				await dumpAllRawToLog(this);
 				return;
 			}
 
-			// ==========================================
-			// Zwangswarmwasser
-			// ==========================================
 			if (mappingKey === 'Zwangswarmwasser') {
 				if (state.val === true) {
 					await handleZwangswarmwasser(this, id);
@@ -845,9 +919,6 @@ class Luxtronik2Controller extends utils.Adapter {
 				return;
 			}
 
-			// ==========================================
-			// Zwangsheizen
-			// ==========================================
 			if (mappingKey === 'Zwangsheizen') {
 				if (state.val === true) {
 					await handleZwangsheizen(this, id);
@@ -855,9 +926,6 @@ class Luxtronik2Controller extends utils.Adapter {
 				return;
 			}
 
-			// ==========================================
-			// Activate_Zip
-			// ==========================================
 			if (mappingKey === 'Activate_Zip') {
 				if (state.val === true) {
 					const durationState = await this.getStateAsync(getDpPath('zip_aktiv'));
@@ -865,7 +933,7 @@ class Luxtronik2Controller extends utils.Adapter {
 						durationState && typeof durationState.val === 'number' ? durationState.val : 120;
 					await handleActivateZip(this, id, durationSeconds);
 				} else {
-					await this.setForeignStateAsync(id, { val: false, ack: true });
+					await this.setState(relativeId, { val: false, ack: true });
 					await stopZipAndDeaeration(this);
 				}
 				return;
@@ -875,8 +943,7 @@ class Luxtronik2Controller extends utils.Adapter {
 				return;
 			}
 
-			// FIX: setForeignStateAsync für alle normalen Parameter am Ende nutzen
-			await this.setForeignStateAsync(id, { val: state.val, ack: true });
+			await this.setState(relativeId, { val: state.val, ack: true });
 
 			let valueToWrite: any = state.val;
 
@@ -890,7 +957,6 @@ class Luxtronik2Controller extends utils.Adapter {
 				valueToWrite = state.val * definition.factor;
 			}
 
-			// Temperaturwerte für die Roh-Schnittstelle aufbereiten (z.B. 21.5 °C -> 215)
 			if (definition.unit === '°C' && typeof state.val === 'number' && !definition.factor) {
 				valueToWrite = state.val * 10;
 			}
@@ -898,7 +964,10 @@ class Luxtronik2Controller extends utils.Adapter {
 			const targetWriteId = definition.luxWriteId;
 			await this.queueWrite(parseInt(targetWriteId, 10), valueToWrite);
 		} catch (err: any) {
-			writeLog(`Fehler bei Befehlsausführung: ${err.message}`, 'error');
+			writeLog(
+				`Failed to finalize downstream state change command event pipeline execution loop: ${err.message}`,
+				'error',
+			);
 		}
 	}
 }

@@ -3,79 +3,76 @@ import { writeLog } from './logger';
 import { getDpPath } from './stateMapping';
 
 // =========================================================
-// INTERFACES & TYPEN
+// TYPES & INTERFACES
 // =========================================================
 
 /**
- * Struktur eines Fehlerspeichereintrags der Luxtronik Wärmepumpe.
+ * Structure of an entry in the error or outage history.
  */
 export interface ErrorHistoryEntry {
-	/** Der Fehlercode der Wärmepumpe (z.B. 704) */
+	/** The code of the registered error or outage */
 	code: number;
-	/** Die Klartextbeschreibung des Fehlers */
+	/** The clear text description of the code */
 	beschreibung: string;
-	/** Das formatierte Datum (de-DE) */
+	/** The formatted date of occurrence */
 	datum: string;
-	/** Der rohe UNIX-Timestamp des Fehlers */
+	/** The raw Unix timestamp */
 	timestamp?: number;
 }
 
 /**
- * Erweiterte Schnittstelle für den ioBroker-Adapter zur Typsicherheit interner Attribute.
+ * Extended adapter interface to provide type safety for dynamic properties and methods.
  */
 export interface ExtendedAdapter extends AdapterInstance {
-	/** Die Adapter-Konfiguration aus der io-package.json kombiniert mit dynamischen Werten */
+	/** The adapter configuration from io-package.json combined with dynamic values */
 	config: ioBroker.AdapterConfig & Record<string, any>;
-	/** Speichert den Timestamp des zuletzt gemeldeten Fehlers, um doppelte Alarme zu vermeiden */
+	/** Stores the timestamp of the last reported error to prevent duplicate alerts */
 	lastKnownErrorTimestamp?: number | null;
 }
 
 // =========================================================
-// HILFSFUNKTIONEN
+// HELPER FUNCTIONS
 // =========================================================
 
 /**
- * Parst einen JSON-String typsicher und fängt Fehler lautlos ab.
+ * Parses a JSON string in a type-safe manner and silently handles parsing errors.
  *
- * @param value Der zu parsende JSON-String.
- * @returns Das geparste Objekt im angegebenen Typ T oder null, falls das Parsen fehlschlägt.
+ * @param value - The JSON string to parse.
+ * @returns The parsed object of type T, or null if parsing fails.
  */
 function safeParse<T>(value: string): T | null {
 	try {
 		return JSON.parse(value) as T;
 	} catch {
+		void 0;
 		return null;
 	}
 }
 
 /**
- * Zentrale Funktion zum Versenden von Benachrichtigungen über alle konfigurierten Kanäle (Telegram & ioBroker-Glocke).
+ * Sends a notification message via the configured channels (ioBroker Notification Center & Telegram).
  *
- * @param adapter Die Instanz des ioBroker-Adapters.
- * @param message Die zu versendende Nachricht als Markdown-formatierter String.
- * @returns Ein Array mit den Namen der erfolgreich genutzten Kommunikationskanäle.
+ * @param adapter - The extended adapter instance.
+ * @param message - The message text to send.
+ * @returns A promise resolving to an array of successful delivery channel names.
  */
 async function sendNotification(adapter: ExtendedAdapter, message: string): Promise<string[]> {
 	const config = adapter.config;
 	const successMessages: string[] = [];
 
-	// 1. ioBroker-Glocke (Notification Manager)
 	if (config.notification_bell === true) {
 		if (typeof adapter.registerNotification === 'function') {
 			await adapter.registerNotification('luxtronik2-controller', 'lwpError', message);
-			writeLog('Benachrichtigung an ioBroker-Glocke gesendet.', 'info');
-			successMessages.push('Glocke');
+			writeLog('Notification sent to ioBroker notification center.', 'info');
+			successMessages.push('Notification Center');
 		} else {
-			writeLog(`🚨 ioBroker-Glocke nicht verfügbar. Nachricht: ${message}`, 'warn');
+			writeLog(`🚨 ioBroker notification center unavailable. Message: ${message}`, 'warn');
 		}
 	}
 
-	// 2. Telegram
-	const telegramInstance = config.telegram_instance; // Wert sicher zwischenspeichern
+	const telegramInstance = config.telegram_instance;
 	const isTelegramActive =
-		config.telegram_enabled === true &&
-		typeof telegramInstance === 'string' && // TypeScript Typen-Prüfung!
-		telegramInstance !== 'none';
+		config.telegram_enabled === true && typeof telegramInstance === 'string' && telegramInstance !== 'none';
 
 	if (isTelegramActive) {
 		const sendObj: Record<string, any> = { text: message };
@@ -89,55 +86,52 @@ async function sendNotification(adapter: ExtendedAdapter, message: string): Prom
 			}
 		}
 
-		// Jetzt weiß TS absolut sicher, dass telegramInstance ein String ist!
 		adapter.sendTo(telegramInstance, 'send', sendObj);
-		writeLog(`Telegram-Nachricht gesendet an ${telegramInstance}`, 'info');
+		writeLog(`Telegram message sent to ${telegramInstance}`, 'info');
 		successMessages.push('Telegram');
 	}
 
 	return successMessages;
 }
 
+// =========================================================
+// MAIN EXPORTS
+// =========================================================
+
 /**
- * Rückwärtskompatibler Wrapper, falls die main.ts direkt Telegram-Nachrichten verschickt.
- * Leitet die Anfrage an die neue, universelle Benachrichtigungsfunktion weiter.
+ * Backwards-compatible wrapper to send Telegram notifications explicitly.
+ * Forwards the request to the universal notification function.
  *
- * @param adapter Die Instanz des ioBroker-Adapters.
- * @param message Die zu versendende Nachricht.
+ * @param adapter - The extended adapter instance.
+ * @param message - The message text to send.
  */
 export function sendTelegramNotification(adapter: ExtendedAdapter, message: string): void {
-	// void signalisiert dem Linter, dass wir das Promise absichtlich nicht abwarten
 	void sendNotification(adapter, message);
 }
 
-// =========================================================
-// TEST-BUTTON AUS DER OBERFLÄCHE BEHANDELN
-// =========================================================
-
 /**
- * Behandelt eingehende Test-Nachrichten aus der ioBroker-Admin Oberfläche (Test-Button).
- * Sammelt die Fehlerhistorie und versendet einen Test-Alarm.
+ * Handles the 'testTelegram' message from the ioBroker Admin UI.
  *
- * @param adapter Die Instanz des ioBroker-Adapters.
- * @param obj Das empfangene ioBroker-Nachrichtenobjekt inkl. Callback.
+ * @param adapter - The extended adapter instance.
+ * @param obj - The standardized ioBroker message structure.
+ * @returns A promise resolving when the test message has been processed.
  */
 export async function handleTestMessage(adapter: ExtendedAdapter, obj: ioBroker.Message): Promise<void> {
 	try {
-		writeLog('Test-Button empfangen!', 'info');
+		writeLog('Test button triggered!', 'info');
 		const config = adapter.config;
 
 		const isTelegramActive =
 			config.telegram_enabled === true && config.telegram_instance && config.telegram_instance !== 'none';
 		const isIoBrokerNotifyActive = config.notification_bell === true;
 
-		// Abbruch, wenn kein Kanal konfiguriert ist
 		if (!isTelegramActive && !isIoBrokerNotifyActive) {
 			if (obj.callback) {
 				adapter.sendTo(
 					obj.from,
 					obj.command,
 					{
-						error: 'Fehler: Weder Telegram noch Glocke sind aktiv gespeichert! Bitte erst SPEICHERN klicken.',
+						error: 'Error: Neither Telegram nor Notification Center are active! Please save settings first.',
 					},
 					obj.callback,
 				);
@@ -149,69 +143,61 @@ export async function handleTestMessage(adapter: ExtendedAdapter, obj: ioBroker.
 		const lastErrorState = errorPath ? await adapter.getStateAsync(errorPath) : null;
 		let msg = '';
 
-		// Historie auslesen und formatieren
 		if (lastErrorState && typeof lastErrorState.val === 'string') {
 			const errorList = safeParse<ErrorHistoryEntry[]>(lastErrorState.val);
 
 			if (errorList && errorList.length > 0) {
 				const newestError = errorList[0];
-				msg = `🚨 *Test-Alarm: Fehlerspeicher*\n\nAktuellster Fehler:\nCode: ${newestError.code}\nFehler: ${newestError.beschreibung}\nDatum: ${newestError.datum}\n\n`;
+				msg = `🚨 *Test Alarm: Error Log*\n\nMost recent error:\nCode: ${newestError.code}\nError: ${newestError.beschreibung}\nDate: ${newestError.datum}\n\n`;
 
 				if (errorList.length > 1) {
 					const history = errorList
 						.slice(1)
-						.map(e => `Datum: ${e.datum}\nCode: ${e.code}\nFehler: ${e.beschreibung}`)
+						.map(e => `Date: ${e.datum}\nCode: ${e.code}\nError: ${e.beschreibung}`)
 						.join('\n\n');
-					msg += `Historie:\n${history}`;
+					msg += `History:\n${history}`;
 				}
 			}
 		}
 
-		// Fallback, falls der Fehlerspeicher komplett leer ist
 		if (msg === '') {
 			msg =
-				'✅ *Erfolgreicher Test*\n\nDies ist eine generierte Test-Nachricht. Die Kommunikation zu Telegram und ioBroker funktioniert einwandfrei! (Es liegen aktuell keine echten Heizungsfehler vor).';
+				'✅ *Successful Test*\n\nThis is a generated test message. Communication via Telegram and ioBroker works perfectly! (There are currently no real heat pump errors).';
 		}
 
-		// Zentrale Benachrichtigung auslösen
 		const successMessages = await sendNotification(adapter, msg);
 
-		// Ergebnis an die UI zurückmelden
 		if (obj.callback) {
 			adapter.sendTo(
 				obj.from,
 				obj.command,
-				{ result: `Erfolgreich ausgelöst: ${successMessages.join(' & ')}` },
+				{ result: `Successfully triggered: ${successMessages.join(' & ')}` },
 				obj.callback,
 			);
 		}
 	} catch (err: unknown) {
 		const errorMessage = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Test-Button: ${errorMessage}`, 'error');
+		writeLog(`Error processing test button: ${errorMessage}`, 'error');
 		if (obj.callback) {
-			adapter.sendTo(obj.from, obj.command, { error: `Skriptfehler: ${errorMessage}` }, obj.callback);
+			adapter.sendTo(obj.from, obj.command, { error: `Script error: ${errorMessage}` }, obj.callback);
 		}
 	}
 }
 
-// =========================================================
-// INTELLIGENTER FEHLER-FILTER UND ALARM
-// =========================================================
-
 /**
- * Überprüft Änderungen im Fehlerspeicher, filtert bekannte Fehler heraus und
- * löst bei neu aufgetretenen, echten Wärmepumpen-Fehlern einen Alarm aus.
+ * Checks for changes in the error log, filters out known errors,
+ * and triggers an alarm for new, genuine heat pump errors.
  *
- * @param adapter Die Instanz des ioBroker-Adapters.
- * @param oldFehlerVal Der vorherige Zustand des Fehlerspeichers als JSON-String.
- * @param newFehlerVal Der neue Zustand des Fehlerspeichers als JSON-String.
+ * @param adapter - The extended adapter instance.
+ * @param oldFehlerVal - The previous state of the error memory as a JSON string.
+ * @param newFehlerVal - The new state of the error memory as a JSON string.
+ * @returns A promise resolving when the check finishes.
  */
 export async function checkAndSendErrorNotifications(
 	adapter: ExtendedAdapter,
 	oldFehlerVal: string | undefined,
 	newFehlerVal: string | undefined,
 ): Promise<void> {
-	// Guard Clause: Wenn sich nichts geändert hat oder der Wert leer ist, direkt abbrechen
 	if (!newFehlerVal || newFehlerVal === oldFehlerVal) {
 		return;
 	}
@@ -225,28 +211,23 @@ export async function checkAndSendErrorNotifications(
 	const currentErrorTimestamp = newestError.timestamp;
 	const currentErrorCode = newestError.code;
 
-	// Guard Clause: Ungültiger Timestamp oder Dummy-Fehlercode (0)
 	if (currentErrorTimestamp === undefined || currentErrorCode === 0) {
 		return;
 	}
 
-	// DER FIX: Stille Initialisierung beim Adapter-Neustart!
-	// Wenn der Adapter gerade frisch gebootet hat, merken wir uns den letzten Fehler stumm und brechen ab.
 	if (adapter.lastKnownErrorTimestamp === undefined || adapter.lastKnownErrorTimestamp === null) {
 		adapter.lastKnownErrorTimestamp = currentErrorTimestamp;
-		writeLog('Fehler-Überwachung initialisiert. Letzter bekannter Fehler-Timestamp stumm gesetzt.', 'debug');
+		writeLog('Error monitoring initialized. Last known error timestamp set silently.', 'debug');
 		return;
 	}
 
-	// Guard Clause: Fehler ist älter oder gleich dem zuletzt gemeldeten (Schutz vor Endlosschleifen)
 	if (currentErrorTimestamp <= adapter.lastKnownErrorTimestamp) {
 		return;
 	}
 
-	// Timestamp aktualisieren, um mehrfache Benachrichtigungen für denselben Fehler zu verhindern
 	adapter.lastKnownErrorTimestamp = currentErrorTimestamp;
 
-	const msg = `🚨 *Störung Wärmepumpe!*\nEin Fehler an der Wärmepumpe wurde registriert:\n\n*Code:* ${currentErrorCode}\n*Fehler:* ${newestError.beschreibung}\n*Datum:* ${newestError.datum}`;
+	const msg = `🚨 *Heat Pump Malfunction!*\nAn error was registered on the heat pump:\n\n*Code:* ${currentErrorCode}\n*Error:* ${newestError.beschreibung}\n*Date:* ${newestError.datum}`;
 
 	await sendNotification(adapter, msg);
 }

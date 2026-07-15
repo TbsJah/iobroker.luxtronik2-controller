@@ -11,7 +11,7 @@
 
 ## luxtronik2-controller adapter for ioBroker
 
-This ioBroker adapter enables the local control and monitoring of heat pumps with Luxtronik 2.x controllers (e.g., Alpha Innotec, Novelan). The adapter is written entirely in TypeScript.
+This ioBroker adapter enables the local control and monitoring of heat pumps with [Luxtronik 2.x controllers](https://www.alpha-innotec.com/en/products/accessories/control/luxtronik) (e.g., Alpha Innotec, Novelan). The adapter is written entirely in TypeScript.
 
 ## Acknowledgements & History
 
@@ -79,6 +79,11 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ## Changelog
 
 // ### **WORK IN PROGRESS**
+
+### **WORK IN PROGRESS**
+
+- Resolve issues which are reported by repository checker
+
 ### 0.5.1 (2026-07-14)
 
 - Fix issue notify last error after instance restart

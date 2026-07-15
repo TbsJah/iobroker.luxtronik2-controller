@@ -1,29 +1,22 @@
 import type { AdapterInstance } from '@iobroker/adapter-core';
-import {
-	ERROR_CODES,
-	HP_TYPES,
-	OUTAGE_CODES,
-	STATE_HEATING,
-	STATE_ZEILE_1,
-	STATE_ZEILE_2,
-	STATE_ZEILE_3,
-} from './codes';
+import { ERROR_CODES, HP_TYPES, OUTAGE_CODES, STATE_HEATING, STATE_LINE_1, STATE_LINE_2, STATE_LINE_3 } from './codes';
 import { writeLog } from './logger';
 import { sanitizeName } from './objectManager';
 import { getDpPath, getLuxIdByKey } from './stateMapping';
 
 // ==========================================
-// BERECHNUNGEN (DRY-Prinzip)
+// CALCULATIONS (DRY-Principle)
 // ==========================================
 
 /**
- * Universelle Hilfsfunktion, um zwei Werte aus dem ioBroker zu addieren.
+ * Universal helper function to add two values from the ioBroker state tree.
  *
- * @param adapter - ioBroker Adapter-Instanz
- * @param sourceId1 - Pfad des ersten Quell-States
- * @param sourceId2 - Pfad des zweiten Quell-States
- * @param targetId - Pfad des Ziel-States, in den das Ergebnis geschrieben wird
- * @param logName - Name für Log-Einträge
+ * @param adapter - ioBroker adapter instance
+ * @param sourceId1 - Path of the first source state
+ * @param sourceId2 - Path of the second source state
+ * @param targetId - Path of the target state where the result will be written
+ * @param logName - Name used for log entries
+ * @returns A promise resolving after the addition completes
  */
 async function calculateSum(
 	adapter: AdapterInstance,
@@ -44,53 +37,72 @@ async function calculateSum(
 		await adapter.setStateChangedAsync(targetId, val1 + val2, true);
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler bei der Berechnung der ${logName}: ${msg}`, 'error');
+		writeLog(`Error calculating ${logName}: ${msg}`, 'error');
 	}
 }
 
 /**
- * Berechnet die gesamte Wärmemenge (Heizung + Warmwasser) und schreibt sie in den Ziel-State.
+ * Calculates the total thermal energy (heating + hot water) and writes it to the target state.
  *
- * @param adapter - ioBroker Adapter-Instanz
- * @returns void
+ * @param adapter - ioBroker adapter instance
+ * @returns A promise resolving upon completion
  */
 export async function calculateTotalThermalEnergy(adapter: AdapterInstance): Promise<void> {
 	await calculateSum(
 		adapter,
-		'Informationen.09_Wärmemenge.thermalenergy_heating',
-		'Informationen.09_Wärmemenge.thermalenergy_warmwater',
-		'Informationen.09_Wärmemenge.thermalenergy_total',
-		'Gesamt-Wärmemenge',
+		getDpPath('thermalenergy_heating'),
+		getDpPath('thermalenergy_warmwater'),
+		getDpPath('thermalenergy_total'),
+		'Total Thermal Energy',
 	);
 }
 
 /**
- * Berechnet die gesamte Energie (Heizung + Warmwasser) und schreibt sie in den Ziel-State.
+ * Calculates the total energy consumed (heating + hot water) and writes it to the target state.
  *
- * @param adapter - ioBroker Adapter-Instanz
- * @returns void
+ * @param adapter - ioBroker adapter instance
+ * @returns A promise resolving upon completion
  */
 export async function calculateTotalEnergy(adapter: AdapterInstance): Promise<void> {
 	await calculateSum(
 		adapter,
-		'Informationen.10_Energie.energy_heating',
-		'Informationen.10_Energie.energy_warmwater',
-		'Informationen.10_Energie.energy_total',
-		'Gesamt-Energie',
+		getDpPath('energy_heating'),
+		getDpPath('energy_warmwater'),
+		getDpPath('energy_total'),
+		'Total Energy',
 	);
 }
 
 // ==========================================
-// HISTORIEN & LOGS (DRY-Prinzip)
+// HISTORY & LOGS (DRY-Principle)
 // ==========================================
 
+/**
+ * Structure of an entry in the error or outage history.
+ */
 interface HistoryEntry {
+	/** The code of the registered error or outage */
 	code: number;
+	/** The clear text description of the code */
 	beschreibung: string;
+	/** The formatted date of occurrence */
 	datum: string;
+	/** The raw Unix timestamp */
 	timestamp: number;
 }
 
+/**
+ * Internal helper function to generate error and outage histories.
+ *
+ * @param adapter The adapter instance.
+ * @param rawValues The raw values from the heat pump.
+ * @param timeStartIndex Index of the first timestamp in the raw data.
+ * @param codeStartIndex Index of the first code in the raw data.
+ * @param targetStateId The ioBroker ID where the JSON should be written.
+ * @param fallbackPrefix Fallback text for unknown codes.
+ * @param codeMap The dictionary mapping codes to readable text.
+ * @returns A promise resolving upon completion
+ */
 async function updateHistory(
 	adapter: AdapterInstance,
 	rawValues: number[],
@@ -109,7 +121,7 @@ async function updateHistory(
 
 			if (timestamp !== undefined && timestamp > 0) {
 				const date = new Date(timestamp * 1000);
-				const formattedDate = date.toLocaleString('de-DE');
+				const formattedDate = date.toISOString().replace('T', ' ').substring(0, 19);
 
 				let beschreibung = `${fallbackPrefix} (${code})`;
 				if (codeMap[code] !== undefined) {
@@ -120,12 +132,11 @@ async function updateHistory(
 					code: code,
 					beschreibung: beschreibung,
 					datum: formattedDate,
-					timestamp: timestamp, // Behoben: Timestamp ist wieder enthalten!
+					timestamp: timestamp,
 				});
 			}
 		}
 
-		// Sortiert die Liste absteigend nach Timestamp
 		historyList.sort((a, b) => b.timestamp - a.timestamp);
 
 		const cleanList = historyList.map((entry, idx) => ({
@@ -137,14 +148,13 @@ async function updateHistory(
 		}));
 		const jsonStr = JSON.stringify(cleanList);
 
-		// Performance-Optimierung: Direkt über setStateChangedAsync regeln!
 		const result = await adapter.setStateChangedAsync(targetStateId, { val: jsonStr, ack: true });
 		if (result && (result as any).numChanges > 0) {
-			writeLog(`Historie für ${targetStateId} aus Rohdaten aktualisiert.`, 'info');
+			writeLog(`History for ${targetStateId} updated from raw data.`, 'info');
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aktualisieren der Historie: ${msg}`, 'error');
+		writeLog(`Error updating history: ${msg}`, 'error');
 	}
 }
 
@@ -153,17 +163,13 @@ async function updateHistory(
  *
  * @param adapter - The adapter instance.
  * @param rawValues - The raw values from the device.
+ * @returns A promise resolving upon completion
  */
 export async function updateErrorHistory(adapter: AdapterInstance, rawValues: number[]): Promise<void> {
-	await updateHistory(
-		adapter,
-		rawValues,
-		95,
-		100,
-		'Informationen.06_Fehlerspeicher.Fehlerspeicher',
-		'Unbekannter Fehler',
-		ERROR_CODES,
-	);
+	const dpPath = getDpPath('Fehlerspeicher');
+	if (dpPath) {
+		await updateHistory(adapter, rawValues, 95, 100, dpPath, 'Unknown error', ERROR_CODES);
+	}
 }
 
 /**
@@ -171,23 +177,20 @@ export async function updateErrorHistory(adapter: AdapterInstance, rawValues: nu
  *
  * @param adapter - The adapter instance.
  * @param rawValues - The raw values from the device.
+ * @returns A promise resolving upon completion
  */
 export async function updateOutageHistory(adapter: AdapterInstance, rawValues: number[]): Promise<void> {
-	await updateHistory(
-		adapter,
-		rawValues,
-		111,
-		106,
-		'Informationen.07_Abschaltungen.Abschaltungen',
-		'Unbekannter Abschaltgrund',
-		OUTAGE_CODES,
-	);
+	const dpPath = getDpPath('Abschaltungen');
+	if (dpPath) {
+		await updateHistory(adapter, rawValues, 111, 106, dpPath, 'Unknown outage cause', OUTAGE_CODES);
+	}
 }
 
 /**
  * Calculates the temperature spread between supply and return temperatures.
  *
  * @param adapter - The adapter instance.
+ * @returns A promise resolving upon completion
  */
 export async function calculateTemperatureSpread(adapter: AdapterInstance): Promise<void> {
 	try {
@@ -212,7 +215,7 @@ export async function calculateTemperatureSpread(adapter: AdapterInstance): Prom
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler bei der Berechnung der Temperatur-Spreizung: ${msg}`, 'error');
+		writeLog(`Error calculating temperature spread: ${msg}`, 'error');
 	}
 }
 
@@ -222,6 +225,7 @@ export async function calculateTemperatureSpread(adapter: AdapterInstance): Prom
  * @param adapter - The adapter instance.
  * @param rawValues - The raw values array from the Luxtronik device.
  * @param rawParams - The raw parameters array from the Luxtronik device.
+ * @returns A promise resolving upon completion
  */
 export async function updateStatusStrings(
 	adapter: AdapterInstance,
@@ -238,21 +242,24 @@ export async function updateStatusStrings(
 		const Außentemperatur = (rawValues[getLuxIdByKey('temperature_outside')] || 0) / 10;
 		const Mitteltemperatur = (rawValues[getLuxIdByKey('Mitteltemperatur')] || 0) / 10;
 
-		let heatingStr = 'Unbekannt';
+		let heatingStr = 'Unknown';
 
 		if (
 			BetriebsartHeizung === 0 &&
 			Mitteltemperatur >= Heizgrenze &&
 			(RücklaufSoll === RücklaufSollMin || (RücklaufSoll === 20 && Außentemperatur < 10))
 		) {
-			heatingStr = Außentemperatur >= 10 ? `Heizgrenze (Soll ${RücklaufSollMin} °C)` : 'Frostschutz (Soll 20 °C)';
+			heatingStr =
+				Außentemperatur >= 10
+					? `Heating limit (Target ${RücklaufSollMin} °C)`
+					: 'Frost protection (Target 20 °C)';
 		} else {
-			heatingStr = STATE_HEATING[BetriebsartHeizung] || `unbekannt (${BetriebsartHeizung})`;
+			heatingStr = STATE_HEATING[BetriebsartHeizung] || `Unknown (${BetriebsartHeizung})`;
 			if (BetriebsartHeizung === 0) {
 				heatingStr =
 					AbsenkungMax <= Außentemperatur
 						? `${heatingStr} ${Absenkung} °C`
-						: `Normal da < ${AbsenkungMax} °C`;
+						: `Normal as < ${AbsenkungMax} °C`;
 			}
 		}
 
@@ -274,31 +281,31 @@ export async function updateStatusStrings(
 		const s = (zeitSec || 0) % 60;
 		const zeitString = `${h < 10 ? '0' : ''}${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
 
-		const stateStr = STATE_ZEILE_3[codeZ3] || 'Unbekannt';
+		const stateStr = STATE_LINE_3[codeZ3] || 'Unknown';
 		const dpExtState = getDpPath('heatpump_extendet_state_string');
 		if (dpExtState) {
 			await adapter.setStateChangedAsync(dpExtState, stateStr, true);
 		}
 
-		let extStateStr = 'Unbekannt';
-		if (STATE_ZEILE_1[codeZ1]) {
-			const textZ2 = STATE_ZEILE_2[codeZ2] || '';
-			extStateStr = `${STATE_ZEILE_1[codeZ1]} ${textZ2} ${zeitString}`.trim();
+		let extStateStr = 'Unknown';
+		if (STATE_LINE_1[codeZ1]) {
+			const textZ2 = STATE_LINE_2[codeZ2] || '';
+			extStateStr = `${STATE_LINE_1[codeZ1]} ${textZ2} ${zeitString}`.trim();
 		}
 		const dpState = getDpPath('heatpump_state_string');
 		if (dpState) {
 			await adapter.setStateChangedAsync(dpState, extStateStr, true);
 		}
 
-		let hotWaterStr = 'Unbekannt';
+		let hotWaterStr = 'Unknown';
 		if (opStateHotWaterOriginal === 0) {
-			hotWaterStr = 'Sperrzeit';
+			hotWaterStr = 'Lock time';
 		} else if (opStateHotWaterOriginal === 1 && hotWaterBoilerValve === 1) {
-			hotWaterStr = 'Aufheizen';
+			hotWaterStr = 'Heating up';
 		} else if (opStateHotWaterOriginal === 1 && hotWaterBoilerValve === 0) {
 			hotWaterStr = 'Temp. OK';
 		} else if (opStateHotWaterOriginal === 3) {
-			hotWaterStr = 'Aus';
+			hotWaterStr = 'Off';
 		} else {
 			hotWaterStr = `Unknown [${opStateHotWaterOriginal}/${hotWaterBoilerValve}]`;
 		}
@@ -308,20 +315,26 @@ export async function updateStatusStrings(
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aktualisieren der Status-Strings: ${msg}`, 'error');
+		writeLog(`Error updating status strings: ${msg}`, 'error');
 	}
 }
 
 /**
- * Liest die einzelnen Start/Ende Zeiten aus den Einstellungen und erzeugt ein formatiertes JSON-Array.
+ * Reads individual start/end times from the settings and generates a formatted JSON array.
  *
  * @param adapter The adapter instance
+ * @returns A promise resolving upon completion
  */
 export async function updateTimerTables(adapter: AdapterInstance): Promise<void> {
 	try {
-		// Cache für gelesene Zeit-Datenpunkte, um mehrfache DB-Zugriffe zu reduzieren
 		const timeCache = new Map<string, string>();
 
+		/**
+		 * Internal helper to fetch and parse a specific time string.
+		 *
+		 * @param key The state key to fetch
+		 * @returns A promise resolving to the formatted time string
+		 */
 		const getTime = async (key: string): Promise<string> => {
 			if (timeCache.has(key)) {
 				return timeCache.get(key) || '00:00';
@@ -348,6 +361,15 @@ export async function updateTimerTables(adapter: AdapterInstance): Promise<void>
 			}
 		};
 
+		/**
+		 * Internal helper to compile and save a single timer table array.
+		 *
+		 * @param targetKey The target state key for the JSON string
+		 * @param prefix The prefix identifying the associated timer slots
+		 * @param endStr The suffix indicating an end-time parameter
+		 * @param slots The total number of slots to iterate over
+		 * @returns A promise resolving when processing finishes
+		 */
 		const processTable = async (
 			targetKey: string,
 			prefix: string,
@@ -371,13 +393,12 @@ export async function updateTimerTables(adapter: AdapterInstance): Promise<void>
 					await adapter.setStateChangedAsync(targetPath, jsonStr, true);
 				}
 			} catch {
-				// Ignorieren, falls Ziel-Datenpunkt nicht existiert
+				void 0;
 			}
 		};
 
 		const configs = [
-			// === HEIZEN (3 Slots) ===
-			{ target: 'heatingOperationTimerTableWeek', prefix: 'HZ_MoSo_', end: 'End', slots: 3 },
+			{ target: 'heatingOperationTimerTableWeek', prefix: 'HZ_MoSo_', end: 'End1', slots: 3 },
 			{ target: 'heatingOperationTimerTable52MonFri', prefix: 'HZ_MoFr_', end: 'Ende', slots: 3 },
 			{ target: 'heatingOperationTimerTable52SatSun', prefix: 'HZ_SaSo_', end: 'Ende', slots: 3 },
 			{ target: 'heatingOperationTimerTableDayMonday', prefix: 'HZ_Montag_', end: 'Ende', slots: 3 },
@@ -387,8 +408,6 @@ export async function updateTimerTables(adapter: AdapterInstance): Promise<void>
 			{ target: 'heatingOperationTimerTableDayFriday', prefix: 'HZ_Freitag_', end: 'Ende', slots: 3 },
 			{ target: 'heatingOperationTimerTableDaySaturday', prefix: 'HZ_Samstag_', end: 'Ende', slots: 3 },
 			{ target: 'heatingOperationTimerTableDaySunday', prefix: 'HZ_Sonntag_', end: 'Ende', slots: 3 },
-
-			// === WARMWASSER (5 Slots) ===
 			{ target: 'hotWaterTableWeek', prefix: 'WW_MoSo_', end: 'End', slots: 5 },
 			{ target: 'hotWaterTable52MonFri', prefix: 'WW_MoFr_', end: 'Ende', slots: 5 },
 			{ target: 'hotWaterTable52SatSun', prefix: 'WW_SaSo_', end: 'Ende', slots: 5 },
@@ -399,8 +418,6 @@ export async function updateTimerTables(adapter: AdapterInstance): Promise<void>
 			{ target: 'hotWaterTableDayFriday', prefix: 'WW_Freitag_', end: 'Ende', slots: 5 },
 			{ target: 'hotWaterTableDaySaturday', prefix: 'WW_Samstag_', end: 'Ende', slots: 5 },
 			{ target: 'hotWaterTableDaySunday', prefix: 'WW_Sonntag_', end: 'Ende', slots: 5 },
-
-			// === ZIRKULATION (5 Slots) ===
 			{ target: 'hotWaterCircPumpTimerTableWeek', prefix: 'Zirkulation_MoSo_', end: 'End', slots: 5 },
 			{ target: 'hotWaterCircPumpTimerTable52MonFri', prefix: 'Zirkulation_MoFr_', end: 'Ende', slots: 5 },
 			{ target: 'hotWaterCircPumpTimerTable52SatSun', prefix: 'Zirkulation_SaSo_', end: 'Ende', slots: 5 },
@@ -423,29 +440,38 @@ export async function updateTimerTables(adapter: AdapterInstance): Promise<void>
 			{ target: 'hotWaterCircPumpTimerTableDaySunday', prefix: 'Zirkulation_Sonntag_', end: 'Ende', slots: 5 },
 		];
 
-		// Performance-Optimierung: Alle Tabellen-Generierungen parallel via Promise.all abarbeiten!
 		await Promise.all(configs.map(cfg => processTable(cfg.target, cfg.prefix, cfg.end, cfg.slots)));
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Erstellen der JSON-Timer-Tabellen: ${msg}`, 'error');
+		writeLog(`Error generating JSON timer tables: ${msg}`, 'error');
 	}
 }
 
+/**
+ * Configuration of a custom data point based on the adapter settings.
+ */
 interface CustomStateConfig {
+	/** Indicates whether the custom state is enabled */
 	active: boolean;
+	/** The corresponding Luxtronik internal ID */
 	luxId?: number;
+	/** The user-defined display name */
 	name: string;
+	/** The source classification (parameter or value) */
 	source: 'parameter' | 'value';
+	/** The intended ioBroker data type */
 	type: 'number' | 'boolean' | 'datetime' | 'string';
+	/** Optional factor for numerical conversion */
 	factor?: number | null;
 }
 
 /**
- * Aktualisiert benutzerdefinierte Zustände basierend auf konfigurierten Luxtronik-IDs.
+ * Updates custom states based on configured Luxtronik IDs.
  *
- * @param adapter - ioBroker Adapter-Instanz
- * @param rawValues - Rohwerte aus der Luxtronik-Gerätedatenübertragung
- * @param rawParams - Rohparameter aus der Luxtronik-Gerätedatenübertragung
+ * @param adapter - ioBroker adapter instance
+ * @param rawValues - Raw telemetry values
+ * @param rawParams - Raw parameters
+ * @returns A promise resolving upon completion
  */
 export async function updateCustomStates(
 	adapter: AdapterInstance,
@@ -466,7 +492,7 @@ export async function updateCustomStates(
 				continue;
 			}
 
-			let finalVal: string | number | boolean; // Typsicherheit erhöht (kein any mehr)
+			let finalVal: string | number | boolean;
 
 			if (custom.type === 'number') {
 				finalVal = Number(rawVal);
@@ -479,39 +505,32 @@ export async function updateCustomStates(
 			} else if (custom.type === 'datetime') {
 				const ts = Number(rawVal);
 				if (!isNaN(ts) && ts > 0) {
-					finalVal = new Date(ts * 1000).toLocaleString('de-DE', {
-						day: '2-digit',
-						month: '2-digit',
-						year: 'numeric',
-						hour: '2-digit',
-						minute: '2-digit',
-						second: '2-digit',
-						hour12: false,
-					});
+					finalVal = new Date(ts * 1000).toISOString().replace('T', ' ').substring(0, 19);
 				} else {
-					finalVal = 'Ungültig';
+					finalVal = 'Invalid';
 				}
 			} else {
 				finalVal = String(rawVal);
 			}
 
 			const cleanId = sanitizeName(custom.name);
-			const stateId = `${adapter.namespace}.Benutzer.${cleanId}`;
+			const stateId = `${adapter.namespace}.Custom.${cleanId}`;
 
 			await adapter.setForeignStateChangedAsync(stateId, finalVal, true);
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aktualisieren der benutzerdefinierten Werte: ${msg}`, 'error');
+		writeLog(`Error updating custom values: ${msg}`, 'error');
 	}
 }
 
 /**
- * Universelle Hilfsfunktion, um System-Datenpunkte typsicher und effizient zu aktualisieren.
+ * Universal helper function to update system data points securely.
  *
- * @param adapter Adapter-Instanz des ioBroker-Adapters
- * @param key Schlüssel des System-Datenpunkts
- * @param value Neuer Wert für den Datenpunkt
+ * @param adapter Adapter instance
+ * @param key Key of the system data point
+ * @param value New value
+ * @returns A promise resolving upon completion
  */
 async function setChangedSystemState(adapter: AdapterInstance, key: string, value: string): Promise<void> {
 	const dp = getDpPath(key);
@@ -521,10 +540,11 @@ async function setChangedSystemState(adapter: AdapterInstance, key: string, valu
 }
 
 /**
- * Aktualisiert System-Informationen wie Firmware, IP-Adresse und Wärmepumpentyp.
+ * Updates system information such as firmware, IP address, and heat pump type.
  *
- * @param adapter Adapter-Instanz des ioBroker-Adapters
- * @param rawValues Array mit Rohdaten aus dem System
+ * @param adapter Adapter instance
+ * @param rawValues Array with raw data
+ * @returns A promise resolving upon completion
  */
 export async function updateSystemInfos(adapter: AdapterInstance, rawValues: number[]): Promise<void> {
 	try {
@@ -549,20 +569,20 @@ export async function updateSystemInfos(adapter: AdapterInstance, rawValues: num
 		await setChangedSystemState(adapter, 'heatpump_type', hpTypeString);
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aktualisieren der System-Infos: ${msg}`, 'error');
+		writeLog(`Error updating system information: ${msg}`, 'error');
 	}
 }
 
 /**
- * Konvertiert ein Array von Luxtronik-ASCII-Zahlen in einen lesbaren Firmware-String
+ * Converts an array of ASCII numbers into a readable firmware string.
  *
- * @param buf Array von ASCII-Zahlen für den Firmware-String
+ * @param buf Array of ASCII numbers
+ * @returns Cleaned firmware string
  */
 function createFirmwareString(buf: number[]): string {
 	if (!buf || !Array.isArray(buf)) {
-		return 'Unbekannt';
+		return 'Unknown';
 	}
-	// Elegantere, moderne Array-Pipeline
 	return buf
 		.filter(v => v !== 0)
 		.map(v => String.fromCharCode(v))
@@ -571,9 +591,10 @@ function createFirmwareString(buf: number[]): string {
 }
 
 /**
- * Konvertiert einen 32-Bit-Integer-Wert der Luxtronik in eine IPv4-Adresse
+ * Converts a 32-bit integer into an IPv4 address.
  *
- * @param value 32-Bit-Integer-Wert der Luxtronik
+ * @param value 32-bit integer
+ * @returns IPv4 address as a string
  */
 function int2ipAddress(value: number): string {
 	if (value === undefined || value === null || isNaN(value)) {
@@ -589,9 +610,10 @@ function int2ipAddress(value: number): string {
 }
 
 /**
- * Liest den Klarnamen des Anlagentyps aus dem Dictionary
+ * Retrieves the clear text name of the system type from the dictionary.
  *
- * @param value Index des Anlagentyps im Dictionary
+ * @param value Index of the system type
+ * @returns Clear text string of the system type
  */
 function createHeatPumpTypeString(value: number): string {
 	return HP_TYPES[value] || HP_TYPES[-1];

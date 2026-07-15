@@ -2,78 +2,71 @@ import type { AdapterInstance } from '@iobroker/adapter-core';
 import { writeLog } from './logger';
 import { STATE_MAPPING } from './stateMapping';
 
-// =========================================================
-// INTERFACES & TYPEN (Ersetzt die unsauberen 'any' Typen)
-// =========================================================
-
 /**
- * Definition eines Standard-Datenpunkts im Adapter-Mapping.
+ * Definition eines Datenpunktes für das dynamische Mapping.
+ * Steuert, wie Objekte im ioBroker-Baum angelegt werden.
  */
 export interface StateDefinition {
-	/** Der Anzeigename des Datenpunkts */
+	/** Der Klartext-Name des Datenpunkts */
 	name: string;
-	/** Der Datentyp (number, string, boolean etc.) */
+	/** Der ioBroker-Datentyp (z. B. 'number', 'string', 'boolean' oder 'json') */
 	type: ioBroker.CommonType | 'json';
-	/** Die Rolle des Datenpunkts im ioBroker */
+	/** Die ioBroker-Rolle (z. B. 'value.temperature', 'button', 'text') */
 	role: string;
-	/** Die Maßeinheit (z.B. °C, % oder s) */
+	/** Optionale physikalische Einheit (z. B. '°C', 'kWh', 's') */
 	unit?: string;
-	/** Ob der Datenpunkt lesbar ist */
+	/** Gibt an, ob der Datenpunkt vom ioBroker gelesen werden kann */
 	read?: boolean;
-	/** Ob der Datenpunkt beschreibbar ist (Schaltfunktion) */
+	/** Gibt an, ob der Datenpunkt vom ioBroker beschreibbar ist */
 	write?: boolean;
-	/** Der Minimalwert (nur bei Zahlen) */
+	/** Optionaler minimal zulässiger Wert */
 	min?: number;
-	/** Der Maximalwert (nur bei Zahlen) */
+	/** Optionaler maximal zulässiger Wert */
 	max?: number;
-	/** Der Standard-Startwert */
+	/** Optionaler Standardwert bei Neuerstellung des Datenpunkts */
 	def?: any;
-	/** Werteliste/Übersetzungs-Map (z.B. {0: "Aus", 1: "An"}) */
-	states?: Record<string, string>;
-	/** Der Zielordner (z.B. "Informationen.00_Temperaturen") */
+	/** Optionales Werte-Mapping für Status-Texte (z. B. {0: "Aus", 1: "Ein"}) */
+	states?: Record<string, string> | Record<number, string>;
+	/** Das Verzeichnis/Ordnerstruktur im ioBroker-Objektbaum */
 	folder: string;
-	/** Die Register-ID für Schreibvorgänge */
+	/** Die ID oder der Index, die zum Schreiben/Lesen an die Luxtronik gesendet wird */
 	luxWriteId?: string | number;
-	/** Ob dieser Datenpunkt immer angelegt werden muss (nicht abwählbar) */
+	/** Gibt an, ob dieser Datenpunkt systemrelevant und zwingend erforderlich ist */
 	required?: boolean;
 }
 
 /**
- * Konfiguration eines benutzerdefinierten Datenpunkts aus den Admin-Einstellungen.
+ * Konfiguration eines benutzerdefinierten Datenpunktes aus den Adapter-Einstellungen.
  */
 export interface CustomStateConfig {
-	/** Ob der Datenpunkt aktiv ist */
+	/** Gibt an, ob der benutzerdefinierte Datenpunkt aktiv ist */
 	active: boolean;
-	/** Die Luxtronik Register-ID */
+	/** Die Luxtronik-ID des abzufragenden Parameters oder Wertes */
 	luxId?: number;
-	/** Der Name des Datenpunkts */
+	/** Der vom Benutzer vergebene Klartext-Name */
 	name: string;
-	/** Die Datenquelle ('parameter' oder 'value') */
+	/** Die Quelle der Daten ('parameter' oder 'value') */
 	source: 'parameter' | 'value';
-	/** Der Ziel-Datentyp */
+	/** Der gewünschte Zieldatentyp im ioBroker */
 	type: 'number' | 'boolean' | 'datetime' | 'string';
-	/** Ein optionaler Multiplikations-Faktor */
+	/** Optionaler Multiplikator zur Umrechnung (z. B. 0.1 für Temperaturen) */
 	factor?: number | null;
-	/** Eine optionale Maßeinheit */
+	/** Optionale physikalische Einheit */
 	unit?: string;
 }
 
 /**
- * Erweiterte Schnittstelle für den ioBroker-Adapter zur Typsicherheit interner Attribute.
+ * Erweiterte Adapter-Instanz für Typsicherheit beim Zugriff auf interne Eigenschaften.
  */
 export interface ExtendedAdapter extends AdapterInstance {
-	/** Die Adapter-Konfiguration aus der io-package.json kombiniert mit dynamischen Werten */
+	/** Adapter-Konfiguration aus der Benutzeroberfläche kombiniert mit dynamischen Werten */
 	config: ioBroker.AdapterConfig & Record<string, any>;
-	/** Set aller im aktuellen Durchlauf verarbeiteten States */
+	/** Set aller während der Laufzeit erstellten oder verifizierten Datenpunkt-IDs */
 	createdStates: Set<string>;
 }
 
-// =========================================================
-// ZENTRALE FILTER-LOGIK (Datengetrieben statt IF-Wüste)
-// =========================================================
-
 /**
- * Mapping-Tabelle zur Zuordnung von Datenpunkt-Präfixen zu Konfigurationsschlüsseln.
+ * Zuweisung von Datenpunkt-Präfixen zu den jeweiligen Konfigurations-Checkboxen.
  */
 const PREFIX_MAPPING: [string, string][] = [
 	['HZ_MoSo_', 'sync_heatingOperationTimerTableWeek'],
@@ -109,12 +102,12 @@ const PREFIX_MAPPING: [string, string][] = [
 ];
 
 /**
- * Prüft, ob ein bestimmter Datenpunkt basierend auf der Adapter-Konfiguration aktiv ist.
+ * Prüft anhand der Adapter-Konfiguration, ob ein bestimmter Datenpunkt angelegt werden soll.
  *
- * @param key Der eindeutige Schlüssel des Datenpunkts.
- * @param definition Die strukturelle Definition des Datenpunkts.
- * @param config Die aktuellen Konfigurationseinstellungen des Adapters.
- * @returns True, wenn der Datenpunkt erstellt und synchronisiert werden soll, andernfalls false.
+ * @param key Der Schlüssel des Datenpunkts aus dem Mapping.
+ * @param definition Die Struktur-Definition des Datenpunkts.
+ * @param config Die aktuelle Adapter-Konfiguration.
+ * @returns True, wenn der Datenpunkt aktiviert ist und angelegt werden soll.
  */
 export function isStateEnabled(key: string, definition: StateDefinition, config: Record<string, any>): boolean {
 	if (definition.required) {
@@ -136,7 +129,7 @@ export function isStateEnabled(key: string, definition: StateDefinition, config:
 }
 
 /**
- * Übersetzungstabelle für Umlaute und Sonderzeichen bei der ID-Generierung.
+ * Zeichen-Mapping zum Ersetzen von Umlauten und Sonderzeichen in IDs.
  */
 const CHAR_MAP: Record<string, string> = {
 	ä: 'ae',
@@ -149,11 +142,10 @@ const CHAR_MAP: Record<string, string> = {
 };
 
 /**
- * Bereinigt einen Namen, um eine gültige, linter-konforme ioBroker-Datenpunkt-ID zu erzeugen.
- * Ersetzt Umlaute und Sonderzeichen durch sichere Alternativen.
+ * Bereinigt Klartext-Namen so, dass sie als gültige ioBroker-IDs verwendet werden können.
  *
- * @param name Der zu bereinigende Originalname.
- * @returns Der bereinigte Name, der als ID verwendet werden kann.
+ * @param name Der zu bereinigende Ursprungsname.
+ * @returns Der bereinigte, ID-sichere Name.
  */
 export function sanitizeName(name: string): string {
 	return name
@@ -163,15 +155,11 @@ export function sanitizeName(name: string): string {
 		.replace(/^_|_$/g, '');
 }
 
-// =========================================================
-// MÜLLABFUHR (Mit Promise.all & O(1) Lookups)
-// =========================================================
-
 /**
- * Entfernt alle Standard-Datenpunkte aus dem ioBroker, die in den Einstellungen abgewählt wurden.
+ * Sucht und löscht Datenpunkte aus dem ioBroker-Baum, die in den Adapter-Einstellungen deaktiviert wurden.
  *
  * @param adapter Die Instanz des ioBroker-Adapters.
- * @returns Promise, das nach Abschluss der Löschvorgänge aufgelöst wird.
+ * @returns Ein Promise, das nach Abschluss der Bereinigung aufgelöst wird.
  */
 export async function cleanupStates(adapter: ExtendedAdapter): Promise<void> {
 	const config = adapter.config;
@@ -193,14 +181,22 @@ export async function cleanupStates(adapter: ExtendedAdapter): Promise<void> {
 			const obj = objects[fullId];
 			if (obj && obj.type === 'state') {
 				const localId = fullId.replace(`${adapter.namespace}.`, '');
-				if (localId.startsWith('Benutzer.')) {
+				if (localId.startsWith('Custom.')) {
 					continue;
 				}
 				if (!activeStateIds.has(localId)) {
-					deletions.push(adapter.delStateAsync(localId).catch(() => {}));
-					deletions.push(adapter.delObjectAsync(localId).catch(() => {}));
+					deletions.push(
+						adapter.delStateAsync(localId).catch(() => {
+							void 0;
+						}),
+					);
+					deletions.push(
+						adapter.delObjectAsync(localId).catch(() => {
+							void 0;
+						}),
+					);
 					adapter.createdStates.delete(localId);
-					writeLog(`Datenpunkt '${localId}' rigoros entfernt.`, 'debug');
+					writeLog(`Datapoint '${localId}' rigorously removed.`, 'debug');
 					deletedCount++;
 				}
 			}
@@ -210,19 +206,19 @@ export async function cleanupStates(adapter: ExtendedAdapter): Promise<void> {
 			await Promise.all(deletions);
 		}
 		if (deletedCount > 0) {
-			writeLog(`${deletedCount} alte Datenpunkte aufgeräumt.`, 'info');
+			writeLog(`${deletedCount} old datapoints cleaned up.`, 'info');
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aufräumen von alten Datenpunkten: ${msg}`, 'error');
+		writeLog(`Error cleaning up old datapoints: ${msg}`, 'error');
 	}
 }
 
 /**
- * Durchsucht den Objektbaum des Adapters und entfernt alle leeren Channels, Ordner und Devices.
+ * Sucht und löscht leere Ordner und Kanäle aus dem ioBroker-Baum, die keine Datenpunkte mehr enthalten.
  *
  * @param adapter Die Instanz des ioBroker-Adapters.
- * @returns Promise, das nach dem Aufräumen aufgelöst wird.
+ * @returns Ein Promise, das nach Abschluss der Bereinigung aufgelöst wird.
  */
 export async function cleanupEmptyFolders(adapter: ExtendedAdapter): Promise<void> {
 	try {
@@ -255,8 +251,12 @@ export async function cleanupEmptyFolders(adapter: ExtendedAdapter): Promise<voi
 
 			if (!existingParents.has(fullId)) {
 				const localId = fullId.replace(`${adapter.namespace}.`, '');
-				deletions.push(adapter.delObjectAsync(localId).catch(() => {}));
-				writeLog(`Leerer Ordner '${localId}' aufgeräumt.`, 'debug');
+				deletions.push(
+					adapter.delObjectAsync(localId).catch(() => {
+						void 0;
+					}),
+				);
+				writeLog(`Empty folder '${localId}' cleaned up.`, 'debug');
 				deletedCount++;
 			}
 		}
@@ -265,19 +265,19 @@ export async function cleanupEmptyFolders(adapter: ExtendedAdapter): Promise<voi
 			await Promise.all(deletions);
 		}
 		if (deletedCount > 0) {
-			writeLog(`${deletedCount} leere Ordner aus dem Objektbaum entfernt.`, 'info');
+			writeLog(`${deletedCount} empty folders removed from object tree.`, 'info');
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aufräumen leerer Ordner: ${msg}`, 'error');
+		writeLog(`Error cleaning up empty folders: ${msg}`, 'error');
 	}
 }
 
 /**
- * Entfernt alle benutzerdefinierten Datenpunkte (unter Benutzer.*), die in den Admin-Einstellungen deaktiviert oder gelöscht wurden.
+ * Bereinigt benutzerdefinierte Datenpunkte aus dem Custom-Ordner, die in den Einstellungen entfernt wurden.
  *
  * @param adapter Die Instanz des ioBroker-Adapters.
- * @returns Promise, das nach Abschluss der Löschvorgänge aufgelöst wird.
+ * @returns Ein Promise, das nach Abschluss der Bereinigung aufgelöst wird.
  */
 export async function cleanupCustomStates(adapter: ExtendedAdapter): Promise<void> {
 	const config = adapter.config;
@@ -286,7 +286,7 @@ export async function cleanupCustomStates(adapter: ExtendedAdapter): Promise<voi
 	const activeIds = new Set(
 		customStates
 			.filter(c => c.active && c.luxId !== undefined && c.name)
-			.map(c => `Benutzer.${sanitizeName(c.name)}`),
+			.map(c => `Custom.${sanitizeName(c.name)}`),
 	);
 
 	try {
@@ -295,17 +295,25 @@ export async function cleanupCustomStates(adapter: ExtendedAdapter): Promise<voi
 		const deletions: Promise<void>[] = [];
 
 		for (const id in objects) {
-			if (id.startsWith(`${adapter.namespace}.Benutzer.`)) {
+			if (id.startsWith(`${adapter.namespace}.Custom.`)) {
 				const shortId = id.replace(`${adapter.namespace}.`, '');
-				if (shortId === 'Benutzer') {
+				if (shortId === 'Custom') {
 					continue;
 				}
 
 				if (!activeIds.has(shortId)) {
-					deletions.push(adapter.delStateAsync(shortId).catch(() => {}));
-					deletions.push(adapter.delObjectAsync(shortId).catch(() => {}));
+					deletions.push(
+						adapter.delStateAsync(shortId).catch(() => {
+							void 0;
+						}),
+					);
+					deletions.push(
+						adapter.delObjectAsync(shortId).catch(() => {
+							void 0;
+						}),
+					);
 					adapter.createdStates.delete(shortId);
-					writeLog(`Benutzerdefinierter Datenpunkt '${shortId}' entfernt.`, 'debug');
+					writeLog(`Custom datapoint '${shortId}' removed.`, 'debug');
 					deletedCount++;
 				}
 			}
@@ -315,24 +323,20 @@ export async function cleanupCustomStates(adapter: ExtendedAdapter): Promise<voi
 			await Promise.all(deletions);
 		}
 		if (deletedCount > 0) {
-			writeLog(`${deletedCount} benutzerdefinierte Werte aufgeräumt.`, 'info');
+			writeLog(`${deletedCount} custom values cleaned up.`, 'info');
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Aufräumen benutzerdefinierter Werte: ${msg}`, 'error');
+		writeLog(`Error cleaning up custom values: ${msg}`, 'error');
 	}
 }
 
-// =========================================================
-// OBJEKTE ANLEGEN
-// =========================================================
-
 /**
- * Überprüft und erstellt alle standardmäßig konfigurierten Datenpunkte und Ordnerstrukturen im ioBroker.
- * Repariert automatisch fehlerhafte oder geänderte Eigenschaften existierender Objekte.
+ * Prüft und erzeugt alle im Mapping konfigurierten Standard-Datenpunkte im ioBroker-Baum.
+ * Aktualisiert zudem fehlerhafte oder geänderte Eigenschaften existierender Objekte.
  *
  * @param adapter Die Instanz des ioBroker-Adapters.
- * @returns Promise, das nach der Erstellung/Prüfung aller Objekte aufgelöst wird.
+ * @returns Ein Promise, das nach Abschluss der Erstellung aufgelöst wird.
  */
 export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<void> {
 	const config = adapter.config;
@@ -349,9 +353,6 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 			const fullId = `${adapter.namespace}.${stateId}`;
 
 			let targetType: ioBroker.CommonType = definition.type === 'json' ? 'string' : definition.type;
-
-			// Nur zu 'string' konvertieren, wenn die Rolle explizit auf ein Zeit/Datum-Format hindeutet.
-			// Reine Zahlen-Dauern (wie deine ZIP-Dauer in Sekunden) bleiben somit 'number'.
 			if (
 				definition.unit === 's' &&
 				definition.type === 'number' &&
@@ -360,16 +361,13 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 			) {
 				targetType = 'string';
 			}
-			if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
-				targetType = 'string';
-			}
 
 			const commonDef: ioBroker.StateCommon = {
 				name: definition.name,
 				type: targetType,
 				role: definition.role,
 				unit: definition.unit || '',
-				read: true,
+				read: definition.role === 'button' ? false : true,
 				write: definition.write || false,
 				min: definition.min,
 				max: definition.max,
@@ -399,7 +397,7 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 					existingCommon.role !== definition.role ||
 					(existingCommon.unit || '') !== (definition.unit || '') ||
 					existingCommon.name !== definition.name ||
-					existingCommon.read !== true ||
+					existingCommon.read !== commonDef.read ||
 					existingCommon.write !== (definition.write || false) ||
 					existingCommon.min !== definition.min ||
 					existingCommon.max !== definition.max ||
@@ -410,7 +408,7 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 
 				if (needsUpdate) {
 					await adapter.extendObjectAsync(stateId, { type: 'state', common: commonDef });
-					writeLog(`Eigenschaften von '${stateId}' synchronisiert (Reparatur).`, 'debug');
+					writeLog(`Properties of '${stateId}' synchronized (Repair).`, 'debug');
 				}
 			}
 
@@ -420,40 +418,39 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 
 			adapter.createdStates.add(stateId);
 
-			if (definition.folder === 'Aktionen') {
+			if (definition.folder === 'Actions') {
 				const currentState = await adapter.getStateAsync(stateId);
 				if (!currentState) {
-					await adapter.setStateAsync(stateId, {
+					await adapter.setState(stateId, {
 						val: definition.def !== undefined ? definition.def : false,
 						ack: true,
 					});
 				} else if (currentState.ack === false) {
 					const valToSet = definition.role === 'button' ? false : currentState.val;
-					await adapter.setStateAsync(stateId, { val: valToSet, ack: true });
+					await adapter.setState(stateId, { val: valToSet, ack: true });
 				}
 			}
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler bei der Objektüberprüfung: ${msg}`, 'error');
+		writeLog(`Error during object validation: ${msg}`, 'error');
 	}
 }
 
 /**
- * Erstellt alle in den Adapter-Optionen vom Benutzer konfigurierten eigenen Datenpunkte (unter Benutzer.*)
- * und abboniert Schreib-Ereignisse, falls die Datenpunkte beschreibbar sind (Parameter-Modus).
+ * Erzeugt die vom Benutzer in der Konfiguration definierten Custom-Datenpunkte.
  *
  * @param adapter Die Instanz des ioBroker-Adapters.
- * @returns Promise, das nach Erstellung aller benutzerdefinierten Objekte aufgelöst wird.
+ * @returns Ein Promise, das nach Abschluss der Erstellung aufgelöst wird.
  */
 export async function ensureCustomObjectsExist(adapter: ExtendedAdapter): Promise<void> {
 	const config = adapter.config;
 	const customStates = (config.custom_states as CustomStateConfig[]) || [];
 
 	if (customStates.some(c => c.active)) {
-		await adapter.setObjectNotExistsAsync('Benutzer', {
+		await adapter.setObjectNotExistsAsync('Custom', {
 			type: 'channel',
-			common: { name: 'Benutzerdefinierte Werte' },
+			common: { name: 'Custom values' },
 			native: {},
 		});
 	}
@@ -463,21 +460,21 @@ export async function ensureCustomObjectsExist(adapter: ExtendedAdapter): Promis
 			continue;
 		}
 
-		const stateId = `Benutzer.${sanitizeName(custom.name)}`;
+		const stateId = `Custom.${sanitizeName(custom.name)}`;
 		let role = 'state';
 		const targetType: ioBroker.CommonType = custom.type === 'datetime' ? 'string' : custom.type;
+		const isWritable = custom.source === 'parameter';
 
 		if (custom.type === 'number') {
 			role = 'value';
 		} else if (custom.type === 'string') {
 			role = 'text';
 		} else if (custom.type === 'boolean') {
-			role = 'indicator';
+			role = isWritable ? 'switch' : 'sensor.switch';
 		} else if (custom.type === 'datetime') {
-			role = 'value.datetime';
+			role = 'value.time';
 		}
 
-		const isWritable = custom.source === 'parameter';
 		const objDef = {
 			type: 'state' as const,
 			common: {

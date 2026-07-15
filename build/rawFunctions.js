@@ -78,11 +78,11 @@ function parseRawResponse(responseData, command) {
   }
   const responseCommand = responseData.readInt32BE(0);
   if (responseCommand !== command) {
-    throw new Error(`Unerwartete Antwort. Erwartet: ${command}, erhalten: ${responseCommand}`);
+    throw new Error(`Unexpected response. Expected: ${command}, received: ${responseCommand}`);
   }
   const totalItems = responseData.readInt32BE(lengthOffset);
   if (totalItems < 0 || totalItems > 1e4) {
-    throw new Error(`Ung\xFCltige Elementanzahl (${totalItems}) in Antwort ${command}`);
+    throw new Error(`Invalid element count (${totalItems}) in response ${command}`);
   }
   const totalRequiredLength = headerSize + totalItems * 4;
   if (responseData.length < totalRequiredLength) {
@@ -146,7 +146,7 @@ function readAllRawWs(adapter, command) {
     const ctx = { adapter, socket: ws, resolve, reject };
     const finish = createFinisher(ctx);
     ctx.timeout = adapter.setTimeout(
-      () => finish(new Error(`WebSocket Timeout beim Auslesen der Liste ${command}.`)),
+      () => finish(new Error(`WebSocket Timeout reading list ${command}.`)),
       CONSTANTS.TIMEOUT_READ
     );
     const chunks = [];
@@ -185,7 +185,7 @@ function readAllRawTcp(adapter, command) {
     const ctx = { adapter, socket: client, resolve, reject };
     const finish = createFinisher(ctx);
     ctx.timeout = adapter.setTimeout(
-      () => finish(new Error(`Timeout beim Auslesen der TCP Liste ${command}.`)),
+      () => finish(new Error(`Timeout reading TCP list ${command}.`)),
       CONSTANTS.TIMEOUT_READ
     );
     const chunks = [];
@@ -223,7 +223,7 @@ function writeRawParameterWs(adapter, paramId, value) {
     const ctx = { adapter, socket: ws, resolve, reject };
     const finish = createFinisher(ctx);
     ctx.timeout = adapter.setTimeout(
-      () => finish(new Error(`WebSocket Timeout beim Schreiben von Parameter ${paramId}.`)),
+      () => finish(new Error(`WebSocket Timeout writing parameter ${paramId}.`)),
       CONSTANTS.TIMEOUT_WRITE
     );
     ws.on("open", () => {
@@ -241,7 +241,7 @@ function writeRawParameterTcp(adapter, paramId, value) {
     const ctx = { adapter, socket: client, resolve, reject };
     const finish = createFinisher(ctx);
     ctx.timeout = adapter.setTimeout(
-      () => finish(new Error(`Timeout beim Schreiben von Parameter TCP ${paramId}.`)),
+      () => finish(new Error(`Timeout writing TCP parameter ${paramId}.`)),
       CONSTANTS.TIMEOUT_WRITE
     );
     client.connect(port, host, () => {
@@ -261,21 +261,21 @@ async function dumpAllRawToLog(adapter) {
     const dumpList = async (command, title) => {
       await delay(adapter, CONSTANTS.DELAY_RECONNECT);
       (0, import_logger.writeLog)("=======================================================", "info");
-      (0, import_logger.writeLog)(`START COMPACT RAW DUMP: LISTE ${command} (${title}) via ${useWs ? "WebSocket" : "TCP"}`, "info");
+      (0, import_logger.writeLog)(`START COMPACT RAW DUMP: LIST ${command} (${title}) via ${useWs ? "WebSocket" : "TCP"}`, "info");
       (0, import_logger.writeLog)("=======================================================", "info");
       const data = await readAllRaw(adapter, command);
       for (let i = 0; i < data.length; i++) {
         (0, import_logger.writeLog)(`[RAW ${command}] Index ${i.toString().padStart(3, " ")} = ${data[i]}`, "info");
       }
-      (0, import_logger.writeLog)(`--- ENDE LISTE ${command} (Insgesamt ${data.length} Indizes geloggt) ---`, "info");
+      (0, import_logger.writeLog)(`--- END OF LIST ${command} (Total ${data.length} indices logged) ---`, "info");
       (0, import_logger.writeLog)("=======================================================", "info");
     };
     await delay(adapter, CONSTANTS.DELAY_RECONNECT);
-    await dumpList(CONSTANTS.CMD_READ_PARAM, "PARAMETER");
-    await dumpList(CONSTANTS.CMD_READ_VALUE, "MESSWERTE");
+    await dumpList(CONSTANTS.CMD_READ_PARAM, "PARAMETERS");
+    await dumpList(CONSTANTS.CMD_READ_VALUE, "VALUES");
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Ausf\xFChren des Raw-Dumps: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error executing raw dump: ${msg}`, "error");
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

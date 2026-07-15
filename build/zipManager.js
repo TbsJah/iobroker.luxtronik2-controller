@@ -26,12 +26,14 @@ module.exports = __toCommonJS(zipManager_exports);
 var import_logger = require("./logger");
 var import_stateMapping = require("./stateMapping");
 const CONSTANTS = {
+  /** Command ID for the deaeration program */
   CMD_DEAERATE: 158,
+  /** Command ID for the circulation pump (ZIP) */
   CMD_ZIP: 684,
+  /** Seconds representing the end of a day (23:59:00) */
   END_OF_DAY: 86340,
-  // 23:59:00 in Sekunden
+  /** Delay in milliseconds between consecutive hardware write operations */
   WRITE_DELAY: 100
-  // 100ms Pause zwischen Schreibvorgängen
 };
 function clearZipTimer(adapter) {
   if (!adapter.zipTimer) {
@@ -69,12 +71,16 @@ async function restoreOriginalZipConfig(adapter) {
       const luxId = Number(def.luxWriteId);
       if (!isNaN(luxId)) {
         await adapter.queueWrite(luxId, Number(rawVal));
-        await new Promise((resolve) => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+        await new Promise((resolve) => {
+          adapter.setTimeout(() => {
+            resolve();
+          }, CONSTANTS.WRITE_DELAY);
+        });
       }
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler bei der Wiederherstellung der ZIP Konfiguration: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error restoring ZIP configuration: ${msg}`, "error");
   } finally {
     adapter.originalZipConfig = null;
   }
@@ -87,14 +93,22 @@ async function stopZipAndDeaeration(adapter) {
     const isDeaerateActive = (runDeaerateState == null ? void 0 : runDeaerateState.val) === 1 || (runDeaerateState == null ? void 0 : runDeaerateState.val) === true;
     if (isZipActive || isDeaerateActive) {
       if (adapter.isDebugLogActive) {
-        (0, import_logger.writeLog)("Bedingungen erf\xFCllt: Stoppe aktives ZIP Makro und Entl\xFCftungsprogramm...", "info");
+        (0, import_logger.writeLog)("Conditions met: Stopping active ZIP macro and deaeration program...", "info");
       }
       clearZipTimer(adapter);
       await restoreOriginalZipConfig(adapter);
       await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 0);
-      await new Promise((resolve) => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+      await new Promise((resolve) => {
+        adapter.setTimeout(() => {
+          resolve();
+        }, CONSTANTS.WRITE_DELAY);
+      });
       await adapter.queueWrite(CONSTANTS.CMD_ZIP, 0);
-      await new Promise((resolve) => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+      await new Promise((resolve) => {
+        adapter.setTimeout(() => {
+          resolve();
+        }, CONSTANTS.WRITE_DELAY);
+      });
       await adapter.syncConfigValue("runDeaerate", 0);
       await adapter.syncConfigValue("hotWaterCircPumpDeaerate", 0);
       const dpZip = (0, import_stateMapping.getDpPath)("Activate_Zip");
@@ -104,13 +118,14 @@ async function stopZipAndDeaeration(adapter) {
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Stoppen von ZIP/Entl\xFCftung: ${msg}`, "error");
+    (0, import_logger.writeLog)(`Error stopping ZIP/Deaeration: ${msg}`, "error");
   }
 }
 async function handleActivateZip(adapter, id, durationSeconds) {
-  await adapter.setForeignStateAsync(id, { val: true, ack: true });
+  const localId = id.replace(`${adapter.namespace}.`, "");
+  await adapter.setState(localId, { val: true, ack: true });
   if (durationSeconds <= 0) {
-    await adapter.setForeignStateAsync(id, { val: false, ack: true });
+    await adapter.setState(localId, { val: false, ack: true });
     return;
   }
   const safeDurationSeconds = Math.max(1, isNaN(durationSeconds) ? 60 : durationSeconds);
@@ -128,7 +143,11 @@ async function handleActivateZip(adapter, id, durationSeconds) {
   clearZipTimer(adapter);
   if (useDeaeration) {
     await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 1);
-    await new Promise((resolve) => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+    await new Promise((resolve) => {
+      adapter.setTimeout(() => {
+        resolve();
+      }, CONSTANTS.WRITE_DELAY);
+    });
     await adapter.queueWrite(CONSTANTS.CMD_ZIP, 1);
     await adapter.syncConfigValue("runDeaerate", 1);
     await adapter.syncConfigValue("hotWaterCircPumpDeaerate", 1);
@@ -171,7 +190,11 @@ async function handleActivateZip(adapter, id, durationSeconds) {
       const def = import_stateMapping.STATE_MAPPING[u.key];
       if (def && def.luxWriteId) {
         await adapter.queueWrite(parseInt(def.luxWriteId, 10), u.raw);
-        await new Promise((resolve) => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+        await new Promise((resolve) => {
+          adapter.setTimeout(() => {
+            resolve();
+          }, CONSTANTS.WRITE_DELAY);
+        });
       }
     }
   }

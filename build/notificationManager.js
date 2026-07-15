@@ -39,15 +39,14 @@ async function sendNotification(adapter, message) {
   if (config.notification_bell === true) {
     if (typeof adapter.registerNotification === "function") {
       await adapter.registerNotification("luxtronik2-controller", "lwpError", message);
-      (0, import_logger.writeLog)("Benachrichtigung an ioBroker-Glocke gesendet.", "info");
-      successMessages.push("Glocke");
+      (0, import_logger.writeLog)("Notification sent to ioBroker notification center.", "info");
+      successMessages.push("Notification Center");
     } else {
-      (0, import_logger.writeLog)(`\u{1F6A8} ioBroker-Glocke nicht verf\xFCgbar. Nachricht: ${message}`, "warn");
+      (0, import_logger.writeLog)(`\u{1F6A8} ioBroker notification center unavailable. Message: ${message}`, "warn");
     }
   }
   const telegramInstance = config.telegram_instance;
-  const isTelegramActive = config.telegram_enabled === true && typeof telegramInstance === "string" && // TypeScript Typen-Prüfung!
-  telegramInstance !== "none";
+  const isTelegramActive = config.telegram_enabled === true && typeof telegramInstance === "string" && telegramInstance !== "none";
   if (isTelegramActive) {
     const sendObj = { text: message };
     const receiver = (_a = config.telegram_receiver) == null ? void 0 : _a.trim();
@@ -59,7 +58,7 @@ async function sendNotification(adapter, message) {
       }
     }
     adapter.sendTo(telegramInstance, "send", sendObj);
-    (0, import_logger.writeLog)(`Telegram-Nachricht gesendet an ${telegramInstance}`, "info");
+    (0, import_logger.writeLog)(`Telegram message sent to ${telegramInstance}`, "info");
     successMessages.push("Telegram");
   }
   return successMessages;
@@ -69,7 +68,7 @@ function sendTelegramNotification(adapter, message) {
 }
 async function handleTestMessage(adapter, obj) {
   try {
-    (0, import_logger.writeLog)("Test-Button empfangen!", "info");
+    (0, import_logger.writeLog)("Test button triggered!", "info");
     const config = adapter.config;
     const isTelegramActive = config.telegram_enabled === true && config.telegram_instance && config.telegram_instance !== "none";
     const isIoBrokerNotifyActive = config.notification_bell === true;
@@ -79,7 +78,7 @@ async function handleTestMessage(adapter, obj) {
           obj.from,
           obj.command,
           {
-            error: "Fehler: Weder Telegram noch Glocke sind aktiv gespeichert! Bitte erst SPEICHERN klicken."
+            error: "Error: Neither Telegram nor Notification Center are active! Please save settings first."
           },
           obj.callback
         );
@@ -93,40 +92,40 @@ async function handleTestMessage(adapter, obj) {
       const errorList = safeParse(lastErrorState.val);
       if (errorList && errorList.length > 0) {
         const newestError = errorList[0];
-        msg = `\u{1F6A8} *Test-Alarm: Fehlerspeicher*
+        msg = `\u{1F6A8} *Test Alarm: Error Log*
 
-Aktuellster Fehler:
+Most recent error:
 Code: ${newestError.code}
-Fehler: ${newestError.beschreibung}
-Datum: ${newestError.datum}
+Error: ${newestError.beschreibung}
+Date: ${newestError.datum}
 
 `;
         if (errorList.length > 1) {
-          const history = errorList.slice(1).map((e) => `Datum: ${e.datum}
+          const history = errorList.slice(1).map((e) => `Date: ${e.datum}
 Code: ${e.code}
-Fehler: ${e.beschreibung}`).join("\n\n");
-          msg += `Historie:
+Error: ${e.beschreibung}`).join("\n\n");
+          msg += `History:
 ${history}`;
         }
       }
     }
     if (msg === "") {
-      msg = "\u2705 *Erfolgreicher Test*\n\nDies ist eine generierte Test-Nachricht. Die Kommunikation zu Telegram und ioBroker funktioniert einwandfrei! (Es liegen aktuell keine echten Heizungsfehler vor).";
+      msg = "\u2705 *Successful Test*\n\nThis is a generated test message. Communication via Telegram and ioBroker works perfectly! (There are currently no real heat pump errors).";
     }
     const successMessages = await sendNotification(adapter, msg);
     if (obj.callback) {
       adapter.sendTo(
         obj.from,
         obj.command,
-        { result: `Erfolgreich ausgel\xF6st: ${successMessages.join(" & ")}` },
+        { result: `Successfully triggered: ${successMessages.join(" & ")}` },
         obj.callback
       );
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    (0, import_logger.writeLog)(`Fehler beim Test-Button: ${errorMessage}`, "error");
+    (0, import_logger.writeLog)(`Error processing test button: ${errorMessage}`, "error");
     if (obj.callback) {
-      adapter.sendTo(obj.from, obj.command, { error: `Skriptfehler: ${errorMessage}` }, obj.callback);
+      adapter.sendTo(obj.from, obj.command, { error: `Script error: ${errorMessage}` }, obj.callback);
     }
   }
 }
@@ -146,19 +145,19 @@ async function checkAndSendErrorNotifications(adapter, oldFehlerVal, newFehlerVa
   }
   if (adapter.lastKnownErrorTimestamp === void 0 || adapter.lastKnownErrorTimestamp === null) {
     adapter.lastKnownErrorTimestamp = currentErrorTimestamp;
-    (0, import_logger.writeLog)("Fehler-\xDCberwachung initialisiert. Letzter bekannter Fehler-Timestamp stumm gesetzt.", "debug");
+    (0, import_logger.writeLog)("Error monitoring initialized. Last known error timestamp set silently.", "debug");
     return;
   }
   if (currentErrorTimestamp <= adapter.lastKnownErrorTimestamp) {
     return;
   }
   adapter.lastKnownErrorTimestamp = currentErrorTimestamp;
-  const msg = `\u{1F6A8} *St\xF6rung W\xE4rmepumpe!*
-Ein Fehler an der W\xE4rmepumpe wurde registriert:
+  const msg = `\u{1F6A8} *Heat Pump Malfunction!*
+An error was registered on the heat pump:
 
 *Code:* ${currentErrorCode}
-*Fehler:* ${newestError.beschreibung}
-*Datum:* ${newestError.datum}`;
+*Error:* ${newestError.beschreibung}
+*Date:* ${newestError.datum}`;
   await sendNotification(adapter, msg);
 }
 // Annotate the CommonJS export names for ESM import in node:

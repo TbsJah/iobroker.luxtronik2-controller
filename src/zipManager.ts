@@ -3,36 +3,77 @@ import { writeLog } from './logger';
 import { getDpPath, STATE_MAPPING } from './stateMapping';
 
 // =========================================================
-// KONSTANTEN (Magic Numbers & Verzögerungen eliminiert)
+// CONSTANTS
 // =========================================================
+
+/**
+ * Constants used for the circulation pump and deaeration configurations.
+ */
 const CONSTANTS = {
+	/** Command ID for the deaeration program */
 	CMD_DEAERATE: 158,
+	/** Command ID for the circulation pump (ZIP) */
 	CMD_ZIP: 684,
-	END_OF_DAY: 86340, // 23:59:00 in Sekunden
-	WRITE_DELAY: 100, // 100ms Pause zwischen Schreibvorgängen
+	/** Seconds representing the end of a day (23:59:00) */
+	END_OF_DAY: 86340,
+	/** Delay in milliseconds between consecutive hardware write operations */
+	WRITE_DELAY: 100,
 };
 
-// Typdefinition für die Sicherung der Original-Konfiguration
+// =========================================================
+// TYPES & INTERFACES
+// =========================================================
+
+/**
+ * Defines the structure for saving and restoring the original circulation pump configuration.
+ */
 export type ZipConfig = Partial<Record<keyof typeof STATE_MAPPING, ioBroker.StateValue | null>>;
 
-// Erweiterung des Adapter-Typs, um TypeScript die dynamischen Eigenschaften bekannt zu machen
+/**
+ * Extended adapter interface to provide type safety for dynamic properties and methods.
+ */
 interface ExtendedAdapter extends AdapterInstance {
+	/** Cached copy of the original circulation pump settings before macro activation */
 	originalZipConfig?: ZipConfig | null;
+	/** ioBroker timeout handle for the hot water circulation pump macro */
 	zipTimer?: ioBroker.Timeout;
+	/** Determines whether verbose debugging output is enabled */
 	isDebugLogActive?: boolean;
+	/**
+	 * Function to queue a hardware write operation.
+	 *
+	 * @param luxId - Target parameter register ID
+	 * @param value - The value payload to write
+	 * @returns A promise resolving once the task is queued
+	 */
 	queueWrite: (luxId: number, value: number) => Promise<void>;
+	/**
+	 * Function to synchronize a configuration value.
+	 *
+	 * @param key - The unique key identifier within the STATE_MAPPING
+	 * @param value - The raw or parsed value to apply
+	 * @returns A promise resolving when the synchronization finishes
+	 */
 	syncConfigValue: (key: string, value: number) => Promise<void>;
+	/**
+	 * Function to safely update an internal state if the value differs.
+	 *
+	 * @param dpPath - The state path ID
+	 * @param value - The updated value to process
+	 * @param ack - Explicit acknowledgment flag status
+	 * @returns A promise resolving when the write operation completes
+	 */
 	setOwnStateIfDifferent: (dpPath: string, value: any, ack?: boolean) => Promise<void>;
 }
 
 // =========================================================
-// HILFSFUNKTIONEN
+// HELPER FUNCTIONS
 // =========================================================
 
 /**
- * Löscht den aktiven Zirkulations-Timer sicher über die ioBroker-Methode.
+ * Safely clears the active circulation pump macro timer.
  *
- * @param adapter - The adapter instance
+ * @param adapter - The extended adapter instance
  */
 function clearZipTimer(adapter: ExtendedAdapter): void {
 	if (!adapter.zipTimer) {
@@ -43,13 +84,14 @@ function clearZipTimer(adapter: ExtendedAdapter): void {
 }
 
 // =========================================================
-// WIEDERHERSTELLUNG & STEUERUNG
+// MAIN EXPORTS
 // =========================================================
 
 /**
- * Stellt die ursprüngliche Konfiguration der Zirkulationspumpe (Timer) wieder her.
+ * Restores the original circulation pump configuration from the saved cache.
  *
- * @param adapter - Die Adapter-Instanz, von der Zustände gelesen und geschrieben werden.
+ * @param adapter - The extended adapter instance
+ * @returns A promise resolving when the restoration completes
  */
 export async function restoreOriginalZipConfig(adapter: ExtendedAdapter): Promise<void> {
 	if (!adapter.originalZipConfig) {
@@ -64,7 +106,7 @@ export async function restoreOriginalZipConfig(adapter: ExtendedAdapter): Promis
 
 			const def = STATE_MAPPING[key];
 			if (!def || !def.luxWriteId) {
-				continue; // Absicherung, falls ein Mapping fehlt oder ungültig ist
+				continue;
 			}
 
 			let rawVal = val;
@@ -86,22 +128,26 @@ export async function restoreOriginalZipConfig(adapter: ExtendedAdapter): Promis
 			const luxId = Number(def.luxWriteId);
 			if (!isNaN(luxId)) {
 				await adapter.queueWrite(luxId, Number(rawVal));
-				// FIX: Leere Pfeilfunktion löst den TS2554 Fehler!
-				await new Promise<void>(resolve => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+				await new Promise<void>(resolve => {
+					adapter.setTimeout(() => {
+						resolve();
+					}, CONSTANTS.WRITE_DELAY);
+				});
 			}
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler bei der Wiederherstellung der ZIP Konfiguration: ${msg}`, 'error');
+		writeLog(`Error restoring ZIP configuration: ${msg}`, 'error');
 	} finally {
 		adapter.originalZipConfig = null;
 	}
 }
 
 /**
- * Stoppt die Zirkulationspumpe bzw. das zweckentfremdete Entlüftungsprogramm.
+ * Stops the active circulation pump macro and deaeration program.
  *
- * @param adapter - Die Adapter-Instanz, von der Zustände gelesen und geschrieben werden.
+ * @param adapter - The extended adapter instance
+ * @returns A promise resolving when the processes are stopped
  */
 export async function stopZipAndDeaeration(adapter: ExtendedAdapter): Promise<void> {
 	try {
@@ -113,22 +159,25 @@ export async function stopZipAndDeaeration(adapter: ExtendedAdapter): Promise<vo
 
 		if (isZipActive || isDeaerateActive) {
 			if (adapter.isDebugLogActive) {
-				writeLog('Bedingungen erfüllt: Stoppe aktives ZIP Makro und Entlüftungsprogramm...', 'info');
+				writeLog('Conditions met: Stopping active ZIP macro and deaeration program...', 'info');
 			}
 
-			// Nutzt den neuen, sicheren Timer-Helper
 			clearZipTimer(adapter);
-
 			await restoreOriginalZipConfig(adapter);
 
-			// Nutzt die lesbaren Konstanten für die Register
 			await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 0);
-			// FIX: Leere Pfeilfunktion
-			await new Promise<void>(resolve => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+			await new Promise<void>(resolve => {
+				adapter.setTimeout(() => {
+					resolve();
+				}, CONSTANTS.WRITE_DELAY);
+			});
 
 			await adapter.queueWrite(CONSTANTS.CMD_ZIP, 0);
-			// FIX: Leere Pfeilfunktion
-			await new Promise<void>(resolve => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+			await new Promise<void>(resolve => {
+				adapter.setTimeout(() => {
+					resolve();
+				}, CONSTANTS.WRITE_DELAY);
+			});
 
 			await adapter.syncConfigValue('runDeaerate', 0);
 			await adapter.syncConfigValue('hotWaterCircPumpDeaerate', 0);
@@ -140,28 +189,28 @@ export async function stopZipAndDeaeration(adapter: ExtendedAdapter): Promise<vo
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);
-		writeLog(`Fehler beim Stoppen von ZIP/Entlüftung: ${msg}`, 'error');
+		writeLog(`Error stopping ZIP/Deaeration: ${msg}`, 'error');
 	}
 }
 
 /**
- * Aktiviert die Zirkulationspumpe (oder Entlüftung) für eine bestimmte Dauer.
+ * Activates the circulation pump (ZIP) macro or deaeration program for a specified duration.
  *
- * @param adapter - Die Adapter-Instanz
- * @param id - Der Datenpunkt-Pfad
- * @param durationSeconds - Die Dauer in Sekunden
+ * @param adapter - The extended adapter instance
+ * @param id - The ID of the triggered state
+ * @param durationSeconds - The duration in seconds to keep the process active
+ * @returns A promise resolving when the activation sequence completes
  */
 export async function handleActivateZip(adapter: ExtendedAdapter, id: string, durationSeconds: number): Promise<void> {
-	await adapter.setForeignStateAsync(id, { val: true, ack: true });
+	const localId = id.replace(`${adapter.namespace}.`, '');
+	await adapter.setState(localId, { val: true, ack: true });
 
 	if (durationSeconds <= 0) {
-		await adapter.setForeignStateAsync(id, { val: false, ack: true });
+		await adapter.setState(localId, { val: false, ack: true });
 		return;
 	}
 
-	// Absicherung der Dauer, damit keine ungültigen Timer-Werte (z.B. NaN) übergeben werden
 	const safeDurationSeconds = Math.max(1, isNaN(durationSeconds) ? 60 : durationSeconds);
-
 	const bzState = await adapter.getStateAsync(getDpPath('WP_BZ_akt'));
 	const bzVal = bzState ? Number(bzState.val) : 5;
 
@@ -179,13 +228,15 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 		Number(wwIstS?.val) > Number(wwSollS?.val) - Number(wwHystS?.val) &&
 		Number(rLState?.val) > Number(rSollState?.val) - Number(hzHystState?.val);
 
-	// Eventuell laufenden Timer vor dem Neustart stoppen
 	clearZipTimer(adapter);
 
 	if (useDeaeration) {
 		await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 1);
-		// FIX: Leere Pfeilfunktion
-		await new Promise<void>(resolve => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+		await new Promise<void>(resolve => {
+			adapter.setTimeout(() => {
+				resolve();
+			}, CONSTANTS.WRITE_DELAY);
+		});
 
 		await adapter.queueWrite(CONSTANTS.CMD_ZIP, 1);
 		await adapter.syncConfigValue('runDeaerate', 1);
@@ -209,8 +260,7 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 				'hotWaterCircPumpOffTime',
 			] as const;
 
-			// HOCHGRADIG OPTIMIERT: Alle 13 States parallel laden!
-			const states = await Promise.all(keysToSave.map(key => adapter.getStateAsync(getDpPath(key))));
+			const states = await Promise.all(keysToSave.map(key => adapter.getStateAsync(getDpPath(key as any))));
 
 			adapter.originalZipConfig = {};
 			keysToSave.forEach((key, index) => {
@@ -234,8 +284,11 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 			const def = STATE_MAPPING[u.key];
 			if (def && def.luxWriteId) {
 				await adapter.queueWrite(parseInt(def.luxWriteId, 10), u.raw);
-				// FIX: Leere Pfeilfunktion
-				await new Promise<void>(resolve => adapter.setTimeout(() => resolve(), CONSTANTS.WRITE_DELAY));
+				await new Promise<void>(resolve => {
+					adapter.setTimeout(() => {
+						resolve();
+					}, CONSTANTS.WRITE_DELAY);
+				});
 			}
 		}
 	}
