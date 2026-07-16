@@ -23,6 +23,10 @@
 ### 0.1.0 (2026-07-09)
 
 - initial release
+## 0.4.0 (2026-07-14)
+
+- prepare add latest repo
+
 ## 0.3.8 (2026-07-14)
 
 - Fix issues reported by RepositoryChecker

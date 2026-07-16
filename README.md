@@ -79,8 +79,7 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ## Changelog
 
 // ### **WORK IN PROGRESS**
-
-### **WORK IN PROGRESS**
+### 0.6.0 (2026-07-16)
 
 - Added option to select the display language for state values (English/German)
 
@@ -102,10 +101,6 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ### 0.5.0 (2026-07-14)
 
 - Code-Refactoring
-
-### 0.4.0 (2026-07-14)
-
-- prepare add latest repo
 
 ## License
 

@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "luxtronik2-controller",
-    "version": "0.5.3",
+    "version": "0.6.0",
     "news": {
+      "0.6.0": {
+        "en": "Added option to select the display language for state values (English/German)",
+        "de": "Option zur Auswahl der Anzeigesprache für Statuswerte hinzugefügt (Englisch/Deutsch).",
+        "ru": "Добавлена возможность выбора языка отображения значений состояния (английский/немецкий).",
+        "pt": "Adicionada opção para selecionar o idioma de exibição dos valores de estado (inglês/alemão).",
+        "nl": "Er is een optie toegevoegd om de weergavetaal voor statuswaarden te selecteren (Engels/Duits).",
+        "fr": "Ajout d'une option permettant de sélectionner la langue d'affichage des valeurs d'état (anglais/allemand).",
+        "it": "Aggiunta l'opzione per selezionare la lingua di visualizzazione dei valori di stato (inglese/tedesco).",
+        "es": "Se agregó la opción de seleccionar el idioma de visualización de los valores de estado (inglés/alemán).",
+        "pl": "Dodano opcję wyboru języka wyświetlania wartości stanu (angielski/niemiecki)",
+        "uk": "Додано опцію вибору мови відображення значень штатів (англійська/німецька)",
+        "zh-cn": "新增了选择状态值显示语言的选项（英语/德语）"
+      },
       "0.5.3": {
         "en": "Resolve issues which are reported by repository checker\nUpdates Timers Format\nTime_WPein_akt 00:00:01 --> 00:00:00 if VD1 is false\nFallback if Firmware > 3 for extStateStr & StateStr",
         "de": "Beheben Sie die vom Repository-Prüfer gemeldeten Probleme.\nFormat der Zeitschaltuhren\nTime_WPein_akt 00:00:01 --> 00:00:00 falls VD1 falsch ist\nFalls Firmware > 3 für extStateStr & StateStr",
@@ -80,19 +93,6 @@
         "pl": "Napraw problemy zgłoszone przez RepositoryChecker",
         "uk": "Виправлення проблем, про які повідомляв RepositoryChecker",
         "zh-cn": "修复 RepositoryChecker 报告的问题"
-      },
-      "0.3.7": {
-        "en": "[E5507] missing size attributes\n[E6001] No README.md found",
-        "de": "[E5507] Fehlende Größenattribute\n[E6001] Keine README.md-Datei gefunden",
-        "ru": "[E5507] отсутствуют атрибуты размера\n[E6001] Файл README.md не найден",
-        "pt": "[E5507] atributos de tamanho ausentes\n[E6001] Nenhum arquivo README.md encontrado",
-        "nl": "[E5507] ontbrekende grootte-attributen\n[E6001] Geen README.md gevonden",
-        "fr": "[E5507] attributs de taille manquants\n[E6001] Aucun fichier README.md trouvé",
-        "it": "[E5507] attributi di dimensione mancanti\n[E6001] Nessun file README.md trovato",
-        "es": "[E5507] Faltan atributos de tamaño\n[E6001] No se encontró el archivo README.md",
-        "pl": "[E5507] brak atrybutów rozmiaru\n[E6001] Nie znaleziono pliku README.md",
-        "uk": "[E5507] відсутні атрибути розміру\n[E6001] Файл README.md не знайдено",
-        "zh-cn": "[E5507] 缺少尺寸属性\n[E6001] 未找到 README.md 文件"
       }
     },
     "titleLang": {
