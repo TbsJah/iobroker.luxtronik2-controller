@@ -79,8 +79,7 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ## Changelog
 
 // ### **WORK IN PROGRESS**
-
-### **WORK IN PROGRESS**
+### 0.5.3 (2026-07-16)
 
 - Resolve issues which are reported by repository checker
 - Updates Timers Format
@@ -102,10 +101,6 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 ### 0.4.0 (2026-07-14)
 
 - prepare add latest repo
-
-### 0.3.8 (2026-07-14)
-
-- Fix issues reported by RepositoryChecker
 
 ## License
 
