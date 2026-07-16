@@ -89,45 +89,80 @@ export const OUTAGE_CODES: Record<number, string> = {
 	9: 'No demand',
 };
 
-export const STATE_LINE_1: Record<number, string> = {
-	0: 'Heat pump running',
-	1: 'Heat pump idle',
-	2: 'Heat pump coming',
-	3: 'Error code',
-	4: 'Defrosting',
-	5: 'Waiting for LIN connection',
-	7: 'Compressor heating up',
-	8: 'Pump pre-run',
+// ==========================================
+// TRANSLATED STATE STRINGS (i18n)
+// ==========================================
+
+export const STATE_LINE_1: Record<string, Record<number, string>> = {
+	en: {
+		0: 'Heat pump running',
+		1: 'Heat pump idle',
+		2: 'Heat pump coming',
+		3: 'Error code',
+		4: 'Defrosting',
+		5: 'Waiting for LIN connection',
+		7: 'Compressor heating up',
+		8: 'Pump pre-run',
+	},
+	de: {
+		0: 'Wärmepumpe läuft',
+		1: 'Wärmepumpe steht',
+		2: 'Wärmepumpe kommt',
+		3: 'Fehlercode',
+		4: 'Abtauen',
+		5: 'Warte auf LIN-Verbindung',
+		7: 'Verdichter heizt',
+		8: 'Vorlauf Pumpe',
+	},
 };
 
-export const STATE_LINE_2: Record<number, string> = {
-	0: 'since',
-	1: 'in',
+export const STATE_LINE_2: Record<string, Record<number, string>> = {
+	en: { 0: 'since', 1: 'in' },
+	de: { 0: 'seit', 1: 'in' },
 };
 
-export const STATE_LINE_3: Record<number, string> = {
-	0: 'Heating operation',
-	1: 'No demand',
-	2: 'Grid switch-on delay',
-	3: 'Cycle lock',
-	4: 'Lock time',
-	5: 'Hot water',
-	6: 'Info heating out program',
-	7: 'Defrosting',
-	8: 'Pump pre-run',
-	9: 'Thermal disinfection',
-	10: 'Cooling operation',
-	12: 'Swimming pool / Photovoltaics',
-	13: 'Heating ext. energy source',
-	14: 'Hot water ext. energy source',
-	16: 'Flow monitoring',
-	17: 'Second heat generator 1 operation',
+export const STATE_LINE_3: Record<string, Record<number, string>> = {
+	en: {
+		0: 'Heating operation',
+		1: 'No demand',
+		2: 'Grid switch-on delay',
+		3: 'Cycle lock',
+		4: 'Lock time',
+		5: 'Hot water',
+		6: 'Info heating out program',
+		7: 'Defrosting',
+		8: 'Pump pre-run',
+		9: 'Thermal disinfection',
+		10: 'Cooling operation',
+		12: 'Swimming pool / Photovoltaics',
+		13: 'Heating ext. energy source',
+		14: 'Hot water ext. energy source',
+		16: 'Flow monitoring',
+		17: 'Second heat generator 1 operation',
+	},
+	de: {
+		0: 'Heizbetrieb',
+		1: 'Kein Bedarf',
+		2: 'Netz-Einschaltverzögerung',
+		3: 'Schaltspielsperre',
+		4: 'Sperrzeit',
+		5: 'Warmwasser',
+		6: 'Info Estrichtrocknung',
+		7: 'Abtauen',
+		8: 'Vorlauf Pumpe',
+		9: 'Thermische Desinfektion',
+		10: 'Kühlbetrieb',
+		12: 'Schwimmbad / PV',
+		13: 'Heizen ext. Quelle',
+		14: 'Warmwasser ext. Quelle',
+		16: 'Durchflussüberwachung',
+		17: 'Zweiter Erzeuger 1',
+	},
 };
 
-export const STATE_HEATING: Record<number, string> = {
-	0: 'Reduced',
-	1: 'Normal',
-	3: 'Off',
+export const STATE_HEATING: Record<string, Record<number, string>> = {
+	en: { 0: 'Reduced', 1: 'Normal', 2: 'Heating limit', 3: 'Off', 4: 'Frost protection' },
+	de: { 0: 'Abgesenkt', 1: 'Normal', 2: 'Heizgrenze', 3: 'Aus', 4: 'Frostschutz' },
 };
 
 export const HP_TYPES: Record<number, string> = {

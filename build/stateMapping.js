@@ -23,6 +23,10 @@ __export(stateMapping_exports, {
   getLuxIdByKey: () => getLuxIdByKey
 });
 module.exports = __toCommonJS(stateMapping_exports);
+const switchStates = {
+  en: { 0: "Off", 1: "On" },
+  de: { 0: "Aus", 1: "Ein" }
+};
 const STATE_MAPPING = {
   // ==========================================
   // Information & Values (Read-only)
@@ -202,7 +206,7 @@ const STATE_MAPPING = {
     name: "Defrost end switch ASD",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "29",
     dataSource: "raw_value"
   },
@@ -211,7 +215,7 @@ const STATE_MAPPING = {
     name: "Utility block EVU",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "31",
     dataSource: "raw_value"
   },
@@ -220,7 +224,7 @@ const STATE_MAPPING = {
     name: "High pressure switch HD",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "32",
     dataSource: "raw_value"
   },
@@ -229,7 +233,7 @@ const STATE_MAPPING = {
     name: "Motor protection MOT",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "33",
     dataSource: "raw_value"
   },
@@ -238,7 +242,7 @@ const STATE_MAPPING = {
     name: "Low pressure switch ND",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "34",
     dataSource: "raw_value"
   },
@@ -277,7 +281,7 @@ const STATE_MAPPING = {
     name: "Domestic hot water thermostat BWT",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "30",
     dataSource: "raw_value"
   },
@@ -287,7 +291,7 @@ const STATE_MAPPING = {
     name: "Defrost valve AV",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "37",
     dataSource: "raw_value"
   },
@@ -296,7 +300,7 @@ const STATE_MAPPING = {
     name: "Hot water circulation pump BUP",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "38",
     dataSource: "raw_value"
   },
@@ -305,7 +309,7 @@ const STATE_MAPPING = {
     name: "Heating circulation pump HUP",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "39",
     dataSource: "raw_value",
     required: true
@@ -315,7 +319,7 @@ const STATE_MAPPING = {
     name: "Fan VEN",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "42",
     dataSource: "raw_value"
   },
@@ -324,7 +328,7 @@ const STATE_MAPPING = {
     name: "Compressor 1 VD1",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "44",
     dataSource: "raw_value",
     required: true
@@ -334,7 +338,7 @@ const STATE_MAPPING = {
     name: "Circulation pump ZIP",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "46",
     dataSource: "raw_value",
     required: true
@@ -344,7 +348,7 @@ const STATE_MAPPING = {
     name: "Auxiliary circulation pump ZUP",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "47",
     dataSource: "raw_value"
   },
@@ -353,7 +357,7 @@ const STATE_MAPPING = {
     name: "Second heat generator 1 ZW1",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "48",
     dataSource: "raw_value"
   },
@@ -382,7 +386,7 @@ const STATE_MAPPING = {
     name: "Status defrost valve",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "37",
     dataSource: "raw_value"
   },
@@ -391,7 +395,7 @@ const STATE_MAPPING = {
     name: "Status switching valve hot water",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "38",
     dataSource: "raw_value"
   },
@@ -400,7 +404,7 @@ const STATE_MAPPING = {
     name: "Heating circulation pump",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "39",
     dataSource: "raw_value"
   },
@@ -409,7 +413,7 @@ const STATE_MAPPING = {
     name: "Motor heat source",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "43",
     dataSource: "raw_value"
   },
@@ -418,7 +422,7 @@ const STATE_MAPPING = {
     name: "Status compressor 1 run feedback",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "44",
     dataSource: "raw_value"
   },
@@ -427,7 +431,7 @@ const STATE_MAPPING = {
     name: "Hot water circulation pump external",
     role: "value",
     type: "number",
-    states: { 0: "Off", 1: "On" },
+    states: switchStates,
     luxWriteId: "46",
     dataSource: "raw_value"
   },
@@ -605,14 +609,26 @@ const STATE_MAPPING = {
     role: "value",
     type: "number",
     states: {
-      0: "Heating",
-      1: "Hot water",
-      2: "Swimming pool",
-      3: "Utility block",
-      4: "Defrosting",
-      5: "Idle",
-      6: "External heat source",
-      7: "Cooling"
+      en: {
+        0: "Heating",
+        1: "Hot water",
+        2: "Swimming pool",
+        3: "Utility block",
+        4: "Defrosting",
+        5: "Idle",
+        6: "Ext. heat source",
+        7: "Cooling"
+      },
+      de: {
+        0: "Heizung",
+        1: "Warmwasser",
+        2: "Schwimmbad",
+        3: "EVU-Sperre",
+        4: "Abtauen",
+        5: "Leerlauf",
+        6: "Zweiter W\xE4rmeerzeuger",
+        7: "K\xFChlung"
+      }
     },
     luxWriteId: "80",
     dataSource: "raw_value",
@@ -630,7 +646,10 @@ const STATE_MAPPING = {
     name: "Operating state heating",
     role: "value",
     type: "number",
-    states: { 0: "Reduced", 1: "Normal", 2: "Heating limit", 3: "Off", 4: "Frost protection" },
+    states: {
+      en: { 0: "Reduced", 1: "Normal", 2: "Heating limit", 3: "Off", 4: "Frost protection" },
+      de: { 0: "Abgesenkt", 1: "Normal", 2: "Heizgrenze", 3: "Aus", 4: "Frostschutz" }
+    },
     luxWriteId: "125",
     dataSource: "raw_value"
   },
@@ -655,9 +674,8 @@ const STATE_MAPPING = {
     role: "value",
     type: "number",
     states: {
-      1: "One compressor allowed",
-      2: "Two compressors allowed",
-      3: "Additional heat generator allowed"
+      en: { 1: "One compressor allowed", 2: "Two compressors allowed", 3: "Additional heat generator allowed" },
+      de: { 1: "Ein Verdichter erlaubt", 2: "Zwei Verdichter erlaubt", 3: "Zusatzw\xE4rmeerzeuger erlaubt" }
     },
     luxWriteId: "79",
     dataSource: "raw_value"
@@ -1036,7 +1054,10 @@ const STATE_MAPPING = {
     type: "number",
     write: true,
     luxWriteId: "108",
-    states: { 0: "Off", 1: "Automatic" },
+    states: {
+      en: { 0: "Off", 1: "Automatic" },
+      de: { 0: "Aus", 1: "Automatik" }
+    },
     dataSource: "raw_parameter"
   },
   cooling_release_temp: {
@@ -1104,7 +1125,10 @@ const STATE_MAPPING = {
     role: "level.mode.thermostat",
     type: "number",
     write: true,
-    states: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
+    states: {
+      en: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
+      de: { 0: "Automatik", 1: "Zweiter Erzeuger", 2: "Party", 3: "Urlaub", 4: "Aus" }
+    },
     luxWriteId: "3",
     dataSource: "raw_parameter"
   },
@@ -1114,7 +1138,10 @@ const STATE_MAPPING = {
     role: "level.mode.thermostat",
     type: "number",
     write: true,
-    states: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
+    states: {
+      en: { 0: "Automatic", 1: "Second heat generator", 2: "Party", 3: "Holidays", 4: "Off" },
+      de: { 0: "Automatik", 1: "Zweiter Erzeuger", 2: "Party", 3: "Urlaub", 4: "Aus" }
+    },
     luxWriteId: "4",
     dataSource: "raw_parameter"
   },
@@ -1489,17 +1516,23 @@ const STATE_MAPPING = {
     write: true,
     luxWriteId: "222",
     dataSource: "raw_parameter",
-    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" }
+    states: {
+      en: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
+      de: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" }
+    }
   },
   hotWaterCircPumpTimerTableSelected: {
     folder: "Settings.07_Tables",
     name: "Currently selected circulation timer table",
     role: "level",
     type: "number",
-    luxWriteId: "506",
     write: true,
+    luxWriteId: "506",
     dataSource: "raw_parameter",
-    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
+    states: {
+      en: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
+      de: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" }
+    },
     required: true
   },
   hotWaterOperationTimerTableSelected: {
@@ -1507,10 +1540,13 @@ const STATE_MAPPING = {
     name: "Currently selected hot water timer table",
     role: "level",
     type: "number",
-    luxWriteId: "405",
     write: true,
+    luxWriteId: "405",
     dataSource: "raw_parameter",
-    states: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
+    states: {
+      en: { 0: "Week (Mo-Su)", 1: "5+2 (Mo-Fr, Sa-Su)", 2: "Days (Mo, Tu, ...)" },
+      de: { 0: "Woche (Mo-So)", 1: "5+2 (Mo-Fr, Sa-So)", 2: "Tage (Mo, Di, ...)" }
+    },
     required: true
   },
   // =========================================================

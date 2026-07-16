@@ -25,8 +25,8 @@ export interface StateDefinition {
 	max?: number;
 	/** Optionaler Standardwert bei Neuerstellung des Datenpunkts */
 	def?: any;
-	/** Optionales Werte-Mapping für Status-Texte (z. B. {0: "Aus", 1: "Ein"}) */
-	states?: Record<string, string> | Record<number, string>;
+	/** Optionales Werte-Mapping für Status-Texte (unterstützt nun i18n) */
+	states?: Record<string, Record<number, string>> | Record<number, string>;
 	/** Das Verzeichnis/Ordnerstruktur im ioBroker-Objektbaum */
 	folder: string;
 	/** Die ID oder der Index, die zum Schreiben/Lesen an die Luxtronik gesendet wird */
@@ -342,6 +342,10 @@ export async function cleanupCustomStates(adapter: ExtendedAdapter): Promise<voi
  */
 export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<void> {
 	const config = adapter.config;
+
+	// Sprachauswahl aus den Settings (Fallback auf 'en')
+	const lang = config.language === 'de' ? 'de' : 'en';
+
 	try {
 		const existingObjects = await adapter.getAdapterObjectsAsync();
 
@@ -356,9 +360,18 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 
 			let targetType: ioBroker.CommonType = definition.type === 'json' ? 'string' : definition.type;
 
-			// HIER IST DER ZWEITE FIX: ioBroker-Typen-Überschreibung sauberer gestaltet!
 			if (definition.role && ['value.datetime', 'value.time', 'date'].includes(definition.role)) {
 				targetType = 'string';
+			}
+
+			// SPRACHWEICHE FÜR DIE VALUES / DROPDOWNS
+			let resolvedStates: Record<string, string> | undefined = undefined;
+			if (definition.states) {
+				if ('en' in definition.states || 'de' in definition.states) {
+					resolvedStates = (definition.states as any)[lang] || (definition.states as any).en;
+				} else {
+					resolvedStates = definition.states as Record<string, string>;
+				}
 			}
 
 			const commonDef: ioBroker.StateCommon = {
@@ -370,7 +383,7 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 				write: definition.write || false,
 				min: definition.min,
 				max: definition.max,
-				states: definition.states,
+				states: resolvedStates,
 			};
 
 			const existingObj = existingObjects[fullId];
@@ -400,7 +413,7 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 					existingCommon.write !== (definition.write || false) ||
 					existingCommon.min !== definition.min ||
 					existingCommon.max !== definition.max ||
-					JSON.stringify(existingCommon.states) !== JSON.stringify(definition.states)
+					JSON.stringify(existingCommon.states) !== JSON.stringify(resolvedStates)
 				) {
 					needsUpdate = true;
 				}

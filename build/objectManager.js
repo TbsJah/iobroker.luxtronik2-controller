@@ -223,6 +223,7 @@ async function cleanupCustomStates(adapter) {
 }
 async function ensureAllObjectsExist(adapter) {
   const config = adapter.config;
+  const lang = config.language === "de" ? "de" : "en";
   try {
     const existingObjects = await adapter.getAdapterObjectsAsync();
     for (const [key, def] of Object.entries(import_stateMapping.STATE_MAPPING)) {
@@ -236,6 +237,14 @@ async function ensureAllObjectsExist(adapter) {
       if (definition.role && ["value.datetime", "value.time", "date"].includes(definition.role)) {
         targetType = "string";
       }
+      let resolvedStates = void 0;
+      if (definition.states) {
+        if ("en" in definition.states || "de" in definition.states) {
+          resolvedStates = definition.states[lang] || definition.states.en;
+        } else {
+          resolvedStates = definition.states;
+        }
+      }
       const commonDef = {
         name: definition.name,
         type: targetType,
@@ -245,7 +254,7 @@ async function ensureAllObjectsExist(adapter) {
         write: definition.write || false,
         min: definition.min,
         max: definition.max,
-        states: definition.states
+        states: resolvedStates
       };
       const existingObj = existingObjects[fullId];
       if (!existingObj) {
@@ -263,7 +272,7 @@ async function ensureAllObjectsExist(adapter) {
       } else {
         let needsUpdate = false;
         const existingCommon = existingObj.common;
-        if (existingCommon.type !== targetType || existingCommon.role !== definition.role || (existingCommon.unit || "") !== (definition.unit || "") || existingCommon.name !== definition.name || existingCommon.read !== commonDef.read || existingCommon.write !== (definition.write || false) || existingCommon.min !== definition.min || existingCommon.max !== definition.max || JSON.stringify(existingCommon.states) !== JSON.stringify(definition.states)) {
+        if (existingCommon.type !== targetType || existingCommon.role !== definition.role || (existingCommon.unit || "") !== (definition.unit || "") || existingCommon.name !== definition.name || existingCommon.read !== commonDef.read || existingCommon.write !== (definition.write || false) || existingCommon.min !== definition.min || existingCommon.max !== definition.max || JSON.stringify(existingCommon.states) !== JSON.stringify(resolvedStates)) {
           needsUpdate = true;
         }
         if (needsUpdate) {

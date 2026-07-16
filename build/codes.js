@@ -117,41 +117,72 @@ const OUTAGE_CODES = {
   9: "No demand"
 };
 const STATE_LINE_1 = {
-  0: "Heat pump running",
-  1: "Heat pump idle",
-  2: "Heat pump coming",
-  3: "Error code",
-  4: "Defrosting",
-  5: "Waiting for LIN connection",
-  7: "Compressor heating up",
-  8: "Pump pre-run"
+  en: {
+    0: "Heat pump running",
+    1: "Heat pump idle",
+    2: "Heat pump coming",
+    3: "Error code",
+    4: "Defrosting",
+    5: "Waiting for LIN connection",
+    7: "Compressor heating up",
+    8: "Pump pre-run"
+  },
+  de: {
+    0: "W\xE4rmepumpe l\xE4uft",
+    1: "W\xE4rmepumpe steht",
+    2: "W\xE4rmepumpe kommt",
+    3: "Fehlercode",
+    4: "Abtauen",
+    5: "Warte auf LIN-Verbindung",
+    7: "Verdichter heizt",
+    8: "Vorlauf Pumpe"
+  }
 };
 const STATE_LINE_2 = {
-  0: "since",
-  1: "in"
+  en: { 0: "since", 1: "in" },
+  de: { 0: "seit", 1: "in" }
 };
 const STATE_LINE_3 = {
-  0: "Heating operation",
-  1: "No demand",
-  2: "Grid switch-on delay",
-  3: "Cycle lock",
-  4: "Lock time",
-  5: "Hot water",
-  6: "Info heating out program",
-  7: "Defrosting",
-  8: "Pump pre-run",
-  9: "Thermal disinfection",
-  10: "Cooling operation",
-  12: "Swimming pool / Photovoltaics",
-  13: "Heating ext. energy source",
-  14: "Hot water ext. energy source",
-  16: "Flow monitoring",
-  17: "Second heat generator 1 operation"
+  en: {
+    0: "Heating operation",
+    1: "No demand",
+    2: "Grid switch-on delay",
+    3: "Cycle lock",
+    4: "Lock time",
+    5: "Hot water",
+    6: "Info heating out program",
+    7: "Defrosting",
+    8: "Pump pre-run",
+    9: "Thermal disinfection",
+    10: "Cooling operation",
+    12: "Swimming pool / Photovoltaics",
+    13: "Heating ext. energy source",
+    14: "Hot water ext. energy source",
+    16: "Flow monitoring",
+    17: "Second heat generator 1 operation"
+  },
+  de: {
+    0: "Heizbetrieb",
+    1: "Kein Bedarf",
+    2: "Netz-Einschaltverz\xF6gerung",
+    3: "Schaltspielsperre",
+    4: "Sperrzeit",
+    5: "Warmwasser",
+    6: "Info Estrichtrocknung",
+    7: "Abtauen",
+    8: "Vorlauf Pumpe",
+    9: "Thermische Desinfektion",
+    10: "K\xFChlbetrieb",
+    12: "Schwimmbad / PV",
+    13: "Heizen ext. Quelle",
+    14: "Warmwasser ext. Quelle",
+    16: "Durchfluss\xFCberwachung",
+    17: "Zweiter Erzeuger 1"
+  }
 };
 const STATE_HEATING = {
-  0: "Reduced",
-  1: "Normal",
-  3: "Off"
+  en: { 0: "Reduced", 1: "Normal", 2: "Heating limit", 3: "Off", 4: "Frost protection" },
+  de: { 0: "Abgesenkt", 1: "Normal", 2: "Heizgrenze", 3: "Aus", 4: "Frostschutz" }
 };
 const HP_TYPES = {
   0: "ERC",
