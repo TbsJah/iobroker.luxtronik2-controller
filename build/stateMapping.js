@@ -285,6 +285,20 @@ const STATE_MAPPING = {
     luxWriteId: "30",
     dataSource: "raw_value"
   },
+  flow_rate_heat_source: {
+    folder: "Information.02_Inputs",
+    name: {
+      en: "Flow rate heat source (WQ)",
+      de: "Durchfluss W\xE4rmequelle (WQ)"
+    },
+    role: "value",
+    type: "number",
+    unit: "l/h",
+    write: false,
+    luxWriteId: "173",
+    dataSource: "raw_value",
+    factor: 10
+  },
   // Outputs
   AVout: {
     folder: "Information.03_Outputs",
@@ -582,6 +596,16 @@ const STATE_MAPPING = {
     type: "number",
     unit: "h",
     luxWriteId: "65",
+    factor: 3600,
+    dataSource: "raw_value"
+  },
+  hours_cooling: {
+    folder: "Information.05_OperatingHours",
+    name: "Operating hours cooling",
+    role: "value",
+    type: "number",
+    unit: "h",
+    luxWriteId: "66",
     factor: 3600,
     dataSource: "raw_value"
   },
@@ -1104,15 +1128,18 @@ const STATE_MAPPING = {
     factor: 10,
     dataSource: "raw_parameter"
   },
-  hours_cooling: {
+  flow_rate_cooling: {
     folder: "Information.13_Cooling",
-    name: "Operating hours cooling",
-    role: "value.timer",
+    name: {
+      en: "Flow rate cooling",
+      de: "Durchflussmenge K\xFChlung"
+    },
+    role: "value",
     type: "number",
-    unit: "h",
+    unit: "l/h",
     write: false,
-    luxWriteId: "66",
-    factor: 3600,
+    luxWriteId: "254",
+    factor: 10,
     dataSource: "raw_value"
   },
   // ==========================================

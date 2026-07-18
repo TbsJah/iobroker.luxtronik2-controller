@@ -84,6 +84,8 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 
 - Cooling operating hours: Fixed the hours_cooling datapoint.
   The value is now correctly read from real-time telemetry data (raw_value) and displayed as a regular number of hours (resolves an issue where the date "Jan 1, 1970" was incorrectly shown).
+- Added new Values to StateMapping (173 flow rate wq / 254 flow rate cooling)
+- name: string | { en: string; de?: string }; /** ioBroker-Rolle des Datenpunkts */
 
 ### 0.6.2 (2026-07-17)
 

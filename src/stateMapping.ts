@@ -4,8 +4,7 @@
  */
 export interface StateDefinition {
 	/** Name des Datenpunkts */
-	name: string;
-	/** ioBroker-Rolle des Datenpunkts */
+	name: string | { en: string; de?: string }; /** ioBroker-Rolle des Datenpunkts */
 	role: string;
 	/** Datentyp des Datenpunkts */
 	type: 'number' | 'string' | 'boolean' | 'json';
@@ -303,6 +302,20 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		states: switchStates,
 		luxWriteId: '30',
 		dataSource: 'raw_value',
+	},
+	flow_rate_heat_source: {
+		folder: 'Information.02_Inputs',
+		name: {
+			en: 'Flow rate heat source (WQ)',
+			de: 'Durchfluss Wärmequelle (WQ)',
+		},
+		role: 'value',
+		type: 'number',
+		unit: 'l/h',
+		write: false,
+		luxWriteId: '173',
+		dataSource: 'raw_value',
+		factor: 10,
 	},
 
 	// Outputs
@@ -607,7 +620,16 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		factor: 3600,
 		dataSource: 'raw_value',
 	},
-
+	hours_cooling: {
+		folder: 'Information.05_OperatingHours',
+		name: 'Operating hours cooling',
+		role: 'value',
+		type: 'number',
+		unit: 'h',
+		luxWriteId: '66',
+		factor: 3600,
+		dataSource: 'raw_value',
+	},
 	// Error & Outage Logs (SYSTEMRELEVANT)
 	Fehlerspeicher: {
 		folder: 'Information.06_ErrorLog',
@@ -1133,18 +1155,20 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		factor: 10,
 		dataSource: 'raw_parameter',
 	},
-	hours_cooling: {
+	flow_rate_cooling: {
 		folder: 'Information.13_Cooling',
-		name: 'Operating hours cooling',
-		role: 'value.timer',
+		name: {
+			en: 'Flow rate cooling',
+			de: 'Durchflussmenge Kühlung',
+		},
+		role: 'value',
 		type: 'number',
-		unit: 'h',
+		unit: 'l/h',
 		write: false,
-		luxWriteId: '66',
-		factor: 3600,
+		luxWriteId: '254',
+		factor: 10,
 		dataSource: 'raw_value',
 	},
-
 	// ==========================================
 	// SETTINGS & PARAMETERS (Writable)
 	// ==========================================

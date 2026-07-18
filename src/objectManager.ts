@@ -8,7 +8,7 @@ import { STATE_MAPPING } from './stateMapping';
  */
 export interface StateDefinition {
 	/** Der Klartext-Name des Datenpunkts */
-	name: string;
+	name: string | { en: string; de?: string };
 	/** Der ioBroker-Datentyp (z. B. 'number', 'string', 'boolean' oder 'json') */
 	type: ioBroker.CommonType | 'json';
 	/** Die ioBroker-Rolle (z. B. 'value.temperature', 'button', 'text') */
@@ -408,7 +408,7 @@ export async function ensureAllObjectsExist(adapter: ExtendedAdapter): Promise<v
 					existingCommon.type !== targetType ||
 					existingCommon.role !== definition.role ||
 					(existingCommon.unit || '') !== (definition.unit || '') ||
-					existingCommon.name !== definition.name ||
+					JSON.stringify(existingCommon.name) !== JSON.stringify(definition.name) ||
 					existingCommon.read !== commonDef.read ||
 					existingCommon.write !== (definition.write || false) ||
 					existingCommon.min !== definition.min ||
