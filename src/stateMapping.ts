@@ -714,6 +714,7 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		type: 'string',
 		dataSource: 'value',
 	},
+
 	bivalentLevel: {
 		folder: 'Information.08_OperatingState',
 		name: 'Bivalent level',
@@ -1110,6 +1111,52 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 			de: { 0: 'Aus', 1: 'Automatik' },
 		},
 		dataSource: 'raw_parameter',
+	},
+	cooling_status: {
+		folder: 'Information.13_Cooling',
+		name: 'Cooling status',
+		role: 'level.mode.thermostat',
+		type: 'number',
+		write: false,
+		luxWriteId: '6',
+		states: {
+			en: { 0: 'Off', 1: 'no demand', 2: 'Demand', 3: 'active' },
+			de: { 0: 'Aus', 1: 'Keine Anforderung', 2: 'Anforderung', 3: 'Aktiv' },
+		},
+		dataSource: 'raw_value',
+	},
+	opStateCoolingString: {
+		folder: 'Information.08_OperatingState',
+		name: 'Operating state cooling text',
+		role: 'text',
+		type: 'string',
+		dataSource: 'value',
+	},
+	cooling_configured: {
+		folder: 'Information.13_Cooling',
+		name: 'Cooling configured',
+		role: 'level.mode.thermostat',
+		type: 'number',
+		write: false,
+		luxWriteId: '205',
+		states: {
+			en: { 0: 'no', 1: 'yes' },
+			de: { 0: 'Nein', 1: 'Ja' },
+		},
+		dataSource: 'raw_value',
+	},
+	cooling_release: {
+		folder: 'Information.13_Cooling',
+		name: 'Cooling release',
+		role: 'level.mode.thermostat',
+		type: 'number',
+		write: false,
+		luxWriteId: '207',
+		states: {
+			en: { 0: 'no', 1: 'yes' },
+			de: { 0: 'Nein', 1: 'Ja' },
+		},
+		dataSource: 'raw_value',
 	},
 	cooling_release_temp: {
 		folder: 'Information.13_Cooling',

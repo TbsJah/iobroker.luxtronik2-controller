@@ -82,10 +82,27 @@ Bug reports, compatibility notes for specific firmware versions, or feature requ
 
 ### **WORK IN PROGRESS**
 
-- Cooling operating hours: Fixed the hours_cooling datapoint.
-  The value is now correctly read from real-time telemetry data (raw_value) and displayed as a regular number of hours (resolves an issue where the date "Jan 1, 1970" was incorrectly shown).
-- Added new Values to StateMapping (173 flow rate wq / 254 flow rate cooling)
-- name: string | { en: string; de?: string }; /** ioBroker-Rolle des Datenpunkts */
+Features & Enhancements
+
+- Cooling Extension & Intelligent Status: Comprehensive integration of new cooling data points (e.g., cooling_status, cooling_configured, opStateCooling). Added the dynamically calculated opStateCoolingString, which accurately evaluates and displays the current cooling state (e.g., "Cooling limit", "Waiting for timer release", or "Cooling since HH:MM:SS").
+
+- New Flow Rate Datapoints: Added flow rate tracking for the heat source (flow_rate_heat_source, ID 173) and cooling (flow_rate_cooling, ID 254) to the state mapping.
+
+- Extended Admin UI: All newly added cooling data points and the heat source flow rate can now be individually enabled or disabled via new checkboxes in the adapter configuration (jsonConfig.json).
+
+- New Hardware Supported: Officially added the MSW2-9S heat pump to the model recognition (HP_TYPES).
+
+Bugfixes
+
+- Cooling Operating Hours: Fixed the hours_cooling datapoint. The value is now correctly read from real-time telemetry data (raw_value) and displayed as a regular number of hours, resolving an issue where the timestamp "Jan 1, 1970" was incorrectly shown.
+
+-Config Cleanup: Fixed an incorrect identifier in the admin UI (changed sync_Gerätezeit to sync_deviceTime) and removed unused/dead checkboxes.
+
+Technical Changes (Under the Hood)
+
+- Global Time Refactoring (DRY): Centralized the duration and time calculation for status texts in the updateStatusStrings function. The hours/minutes/seconds logic (including the FW 3.x fallback) is now efficiently calculated only once and globally shared across heating, hot water, and cooling states.
+
+- i18n Support for State Names: Updated the internal state definition (name: string | { en: string; de?: string }) to fully support translation objects, allowing natively translated datapoint names in the ioBroker object tree.
 
 ### 0.6.2 (2026-07-17)
 

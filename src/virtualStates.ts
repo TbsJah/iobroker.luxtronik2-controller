@@ -236,34 +236,59 @@ export async function updateStatusStrings(
 		const config = adapter.config as any;
 		const lang = config.language === 'de' ? 'de' : 'en';
 
+		// ==========================================
+		// 1. ZEIT- UND DAUERBERECHNUNG (GLOBAL)
+		// ==========================================
+		let zeitSec = rawValues[120];
+		const codeZ1 = rawValues[117];
+		const codeZ3 = rawValues[119];
+		const isModernFirmware = (codeZ1 === undefined || codeZ1 === 0) && (codeZ3 === undefined || codeZ3 === 0);
+
+		// FW 3.x Fallback: Wenn zeitSec fehlt, berechnen wir es aus der letzten Statusänderung
+		if (isModernFirmware && (zeitSec === undefined || zeitSec === 0)) {
+			const bzState = await adapter.getStateAsync(getDpPath('WP_BZ_akt'));
+			if (bzState && bzState.lc) {
+				zeitSec = Math.floor((Date.now() - bzState.lc) / 1000);
+			} else {
+				zeitSec = 0;
+			}
+		}
+
+		// HH:MM:SS Format (z.B. für FW 2.x und heatpump_duration)
+		const h = Math.floor((zeitSec || 0) / 3600);
+		const m = Math.floor(((zeitSec || 0) % 3600) / 60);
+		const s = (zeitSec || 0) % 60;
+		const zeitStringDuration = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+		// Ausgeschriebenes Format (z.B. für FW 3.x und Kühlung)
+		const hText = lang === 'de' ? (h === 1 ? 'Stunde' : 'Stunden') : h === 1 ? 'hour' : 'hours';
+		const mText = lang === 'de' ? (m === 1 ? 'Minute' : 'Minuten') : m === 1 ? 'minute' : 'minutes';
+		const sText = lang === 'de' ? (s === 1 ? 'Sekunde' : 'Sekunden') : s === 1 ? 'second' : 'seconds';
+		const zeitStringText = `${h} ${hText} ${m} ${mText} ${s} ${sText}`;
+
+		// ==========================================
+		// 2. STATUS HEIZUNG BERECHNEN
+		// ==========================================
 		const line1Map = STATE_LINE_1[lang] || STATE_LINE_1.en;
 		const line2Map = STATE_LINE_2[lang] || STATE_LINE_2.en;
 		const line3Map = STATE_LINE_3[lang] || STATE_LINE_3.en;
 		const stateHeatingMap = STATE_HEATING[lang] || STATE_HEATING.en;
 
-		//	const Heizgrenze = (rawParams[getLuxIdByKey('thresholdHeatingLimit')] || 0) / 10;
-		// HIER STARTET DER NEUE, SAUBERE BLOCK:
 		const Absenkung = (rawParams[getLuxIdByKey('deltaHeatingReduction')] || 0) / 10;
 		const AbsenkungMax = (rawParams[getLuxIdByKey('thresholdTemperatureSetBack')] || 0) / 10;
 		const RücklaufSollMin = (rawParams[getLuxIdByKey('returnTemperatureTargetMin')] || 15) / 10;
 		const BetriebsartHeizung = rawParams[getLuxIdByKey('heating_operation_mode')] || 0;
 		const Außentemperatur = (rawValues[getLuxIdByKey('temperature_outside')] || 0) / 10;
 
-		// Wir lesen den ECHTEN Zustand (Index 125) aus, statt die Betriebsart zu missbrauchen!
 		const opStateHeatingVal = rawValues[getLuxIdByKey('opStateHeating')] ?? 3;
-
 		let heatingStr = stateHeatingMap[opStateHeatingVal] || `Unknown (${opStateHeatingVal})`;
 
 		if (opStateHeatingVal === 2) {
-			// 2 = Heizgrenze
 			heatingStr += ` (Target ${RücklaufSollMin} °C)`;
 		} else if (opStateHeatingVal === 4) {
-			// 4 = Frostschutz
 			heatingStr += ` (Target 20 °C)`;
 		} else if (opStateHeatingVal === 0 || opStateHeatingVal === 1) {
-			// 0 = Abgesenkt, 1 = Normal
 			if (BetriebsartHeizung === 0) {
-				// Nur im Automatik-Modus ergänzen
 				const textNormal = lang === 'de' ? 'Normal da' : 'Normal as';
 				if (AbsenkungMax <= Außentemperatur) {
 					heatingStr += ` ${Absenkung} °C`;
@@ -278,46 +303,23 @@ export async function updateStatusStrings(
 			await adapter.setStateChangedAsync(dpHeating, heatingStr, true);
 		}
 
-		const codeZ1 = rawValues[117];
-		const codeZ2 = rawValues[118];
-		const codeZ3 = rawValues[119];
-		let zeitSec = rawValues[120];
-
-		const hotWaterBoilerValve = rawValues[getLuxIdByKey('hotWaterBoilerValve')] || 0;
-		const opStateHotWaterOriginal = rawValues[124];
-
+		// ==========================================
+		// 3. ERWEITERTE STATUS-TEXTE (DISPLAY)
+		// ==========================================
 		let stateStr = 'Unknown';
 		let extStateStr = 'Unknown';
 
-		// FW 3.x Check
-		const isModernFirmware = (codeZ1 === undefined || codeZ1 === 0) && (codeZ3 === undefined || codeZ3 === 0);
-
 		if (!isModernFirmware) {
-			const h = Math.floor((zeitSec || 0) / 3600);
-			const m = Math.floor(((zeitSec || 0) % 3600) / 60);
-			const s = (zeitSec || 0) % 60;
-			const zeitString = `${h < 10 ? '0' : ''}${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-
+			// Alte Firmware
+			const codeZ2 = rawValues[118];
 			stateStr = line3Map[codeZ3] || 'Unknown';
 
 			if (line1Map[codeZ1]) {
 				const textZ2 = line2Map[codeZ2] || '';
-				extStateStr = `${line1Map[codeZ1]} ${textZ2} ${zeitString}`.trim();
+				extStateStr = `${line1Map[codeZ1]} ${textZ2} ${zeitStringDuration}`.trim();
 			}
 		} else {
-			// ==========================================
-			// ALTERNATIVE FÜR FW 3.x ZEIT-BERECHNUNG
-			// ==========================================
-			if (zeitSec === undefined || zeitSec === 0) {
-				const bzState = await adapter.getStateAsync(getDpPath('WP_BZ_akt'));
-				if (bzState && bzState.lc) {
-					// Aktuelle Uhrzeit minus Zeit der letzten Statusänderung = Dauer in Sekunden
-					zeitSec = Math.floor((Date.now() - bzState.lc) / 1000);
-				} else {
-					zeitSec = 0;
-				}
-			}
-
+			// Moderne Firmware 3.x
 			const bzMapEn: Record<number, string> = {
 				0: 'Heating operation',
 				1: 'Hot water',
@@ -341,30 +343,14 @@ export async function updateStatusStrings(
 			const bzMap = lang === 'de' ? bzMapDe : bzMapEn;
 
 			const currentStateCode = rawValues[getLuxIdByKey('WP_BZ_akt')] || 5;
-			const baseState = bzMap[currentStateCode] || `Status ${currentStateCode}`;
+			stateStr = bzMap[currentStateCode] || `Status ${currentStateCode}`;
 
-			stateStr = baseState;
-
-			// Zeit-String formatieren
-			const h = Math.floor(zeitSec / 3600);
-			const m = Math.floor((zeitSec % 3600) / 60);
-			const s = zeitSec % 60;
-			const zeitStringDuration = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-
-			const hText = lang === 'de' ? (h === 1 ? 'Stunde' : 'Stunden') : h === 1 ? 'hour' : 'hours';
-			const mText = lang === 'de' ? (m === 1 ? 'Minute' : 'Minuten') : m === 1 ? 'minute' : 'minutes';
-			const sText = lang === 'de' ? (s === 1 ? 'Sekunde' : 'Sekunden') : s === 1 ? 'second' : 'seconds';
-			const zeitString = `${h} ${hText} ${m} ${mText} ${s} ${sText}`;
-
-			// Ermitteln, ob die Wärmepumpe läuft oder steht
 			const isRunning = [0, 1, 2, 4, 6, 7].includes(currentStateCode);
 			const line1Text = isRunning ? line1Map[0] || 'Heat pump running' : line1Map[1] || 'Heat pump idle';
 			const line2Text = line2Map[0] || 'since';
 
-			// Setzt den String zusammen: z.B. "Wärmepumpe steht seit 01:33:06"
-			extStateStr = `${line1Text} ${line2Text} ${zeitString}`;
+			extStateStr = `${line1Text} ${line2Text} ${zeitStringText}`;
 
-			// Wir aktualisieren auch den separaten Dauer-Datenpunkt manuell, da 120 fehlt!
 			const dpDuration = getDpPath('heatpump_duration');
 			if (dpDuration) {
 				await adapter.setStateChangedAsync(dpDuration, zeitStringDuration, true);
@@ -381,7 +367,13 @@ export async function updateStatusStrings(
 			await adapter.setStateChangedAsync(dpState, extStateStr, true);
 		}
 
+		// ==========================================
+		// 4. STATUS WARMWASSER
+		// ==========================================
+		const hotWaterBoilerValve = rawValues[getLuxIdByKey('hotWaterBoilerValve')] || 0;
+		const opStateHotWaterOriginal = rawValues[124];
 		let hotWaterStr = 'Unknown';
+
 		if (opStateHotWaterOriginal === 0) {
 			hotWaterStr = lang === 'de' ? 'Sperrzeit' : 'Lock time';
 		} else if (opStateHotWaterOriginal === 1 && hotWaterBoilerValve === 1) {
@@ -397,6 +389,38 @@ export async function updateStatusStrings(
 		const dpHotWater = getDpPath('opStateHotWaterString');
 		if (dpHotWater) {
 			await adapter.setStateChangedAsync(dpHotWater, hotWaterStr, true);
+		}
+
+		// ==========================================
+		// 5. STATUS KÜHLUNG (MIT GLOBALER ZEIT!)
+		// ==========================================
+		const coolingOpMode = rawParams[getLuxIdByKey('cooling_operation_mode')];
+		const coolingStatusVal = rawValues[getLuxIdByKey('cooling_status')];
+		const coolingReleaseTemp = (rawParams[getLuxIdByKey('cooling_release_temp')] || 0) / 10;
+
+		let coolingStr = lang === 'de' ? 'Unbekannt' : 'Unknown';
+
+		if (coolingOpMode === 0 || coolingStatusVal === 0) {
+			coolingStr = lang === 'de' ? 'Aus' : 'Off';
+		} else if (coolingOpMode === 1) {
+			if (coolingStatusVal === 3) {
+				// Hier nutzen wir jetzt den globalen, formatierten Text!
+				coolingStr = lang === 'de' ? `Kühlen seit ${zeitStringText}` : `Cooling since ${zeitStringText}`;
+			} else if (coolingStatusVal === 2) {
+				coolingStr = lang === 'de' ? 'Anforderung steht an' : 'Demand pending';
+			} else if (coolingStatusVal === 1) {
+				if (coolingReleaseTemp > Außentemperatur) {
+					const textKuehlgrenze = lang === 'de' ? 'Kühlgrenze' : 'Cooling limit';
+					coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} °C)`;
+				} else {
+					coolingStr = lang === 'de' ? 'Wartet auf Timer-Freigabe' : 'Waiting for timer release';
+				}
+			}
+		}
+
+		const dpCooling = getDpPath('opStateCoolingString');
+		if (dpCooling) {
+			await adapter.setStateChangedAsync(dpCooling, coolingStr, true);
 		}
 	} catch (err: unknown) {
 		const msg = err instanceof Error ? err.message : String(err);

@@ -144,6 +144,26 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
   try {
     const config = adapter.config;
     const lang = config.language === "de" ? "de" : "en";
+    let zeitSec = rawValues[120];
+    const codeZ1 = rawValues[117];
+    const codeZ3 = rawValues[119];
+    const isModernFirmware = (codeZ1 === void 0 || codeZ1 === 0) && (codeZ3 === void 0 || codeZ3 === 0);
+    if (isModernFirmware && (zeitSec === void 0 || zeitSec === 0)) {
+      const bzState = await adapter.getStateAsync((0, import_stateMapping.getDpPath)("WP_BZ_akt"));
+      if (bzState && bzState.lc) {
+        zeitSec = Math.floor((Date.now() - bzState.lc) / 1e3);
+      } else {
+        zeitSec = 0;
+      }
+    }
+    const h = Math.floor((zeitSec || 0) / 3600);
+    const m = Math.floor((zeitSec || 0) % 3600 / 60);
+    const s = (zeitSec || 0) % 60;
+    const zeitStringDuration = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+    const hText = lang === "de" ? h === 1 ? "Stunde" : "Stunden" : h === 1 ? "hour" : "hours";
+    const mText = lang === "de" ? m === 1 ? "Minute" : "Minuten" : m === 1 ? "minute" : "minutes";
+    const sText = lang === "de" ? s === 1 ? "Sekunde" : "Sekunden" : s === 1 ? "second" : "seconds";
+    const zeitStringText = `${h} ${hText} ${m} ${mText} ${s} ${sText}`;
     const line1Map = import_codes.STATE_LINE_1[lang] || import_codes.STATE_LINE_1.en;
     const line2Map = import_codes.STATE_LINE_2[lang] || import_codes.STATE_LINE_2.en;
     const line3Map = import_codes.STATE_LINE_3[lang] || import_codes.STATE_LINE_3.en;
@@ -173,34 +193,16 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     if (dpHeating) {
       await adapter.setStateChangedAsync(dpHeating, heatingStr, true);
     }
-    const codeZ1 = rawValues[117];
-    const codeZ2 = rawValues[118];
-    const codeZ3 = rawValues[119];
-    let zeitSec = rawValues[120];
-    const hotWaterBoilerValve = rawValues[(0, import_stateMapping.getLuxIdByKey)("hotWaterBoilerValve")] || 0;
-    const opStateHotWaterOriginal = rawValues[124];
     let stateStr = "Unknown";
     let extStateStr = "Unknown";
-    const isModernFirmware = (codeZ1 === void 0 || codeZ1 === 0) && (codeZ3 === void 0 || codeZ3 === 0);
     if (!isModernFirmware) {
-      const h = Math.floor((zeitSec || 0) / 3600);
-      const m = Math.floor((zeitSec || 0) % 3600 / 60);
-      const s = (zeitSec || 0) % 60;
-      const zeitString = `${h < 10 ? "0" : ""}${h}:${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
+      const codeZ2 = rawValues[118];
       stateStr = line3Map[codeZ3] || "Unknown";
       if (line1Map[codeZ1]) {
         const textZ2 = line2Map[codeZ2] || "";
-        extStateStr = `${line1Map[codeZ1]} ${textZ2} ${zeitString}`.trim();
+        extStateStr = `${line1Map[codeZ1]} ${textZ2} ${zeitStringDuration}`.trim();
       }
     } else {
-      if (zeitSec === void 0 || zeitSec === 0) {
-        const bzState = await adapter.getStateAsync((0, import_stateMapping.getDpPath)("WP_BZ_akt"));
-        if (bzState && bzState.lc) {
-          zeitSec = Math.floor((Date.now() - bzState.lc) / 1e3);
-        } else {
-          zeitSec = 0;
-        }
-      }
       const bzMapEn = {
         0: "Heating operation",
         1: "Hot water",
@@ -223,20 +225,11 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
       };
       const bzMap = lang === "de" ? bzMapDe : bzMapEn;
       const currentStateCode = rawValues[(0, import_stateMapping.getLuxIdByKey)("WP_BZ_akt")] || 5;
-      const baseState = bzMap[currentStateCode] || `Status ${currentStateCode}`;
-      stateStr = baseState;
-      const h = Math.floor(zeitSec / 3600);
-      const m = Math.floor(zeitSec % 3600 / 60);
-      const s = zeitSec % 60;
-      const zeitStringDuration = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-      const hText = lang === "de" ? h === 1 ? "Stunde" : "Stunden" : h === 1 ? "hour" : "hours";
-      const mText = lang === "de" ? m === 1 ? "Minute" : "Minuten" : m === 1 ? "minute" : "minutes";
-      const sText = lang === "de" ? s === 1 ? "Sekunde" : "Sekunden" : s === 1 ? "second" : "seconds";
-      const zeitString = `${h} ${hText} ${m} ${mText} ${s} ${sText}`;
+      stateStr = bzMap[currentStateCode] || `Status ${currentStateCode}`;
       const isRunning = [0, 1, 2, 4, 6, 7].includes(currentStateCode);
       const line1Text = isRunning ? line1Map[0] || "Heat pump running" : line1Map[1] || "Heat pump idle";
       const line2Text = line2Map[0] || "since";
-      extStateStr = `${line1Text} ${line2Text} ${zeitString}`;
+      extStateStr = `${line1Text} ${line2Text} ${zeitStringText}`;
       const dpDuration = (0, import_stateMapping.getDpPath)("heatpump_duration");
       if (dpDuration) {
         await adapter.setStateChangedAsync(dpDuration, zeitStringDuration, true);
@@ -250,6 +243,8 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     if (dpState) {
       await adapter.setStateChangedAsync(dpState, extStateStr, true);
     }
+    const hotWaterBoilerValve = rawValues[(0, import_stateMapping.getLuxIdByKey)("hotWaterBoilerValve")] || 0;
+    const opStateHotWaterOriginal = rawValues[124];
     let hotWaterStr = "Unknown";
     if (opStateHotWaterOriginal === 0) {
       hotWaterStr = lang === "de" ? "Sperrzeit" : "Lock time";
@@ -265,6 +260,30 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
     const dpHotWater = (0, import_stateMapping.getDpPath)("opStateHotWaterString");
     if (dpHotWater) {
       await adapter.setStateChangedAsync(dpHotWater, hotWaterStr, true);
+    }
+    const coolingOpMode = rawParams[(0, import_stateMapping.getLuxIdByKey)("cooling_operation_mode")];
+    const coolingStatusVal = rawValues[(0, import_stateMapping.getLuxIdByKey)("cooling_status")];
+    const coolingReleaseTemp = (rawParams[(0, import_stateMapping.getLuxIdByKey)("cooling_release_temp")] || 0) / 10;
+    let coolingStr = lang === "de" ? "Unbekannt" : "Unknown";
+    if (coolingOpMode === 0 || coolingStatusVal === 0) {
+      coolingStr = lang === "de" ? "Aus" : "Off";
+    } else if (coolingOpMode === 1) {
+      if (coolingStatusVal === 3) {
+        coolingStr = lang === "de" ? `K\xFChlen seit ${zeitStringText}` : `Cooling since ${zeitStringText}`;
+      } else if (coolingStatusVal === 2) {
+        coolingStr = lang === "de" ? "Anforderung steht an" : "Demand pending";
+      } else if (coolingStatusVal === 1) {
+        if (coolingReleaseTemp > Au\u00DFentemperatur) {
+          const textKuehlgrenze = lang === "de" ? "K\xFChlgrenze" : "Cooling limit";
+          coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} \xB0C)`;
+        } else {
+          coolingStr = lang === "de" ? "Wartet auf Timer-Freigabe" : "Waiting for timer release";
+        }
+      }
+    }
+    const dpCooling = (0, import_stateMapping.getDpPath)("opStateCoolingString");
+    if (dpCooling) {
+      await adapter.setStateChangedAsync(dpCooling, coolingStr, true);
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

@@ -564,19 +564,6 @@
 							"lg": 6,
 							"xl": 6
 						},
-						"sync_temperature_hot_water": {
-							"type": "checkbox",
-							"label": {
-								"en": "Hot water temperature",
-								"de": "Warmwassertemperatur"
-							},
-							"default": true,
-							"xs": 12,
-							"sm": 12,
-							"md": 6,
-							"lg": 6,
-							"xl": 6
-						},
 						"sync_temperature_heat_source_in": {
 							"type": "checkbox",
 							"label": {
@@ -688,6 +675,19 @@
 							"label": {
 								"en": "Defrost end switch ASD",
 								"de": "Abtau-Endeschalter ASD"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_flow_rate_heat_source": {
+							"type": "checkbox",
+							"label": {
+								"en": "Flow rate heat source (WQ)",
+								"de": "Durchfluss Wärmequelle (WQ)"
 							},
 							"default": true,
 							"xs": 12,
@@ -2043,7 +2043,7 @@
 							"lg": 6,
 							"xl": 6
 						},
-						"sync_Gerätezeit": {
+						"sync_deviceTime": {
 							"type": "checkbox",
 							"label": {
 								"en": "Device time",
@@ -2141,6 +2141,84 @@
 							"label": {
 								"en": "Cooling hours",
 								"de": "Kühlung Stunden"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_cooling_status": {
+							"type": "checkbox",
+							"label": {
+								"en": "Cooling status",
+								"de": "Kühlstatus"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_cooling_configured": {
+							"type": "checkbox",
+							"label": {
+								"en": "Cooling configured",
+								"de": "Kühlung konfiguriert"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_cooling_release": {
+							"type": "checkbox",
+							"label": {
+								"en": "Cooling release",
+								"de": "Kühlfreigabe"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_flow_rate_cooling": {
+							"type": "checkbox",
+							"label": {
+								"en": "Flow rate cooling",
+								"de": "Durchflussmenge Kühlung"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_opStateCooling": {
+							"type": "checkbox",
+							"label": {
+								"en": "Operating state cooling",
+								"de": "Betriebszustand Kühlung"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
+						"sync_opStateCoolingString": {
+							"type": "checkbox",
+							"label": {
+								"en": "Operating state cooling text",
+								"de": "Betriebszustand Kühlung Text"
 							},
 							"default": true,
 							"xs": 12,

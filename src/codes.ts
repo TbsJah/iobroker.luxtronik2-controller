@@ -238,5 +238,6 @@ export const HP_TYPES: Record<number, string> = {
 	77: 'LWD90V',
 	78: 'MSW3-12',
 	79: 'MSW3-12S',
+	80: 'MSW2-9S',
 	'-1': 'Unknown type',
 };
