@@ -2214,6 +2214,19 @@
 							"lg": 6,
 							"xl": 6
 						},
+						"sync_ID_WEB_FreigabKuehl": {
+							"type": "checkbox",
+							"label": {
+								"en": "State cooling",
+								"de": "Betriebszustand Kühlung"
+							},
+							"default": true,
+							"xs": 12,
+							"sm": 12,
+							"md": 6,
+							"lg": 6,
+							"xl": 6
+						},
 						"sync_opStateCoolingString": {
 							"type": "checkbox",
 							"label": {

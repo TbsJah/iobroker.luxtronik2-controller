@@ -392,29 +392,37 @@ export async function updateStatusStrings(
 		}
 
 		// ==========================================
-		// 5. STATUS KÜHLUNG (MIT GLOBALER ZEIT!)
+		// STATUS KÜHLUNG BERECHNEN (opStateCoolingString)
 		// ==========================================
-		const coolingOpMode = rawParams[getLuxIdByKey('cooling_operation_mode')];
-		const coolingStatusVal = rawValues[getLuxIdByKey('cooling_status')];
+		const coolingOpMode = rawParams[getLuxIdByKey('cooling_operation_mode')]; // 0 = Aus, 1 = Automatik
 		const coolingReleaseTemp = (rawParams[getLuxIdByKey('cooling_release_temp')] || 0) / 10;
+
+		// Boolean Prüfung für Freigabe (Index 207 / cooling_release)
+		const rawFreigabe = rawValues[getLuxIdByKey('cooling_release')];
+		// Fängt sowohl '1/0' als Zahl als auch echte true/false Booleans sicher ab
+		const isReleased = rawFreigabe === 1 || String(rawFreigabe).toLowerCase() === 'true';
+
+		// Aktueller Betriebszustand der Wärmepumpe (Index 80 / WP_BZ_akt)
+		const currentStateCode = rawValues[getLuxIdByKey('WP_BZ_akt')];
 
 		let coolingStr = lang === 'de' ? 'Unbekannt' : 'Unknown';
 
-		if (coolingOpMode === 0 || coolingStatusVal === 0) {
+		if (coolingOpMode === 0) {
 			coolingStr = lang === 'de' ? 'Aus' : 'Off';
 		} else if (coolingOpMode === 1) {
-			if (coolingStatusVal === 3) {
-				// Hier nutzen wir jetzt den globalen, formatierten Text!
+			if (currentStateCode === 7) {
+				// PRIORITÄT 1: Betriebszustand ist 7 (Wärmepumpe kühlt AKTIV)
 				coolingStr = lang === 'de' ? `Kühlen seit ${zeitStringText}` : `Cooling since ${zeitStringText}`;
-			} else if (coolingStatusVal === 2) {
-				coolingStr = lang === 'de' ? 'Anforderung steht an' : 'Demand pending';
-			} else if (coolingStatusVal === 1) {
-				if (coolingReleaseTemp > Außentemperatur) {
-					const textKuehlgrenze = lang === 'de' ? 'Kühlgrenze' : 'Cooling limit';
-					coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} °C)`;
-				} else {
-					coolingStr = lang === 'de' ? 'Wartet auf Timer-Freigabe' : 'Waiting for timer release';
-				}
+			} else if (coolingReleaseTemp > Außentemperatur) {
+				// PRIORITÄT 2: Zu kalt draußen (Außentemperatur unter Freigabetemperatur)
+				const textKuehlgrenze = lang === 'de' ? 'Kühlgrenze' : 'Cooling limit';
+				coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} °C)`;
+			} else if (!isReleased) {
+				// PRIORITÄT 3: Warm genug, aber Freigabe-Boolean ist noch false (Timer zählt noch runter)
+				coolingStr = lang === 'de' ? 'Wartet auf Timer-Freigabe' : 'Waiting for timer release';
+			} else {
+				// PRIORITÄT 4: Warm genug UND Freigabe ist erteilt, aber Anlage kühlt gerade nicht (Kein Bedarf im Haus)
+				coolingStr = lang === 'de' ? 'Keine Anforderung / Bereit' : 'No demand / Ready';
 			}
 		}
 

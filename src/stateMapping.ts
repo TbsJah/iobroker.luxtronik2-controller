@@ -1125,6 +1125,15 @@ export const STATE_MAPPING: Record<string, StateDefinition> = {
 		},
 		dataSource: 'raw_value',
 	},
+	ID_WEB_FreigabKuehl: {
+		folder: 'Information.13_Cooling',
+		name: 'Cooling release',
+		role: 'switch',
+		type: 'boolean',
+		write: false,
+		luxWriteId: '146',
+		dataSource: 'raw_value',
+	},
 	opStateCoolingString: {
 		folder: 'Information.08_OperatingState',
 		name: 'Operating state cooling text',

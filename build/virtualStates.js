@@ -224,9 +224,9 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
         7: "K\xFChlbetrieb"
       };
       const bzMap = lang === "de" ? bzMapDe : bzMapEn;
-      const currentStateCode = rawValues[(0, import_stateMapping.getLuxIdByKey)("WP_BZ_akt")] || 5;
-      stateStr = bzMap[currentStateCode] || `Status ${currentStateCode}`;
-      const isRunning = [0, 1, 2, 4, 6, 7].includes(currentStateCode);
+      const currentStateCode2 = rawValues[(0, import_stateMapping.getLuxIdByKey)("WP_BZ_akt")] || 5;
+      stateStr = bzMap[currentStateCode2] || `Status ${currentStateCode2}`;
+      const isRunning = [0, 1, 2, 4, 6, 7].includes(currentStateCode2);
       const line1Text = isRunning ? line1Map[0] || "Heat pump running" : line1Map[1] || "Heat pump idle";
       const line2Text = line2Map[0] || "since";
       extStateStr = `${line1Text} ${line2Text} ${zeitStringText}`;
@@ -262,23 +262,23 @@ async function updateStatusStrings(adapter, rawValues, rawParams) {
       await adapter.setStateChangedAsync(dpHotWater, hotWaterStr, true);
     }
     const coolingOpMode = rawParams[(0, import_stateMapping.getLuxIdByKey)("cooling_operation_mode")];
-    const coolingStatusVal = rawValues[(0, import_stateMapping.getLuxIdByKey)("cooling_status")];
     const coolingReleaseTemp = (rawParams[(0, import_stateMapping.getLuxIdByKey)("cooling_release_temp")] || 0) / 10;
+    const rawFreigabe = rawValues[(0, import_stateMapping.getLuxIdByKey)("cooling_release")];
+    const isReleased = rawFreigabe === 1 || String(rawFreigabe).toLowerCase() === "true";
+    const currentStateCode = rawValues[(0, import_stateMapping.getLuxIdByKey)("WP_BZ_akt")];
     let coolingStr = lang === "de" ? "Unbekannt" : "Unknown";
-    if (coolingOpMode === 0 || coolingStatusVal === 0) {
+    if (coolingOpMode === 0) {
       coolingStr = lang === "de" ? "Aus" : "Off";
     } else if (coolingOpMode === 1) {
-      if (coolingStatusVal === 3) {
+      if (currentStateCode === 7) {
         coolingStr = lang === "de" ? `K\xFChlen seit ${zeitStringText}` : `Cooling since ${zeitStringText}`;
-      } else if (coolingStatusVal === 2) {
-        coolingStr = lang === "de" ? "Anforderung steht an" : "Demand pending";
-      } else if (coolingStatusVal === 1) {
-        if (coolingReleaseTemp > Au\u00DFentemperatur) {
-          const textKuehlgrenze = lang === "de" ? "K\xFChlgrenze" : "Cooling limit";
-          coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} \xB0C)`;
-        } else {
-          coolingStr = lang === "de" ? "Wartet auf Timer-Freigabe" : "Waiting for timer release";
-        }
+      } else if (coolingReleaseTemp > Au\u00DFentemperatur) {
+        const textKuehlgrenze = lang === "de" ? "K\xFChlgrenze" : "Cooling limit";
+        coolingStr = `${textKuehlgrenze} (${coolingReleaseTemp.toFixed(1)} \xB0C)`;
+      } else if (!isReleased) {
+        coolingStr = lang === "de" ? "Wartet auf Timer-Freigabe" : "Waiting for timer release";
+      } else {
+        coolingStr = lang === "de" ? "Keine Anforderung / Bereit" : "No demand / Ready";
       }
     }
     const dpCooling = (0, import_stateMapping.getDpPath)("opStateCoolingString");
