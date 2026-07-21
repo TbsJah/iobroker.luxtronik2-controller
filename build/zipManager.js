@@ -18,9 +18,11 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var zipManager_exports = {};
 __export(zipManager_exports, {
+  checkAndHandleMotionSensor: () => checkAndHandleMotionSensor,
   handleActivateZip: () => handleActivateZip,
   restoreOriginalZipConfig: () => restoreOriginalZipConfig,
-  stopZipAndDeaeration: () => stopZipAndDeaeration
+  stopZipAndDeaeration: () => stopZipAndDeaeration,
+  subscribeMotionSensors: () => subscribeMotionSensors
 });
 module.exports = __toCommonJS(zipManager_exports);
 var import_logger = require("./logger");
@@ -35,6 +37,42 @@ const CONSTANTS = {
   /** Delay in milliseconds between consecutive hardware write operations */
   WRITE_DELAY: 100
 };
+async function safeRawWrite(adapter, key, luxId, rawValue) {
+  const dpPath = (0, import_stateMapping.getDpPath)(key);
+  if (!dpPath) {
+    return;
+  }
+  const state = await adapter.getStateAsync(dpPath);
+  if (state && state.val !== null) {
+    let currentRaw = null;
+    if (typeof state.val === "boolean") {
+      currentRaw = state.val ? 1 : 0;
+    } else if (typeof state.val === "number") {
+      currentRaw = state.val;
+    } else if (typeof state.val === "string") {
+      const timeMatch = state.val.match(/^(\d{1,2}):(\d{1,2})/);
+      if (timeMatch) {
+        currentRaw = parseInt(timeMatch[1], 10) * 3600 + parseInt(timeMatch[2], 10) * 60;
+      }
+    }
+    if (currentRaw === rawValue) {
+      if (adapter.isDebugLogActive) {
+        (0, import_logger.writeLog)(
+          `[SafeWrite] Wert f\xFCr '${key}' ist bereits auf Zielwert (${rawValue}). Schreibvorgang blockiert!`,
+          "debug"
+        );
+      }
+      return;
+    }
+  }
+  if (adapter.isDebugLogActive) {
+    (0, import_logger.writeLog)(`[SafeWrite] \xC4nderung erkannt. Schreibe ${rawValue} in Register ${luxId} (${key})...`, "debug");
+  }
+  await adapter.queueWrite(luxId, rawValue);
+  await new Promise((resolve) => {
+    adapter.setTimeout(resolve, CONSTANTS.WRITE_DELAY);
+  });
+}
 function clearZipTimer(adapter) {
   if (!adapter.zipTimer) {
     return;
@@ -97,20 +135,16 @@ async function stopZipAndDeaeration(adapter) {
       }
       clearZipTimer(adapter);
       await restoreOriginalZipConfig(adapter);
-      await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 0);
-      await new Promise((resolve) => {
-        adapter.setTimeout(() => {
-          resolve();
-        }, CONSTANTS.WRITE_DELAY);
-      });
-      await adapter.queueWrite(CONSTANTS.CMD_ZIP, 0);
-      await new Promise((resolve) => {
-        adapter.setTimeout(() => {
-          resolve();
-        }, CONSTANTS.WRITE_DELAY);
-      });
-      await adapter.syncConfigValue("runDeaerate", false);
-      await adapter.syncConfigValue("hotWaterCircPumpDeaerate", false);
+      await safeRawWrite(adapter, "runDeaerate", CONSTANTS.CMD_DEAERATE, 0);
+      await safeRawWrite(adapter, "hotWaterCircPumpDeaerate", CONSTANTS.CMD_ZIP, 0);
+      const dpDeaerate = (0, import_stateMapping.getDpPath)("runDeaerate");
+      const dpCircDeaerate = (0, import_stateMapping.getDpPath)("hotWaterCircPumpDeaerate");
+      if (dpDeaerate) {
+        await adapter.setOwnStateIfDifferent(dpDeaerate, false, true);
+      }
+      if (dpCircDeaerate) {
+        await adapter.setOwnStateIfDifferent(dpCircDeaerate, false, true);
+      }
       const dpZip = (0, import_stateMapping.getDpPath)("Activate_Zip");
       if (dpZip) {
         await adapter.setOwnStateIfDifferent(dpZip, false, true);
@@ -123,9 +157,9 @@ async function stopZipAndDeaeration(adapter) {
 }
 async function handleActivateZip(adapter, id, durationSeconds) {
   const localId = id.replace(`${adapter.namespace}.`, "");
-  await adapter.setStateAsync(localId, { val: true, ack: true });
+  await adapter.setState(localId, { val: true, ack: true });
   if (durationSeconds <= 0) {
-    await adapter.setStateAsync(localId, { val: false, ack: true });
+    await adapter.setState(localId, { val: false, ack: true });
     return;
   }
   const safeDurationSeconds = Math.max(1, isNaN(durationSeconds) ? 60 : durationSeconds);
@@ -142,15 +176,16 @@ async function handleActivateZip(adapter, id, durationSeconds) {
   const useDeaeration = bzVal === 5 && Number(wwIstS == null ? void 0 : wwIstS.val) > Number(wwSollS == null ? void 0 : wwSollS.val) - Number(wwHystS == null ? void 0 : wwHystS.val) && Number(rLState == null ? void 0 : rLState.val) > Number(rSollState == null ? void 0 : rSollState.val) - Number(hzHystState == null ? void 0 : hzHystState.val);
   clearZipTimer(adapter);
   if (useDeaeration) {
-    await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 1);
-    await new Promise((resolve) => {
-      adapter.setTimeout(() => {
-        resolve();
-      }, CONSTANTS.WRITE_DELAY);
-    });
-    await adapter.queueWrite(CONSTANTS.CMD_ZIP, 1);
-    await adapter.syncConfigValue("runDeaerate", true);
-    await adapter.syncConfigValue("hotWaterCircPumpDeaerate", true);
+    await safeRawWrite(adapter, "runDeaerate", CONSTANTS.CMD_DEAERATE, 1);
+    await safeRawWrite(adapter, "hotWaterCircPumpDeaerate", CONSTANTS.CMD_ZIP, 1);
+    const dpDeaerate = (0, import_stateMapping.getDpPath)("runDeaerate");
+    const dpCircDeaerate = (0, import_stateMapping.getDpPath)("hotWaterCircPumpDeaerate");
+    if (dpDeaerate) {
+      await adapter.setOwnStateIfDifferent(dpDeaerate, true, true);
+    }
+    if (dpCircDeaerate) {
+      await adapter.setOwnStateIfDifferent(dpCircDeaerate, true, true);
+    }
   } else {
     const onTimeMinutes = Math.ceil(safeDurationSeconds / 60);
     if (!adapter.originalZipConfig) {
@@ -189,12 +224,7 @@ async function handleActivateZip(adapter, id, durationSeconds) {
     for (const u of updates) {
       const def = import_stateMapping.STATE_MAPPING[u.key];
       if (def && def.luxWriteId) {
-        await adapter.queueWrite(parseInt(def.luxWriteId, 10), u.raw);
-        await new Promise((resolve) => {
-          adapter.setTimeout(() => {
-            resolve();
-          }, CONSTANTS.WRITE_DELAY);
-        });
+        await safeRawWrite(adapter, u.key, parseInt(def.luxWriteId, 10), u.raw);
       }
     }
   }
@@ -202,10 +232,69 @@ async function handleActivateZip(adapter, id, durationSeconds) {
     await stopZipAndDeaeration(adapter);
   }, safeDurationSeconds * 1e3);
 }
+function subscribeMotionSensors(adapter) {
+  const config = adapter.config;
+  if (config.motion_sensors_aktiv && Array.isArray(config.motionSensors)) {
+    for (const sensor of config.motionSensors) {
+      if (sensor.oid && typeof sensor.oid === "string" && sensor.oid.trim() !== "") {
+        adapter.subscribeForeignStates(sensor.oid.trim());
+        if (adapter.isDebugLogActive) {
+          (0, import_logger.writeLog)(`Motion sensor subscribed: ${sensor.name} (${sensor.oid})`, "info");
+        }
+      }
+    }
+  }
+}
+async function checkAndHandleMotionSensor(adapter, id, state) {
+  const config = adapter.config;
+  if (!config.motion_sensors_aktiv || !config.motionSensors || !Array.isArray(config.motionSensors)) {
+    return false;
+  }
+  const matchedSensor = config.motionSensors.find((s) => s.oid && s.oid.trim() === id);
+  if (!matchedSensor) {
+    return false;
+  }
+  if (state.val === true) {
+    const zipOutState = await adapter.getStateAsync((0, import_stateMapping.getDpPath)("ZIPout"));
+    if (zipOutState && zipOutState.val === 1) {
+      if (adapter.isDebugLogActive) {
+        (0, import_logger.writeLog)(
+          `Motion registered at sensor '${matchedSensor.name}' but circulation pump ZIP is already running. Action ignored.`,
+          "debug"
+        );
+      }
+      return true;
+    }
+    const now = Date.now();
+    const lastZipChange = (zipOutState == null ? void 0 : zipOutState.lc) || 0;
+    if (now - lastZipChange > (config.zip_last_run_min || 600) * 1e3) {
+      if (adapter.isDebugLogActive) {
+        (0, import_logger.writeLog)(
+          `Motion registered at sensor '${matchedSensor.name || id}'. Launching circulation pump ZIP macro sequence.`,
+          "debug"
+        );
+      }
+      await adapter.setState((0, import_stateMapping.getDpPath)("Activate_Zip"), {
+        val: true,
+        ack: false
+      });
+    } else {
+      if (adapter.isDebugLogActive) {
+        (0, import_logger.writeLog)(
+          `Motion registered at sensor '${matchedSensor.name || id}' but circulation pump execution suppressed due to anti-cycling protective interval timer.`,
+          "debug"
+        );
+      }
+    }
+  }
+  return true;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  checkAndHandleMotionSensor,
   handleActivateZip,
   restoreOriginalZipConfig,
-  stopZipAndDeaeration
+  stopZipAndDeaeration,
+  subscribeMotionSensors
 });
 //# sourceMappingURL=zipManager.js.map

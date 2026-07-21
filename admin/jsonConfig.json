@@ -2272,7 +2272,7 @@
 				}
 			}
 		},
-		"motionSensorsTab": {
+		"zipTab": {
 			"type": "panel",
 			"label": {
 				"en": "Circulation pump",
@@ -2280,6 +2280,46 @@
 			},
 			"icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPgoJPHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIgLz4KCTxwYXRoIGZpbGw9ImN1cnJlbnRDb2xvciIgZD0iTTEwLjU4OCAxNC40MTNRMTAgMTMuODI1IDEwIDEzcTAtLjU3NS4yMzgtMS4xMzd0LjkxMi0xLjYxM2wuNDI1LS42MjVxLjE1LS4yMjUuNDI1LS4yMjV0LjQyNS4yMjVsLjQyNS42MjVxLjY3NSAxLjA1LjkxMyAxLjYxM1QxNCAxM3EwIC44MjUtLjU4NyAxLjQxM1QxMiAxNXQtMS40MTItLjU4N00zIDE3aDQuMXEtLjQyNS0uNDI1LS43ODctLjkyNVQ1LjY3NSAxNUgzem0xMi41MzgtMS40NjNRMTcgMTQuMDc2IDE3IDEydC0xLjQ2My0zLjUzN1QxMiA3VDguNDYzIDguNDYzVDcgMTJ0MS40NjMgMy41MzhUMTIgMTd0My41MzgtMS40NjNNMTguMzI1IDlIMjFWN2gtNC4xcS40MjUuNDI1Ljc4OC45MjVUMTguMzI1IDlNMyAxOXEwIC40MjUtLjI4OC43MTNUMiAyMHQtLjcxMi0uMjg4VDEgMTl2LTZxMC0uNDI1LjI4OC0uNzEyVDIgMTJ0LjcxMy4yODhUMyAxM2gyLjA3NXEtLjA1LS4yNS0uMDYyLS40ODhUNSAxMnEwLTIuOTI1IDIuMDM4LTQuOTYyVDEyIDVoOXEwLS40MjUuMjg4LS43MTJUMjIgNHQuNzEzLjI4OFQyMyA1djZxMCAuNDI1LS4yODguNzEzVDIyIDEydC0uNzEyLS4yODhUMjEgMTFoLTIuMDc1cS4wNS4yNS4wNjMuNDg4VDE5IDEycTAgMi45MjUtMi4wMzcgNC45NjNUMTIgMTl6bTAtMnYtMnptMTgtOFY3em0tOSAzIiAvPgo8L3N2Zz4K",
 			"items": {
+				"informationZip": {
+					"type": "staticText",
+					"text": {
+						"en": "By default, the circulation pump (ZIP) is controlled via fixed switching and cycle times of the heat pump. Since this rigid scheduling wastes energy, this adapter offers an intelligent optimization:<br><br>• <b>Demand-driven:</b> By linking motion detectors or buttons (boolean datapoints), the ZIP is only activated when hot water is actually needed.<br>• <b>Safe Operation:</b> The adapter activates the pump via the internal manual control, bypassing the regular timer tables to protect the hardware.<br><br><b>💡 Tip! Hardware protection (EEPROM Flash Wear)</b><br>To minimize background write operations in the controller, set the base ZIP times once to the <i>Mon-Sun</i> table and enter <i>00:00 - 00:00</i>. Set the cycle times to <b>Off: 60 minutes</b> and <b>On: 0 minutes</b>.",
+						"de": "Die Zirkulationspumpe (ZIP) wird standardmäßig über feste Schalt- und Taktzeiten der Wärmepumpe gesteuert. Da diese starre Zeitsteuerung oft unnötig Energie verbraucht, bietet dieser Adapter eine intelligente Optimierung:<br><br>• <b>Bedarfsgesteuert:</b> Durch die Verknüpfung von Bewegungsmeldern oder Tastern (Boolean-Datenpunkte) wird die ZIP nur dann aktiviert, wenn tatsächlich Warmwasser benötigt wird.<br>• <b>Funktionsweise:</b> Der Adapter startet die Pumpe über die interne Handsteuerung und umgeht die reguläre Schaltuhr, um die Hardware zu schonen.<br><br><b>💡 Tipp! Hardware-Schutz (EEPROM Flash-Wear)</b><br>Um das ständige Schreiben im Regler zu minimieren, stellen Sie die regulären ZIP-Zeiten einmalig auf die Tabelle <i>Mo-So</i> und tragen Sie dort <i>00:00 - 00:00</i> ein. Die Taktzeiten setzen Sie auf <b>Aus: 60 Minuten</b> und <b>An: 0 Minuten</b>."
+					},
+					"style": { "height": "120px" },
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"abstandZip1": {
+					"type": "staticText",
+					"text": "",
+					"style": { "height": "20px" },
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"zip_lWP_aktiv": {
+					"type": "checkbox",
+					"label": {
+						"en": "Disable base ZIP values",
+						"de": "Deaktivere reguläre ZIP Werte"
+					},
+					"help": {
+						"en": "Setting the cycle times on and off",
+						"de": "Setzen der Taktzeiten ein und aus"
+					},
+					"default": true,
+					"xs": 12,
+					"sm": 4,
+					"md": 2,
+					"lg": 2,
+					"xl": 2
+				},
 				"zip_optimierung_aktiv": {
 					"type": "checkbox",
 					"label": {
@@ -2292,18 +2332,18 @@
 					},
 					"default": true,
 					"xs": 12,
-					"sm": 6,
-					"md": 4,
-					"lg": 4,
-					"xl": 4
+					"sm": 4,
+					"md": 2,
+					"lg": 2,
+					"xl": 2
 				},
 				"headerZip": {
 					"type": "header",
 					"text": {
-						"en": "Default values: Circulation pump",
-						"de": "Vorgabewerte Zirkulationspumpe"
+						"en": "Values Circulation pump optimisation",
+						"de": "Vorgabewerte Zirkulationspumpenoptimierung"
 					},
-					"size": 4,
+					"size": 3,
 					"xs": 12,
 					"sm": 12,
 					"md": 12,
@@ -2315,10 +2355,6 @@
 					"label": {
 						"en": "ZIP duration ON (s)",
 						"de": "ZIP Dauer an (s)"
-					},
-					"tooltip": {
-						"en": "Test",
-						"de": "Test"
 					},
 					"default": 120,
 					"disabled": "!data.zip_optimierung_aktiv",
@@ -2335,21 +2371,7 @@
 						"de": "ZIP Dauer aus (s)"
 					},
 					"disabled": "!data.zip_optimierung_aktiv",
-					"default": 600,
-					"xs": 12,
-					"sm": 12,
-					"md": 4,
-					"lg": 4,
-					"xl": 4
-				},
-				"zip_aktiv_ww": {
-					"type": "number",
-					"label": {
-						"en": "ZIP duration during hot water generation (s)",
-						"de": "ZIP Dauer bei Warmwassererzeugung (s)"
-					},
-					"disabled": "!data.zip_optimierung_aktiv",
-					"default": 600,
+					"default": 1200,
 					"xs": 12,
 					"sm": 12,
 					"md": 4,

@@ -33,6 +33,7 @@ export type ZipConfig = Partial<Record<keyof typeof STATE_MAPPING, ioBroker.Stat
  * Extended adapter interface to provide type safety for dynamic properties and methods.
  */
 interface ExtendedAdapter extends AdapterInstance {
+	config: ioBroker.AdapterConfig & Record<string, any>;
 	/** Cached copy of the original circulation pump settings before macro activation */
 	originalZipConfig?: ZipConfig | null;
 	/** ioBroker timeout handle for the hot water circulation pump macro */
@@ -69,6 +70,67 @@ interface ExtendedAdapter extends AdapterInstance {
 // =========================================================
 // HELPER FUNCTIONS
 // =========================================================
+/**
+ * Schützt den Speicher durch Read-Before-Write direkt auf Rohwert-Ebene.
+ * Blockiert unnötige Schreibbefehle an die Luxtronik.
+ *
+ * @param adapter - The extended adapter instance used for state and write operations
+ * @param key - The state mapping key to write
+ * @param luxId - The Luxtronik register ID to update
+ * @param rawValue - The raw value to write to the device
+ */
+async function safeRawWrite(
+	adapter: ExtendedAdapter,
+	key: keyof typeof STATE_MAPPING,
+	luxId: number,
+	rawValue: number,
+): Promise<void> {
+	const dpPath = getDpPath(key);
+	if (!dpPath) {
+		return;
+	}
+
+	const state = await adapter.getStateAsync(dpPath);
+
+	if (state && state.val !== null) {
+		let currentRaw: number | null = null;
+
+		// IoBroker-Werte in Luxtronik-Rohwerte (Zahlen) zurückrechnen
+		if (typeof state.val === 'boolean') {
+			currentRaw = state.val ? 1 : 0;
+		} else if (typeof state.val === 'number') {
+			currentRaw = state.val;
+		} else if (typeof state.val === 'string') {
+			// Wandelt Zeit-Strings (z.B. "23:59:00") zurück in reine Sekunden
+			const timeMatch = state.val.match(/^(\d{1,2}):(\d{1,2})/);
+			if (timeMatch) {
+				currentRaw = parseInt(timeMatch[1], 10) * 3600 + parseInt(timeMatch[2], 10) * 60;
+			}
+		}
+
+		// DIE ENTSCHEIDENDE PRÜFUNG: Ist der Wert bereits identisch?
+		if (currentRaw === rawValue) {
+			if (adapter.isDebugLogActive) {
+				writeLog(
+					`[SafeWrite] Wert für '${key}' ist bereits auf Zielwert (${rawValue}). Schreibvorgang blockiert!`,
+					'debug',
+				);
+			}
+			return; // Abbrechen! Schont den Flash-Speicher.
+		}
+	}
+
+	// Nur schreiben, wenn es eine echte Änderung gibt
+	if (adapter.isDebugLogActive) {
+		writeLog(`[SafeWrite] Änderung erkannt. Schreibe ${rawValue} in Register ${luxId} (${key})...`, 'debug');
+	}
+	await adapter.queueWrite(luxId, rawValue);
+
+	// Kurze Hardware-Schonpause nach dem Senden
+	await new Promise<void>(resolve => {
+		adapter.setTimeout(resolve, CONSTANTS.WRITE_DELAY);
+	});
+}
 
 /**
  * Safely clears the active circulation pump macro timer.
@@ -165,22 +227,19 @@ export async function stopZipAndDeaeration(adapter: ExtendedAdapter): Promise<vo
 			clearZipTimer(adapter);
 			await restoreOriginalZipConfig(adapter);
 
-			await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 0);
-			await new Promise<void>(resolve => {
-				adapter.setTimeout(() => {
-					resolve();
-				}, CONSTANTS.WRITE_DELAY);
-			});
+			// NEU: Sicherer Stopp über Read-Before-Write
+			await safeRawWrite(adapter, 'runDeaerate', CONSTANTS.CMD_DEAERATE, 0);
+			await safeRawWrite(adapter, 'hotWaterCircPumpDeaerate', CONSTANTS.CMD_ZIP, 0);
 
-			await adapter.queueWrite(CONSTANTS.CMD_ZIP, 0);
-			await new Promise<void>(resolve => {
-				adapter.setTimeout(() => {
-					resolve();
-				}, CONSTANTS.WRITE_DELAY);
-			});
-
-			await adapter.syncConfigValue('runDeaerate', false);
-			await adapter.syncConfigValue('hotWaterCircPumpDeaerate', false);
+			// UI-Datenpunkte lokal aktualisieren, ohne erneuten Netzwerktraffic zu erzeugen
+			const dpDeaerate = getDpPath('runDeaerate');
+			const dpCircDeaerate = getDpPath('hotWaterCircPumpDeaerate');
+			if (dpDeaerate) {
+				await adapter.setOwnStateIfDifferent(dpDeaerate, false, true);
+			}
+			if (dpCircDeaerate) {
+				await adapter.setOwnStateIfDifferent(dpCircDeaerate, false, true);
+			}
 
 			const dpZip = getDpPath('Activate_Zip');
 			if (dpZip) {
@@ -203,10 +262,10 @@ export async function stopZipAndDeaeration(adapter: ExtendedAdapter): Promise<vo
  */
 export async function handleActivateZip(adapter: ExtendedAdapter, id: string, durationSeconds: number): Promise<void> {
 	const localId = id.replace(`${adapter.namespace}.`, '');
-	await adapter.setStateAsync(localId, { val: true, ack: true });
+	await adapter.setState(localId, { val: true, ack: true });
 
 	if (durationSeconds <= 0) {
-		await adapter.setStateAsync(localId, { val: false, ack: true });
+		await adapter.setState(localId, { val: false, ack: true });
 		return;
 	}
 
@@ -231,16 +290,19 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 	clearZipTimer(adapter);
 
 	if (useDeaeration) {
-		await adapter.queueWrite(CONSTANTS.CMD_DEAERATE, 1);
-		await new Promise<void>(resolve => {
-			adapter.setTimeout(() => {
-				resolve();
-			}, CONSTANTS.WRITE_DELAY);
-		});
+		// NEU: Sicherer Start über Read-Before-Write
+		await safeRawWrite(adapter, 'runDeaerate', CONSTANTS.CMD_DEAERATE, 1);
+		await safeRawWrite(adapter, 'hotWaterCircPumpDeaerate', CONSTANTS.CMD_ZIP, 1);
 
-		await adapter.queueWrite(CONSTANTS.CMD_ZIP, 1);
-		await adapter.syncConfigValue('runDeaerate', true);
-		await adapter.syncConfigValue('hotWaterCircPumpDeaerate', true);
+		// UI-Datenpunkte lokal aktualisieren
+		const dpDeaerate = getDpPath('runDeaerate');
+		const dpCircDeaerate = getDpPath('hotWaterCircPumpDeaerate');
+		if (dpDeaerate) {
+			await adapter.setOwnStateIfDifferent(dpDeaerate, true, true);
+		}
+		if (dpCircDeaerate) {
+			await adapter.setOwnStateIfDifferent(dpCircDeaerate, true, true);
+		}
 	} else {
 		const onTimeMinutes = Math.ceil(safeDurationSeconds / 60);
 		if (!adapter.originalZipConfig) {
@@ -283,12 +345,8 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 		for (const u of updates) {
 			const def = STATE_MAPPING[u.key];
 			if (def && def.luxWriteId) {
-				await adapter.queueWrite(parseInt(def.luxWriteId, 10), u.raw);
-				await new Promise<void>(resolve => {
-					adapter.setTimeout(() => {
-						resolve();
-					}, CONSTANTS.WRITE_DELAY);
-				});
+				// NEU: Auch die Tabellen-Updates laufen jetzt durch die Schreibsperre
+				await safeRawWrite(adapter, u.key, parseInt(def.luxWriteId, 10), u.raw);
 			}
 		}
 	}
@@ -296,4 +354,94 @@ export async function handleActivateZip(adapter: ExtendedAdapter, id: string, du
 	adapter.zipTimer = adapter.setTimeout(async () => {
 		await stopZipAndDeaeration(adapter);
 	}, safeDurationSeconds * 1000);
+}
+
+/**
+ * Abonniert die in der Konfiguration hinterlegten Bewegungsmelder (Foreign States).
+ * Aufruf erfolgt einmalig in der onReady() des Adapters.
+ *
+ * @param adapter - Die erweiterte Adapter-Instanz
+ */
+export function subscribeMotionSensors(adapter: ExtendedAdapter): void {
+	const config = adapter.config;
+	if (config.motion_sensors_aktiv && Array.isArray(config.motionSensors)) {
+		for (const sensor of config.motionSensors) {
+			if (sensor.oid && typeof sensor.oid === 'string' && sensor.oid.trim() !== '') {
+				adapter.subscribeForeignStates(sensor.oid.trim());
+				if (adapter.isDebugLogActive) {
+					writeLog(`Motion sensor subscribed: ${sensor.name} (${sensor.oid})`, 'info');
+				}
+			}
+		}
+	}
+}
+
+/**
+ * Prüft bei einem StateChange, ob ein abonnierter Bewegungsmelder ausgelöst hat.
+ * Wendet die Cooldown-Logik an und triggert bei Bedarf das ZIP-Makro.
+ *
+ * @param adapter - Die erweiterte Adapter-Instanz
+ * @param id - Die ID des Datenpunkts, der sich geändert hat
+ * @param state - Der neue ioBroker-Zustand
+ * @returns true, wenn das Event von einem Bewegungsmelder stammte (sodass onStateChange abbrechen kann)
+ */
+export async function checkAndHandleMotionSensor(
+	adapter: ExtendedAdapter,
+	id: string,
+	state: ioBroker.State,
+): Promise<boolean> {
+	const config = adapter.config;
+
+	if (!config.motion_sensors_aktiv || !config.motionSensors || !Array.isArray(config.motionSensors)) {
+		return false; // Funktion ist aus, weiter in der main.ts
+	}
+
+	const matchedSensor = config.motionSensors.find((s: any) => s.oid && s.oid.trim() === id);
+
+	if (!matchedSensor) {
+		return false; // Kein Bewegungsmelder, weiter in der main.ts
+	}
+
+	// Wir reagieren nur, wenn der Melder auf "true" (Bewegung) geht
+	if (state.val === true) {
+		const zipOutState = await adapter.getStateAsync(getDpPath('ZIPout'));
+
+		if (zipOutState && zipOutState.val === 1) {
+			if (adapter.isDebugLogActive) {
+				writeLog(
+					`Motion registered at sensor '${matchedSensor.name}' but circulation pump ZIP is already running. Action ignored.`,
+					'debug',
+				);
+			}
+			return true;
+		}
+
+		const now = Date.now();
+		const lastZipChange = zipOutState?.lc || 0;
+
+		// Cooldown-Prüfung
+		if (now - lastZipChange > (config.zip_last_run_min || 600) * 1000) {
+			if (adapter.isDebugLogActive) {
+				writeLog(
+					`Motion registered at sensor '${matchedSensor.name || id}'. Launching circulation pump ZIP macro sequence.`,
+					'debug',
+				);
+			}
+			// Trigger für das Activate_Zip Makro
+			await adapter.setState(getDpPath('Activate_Zip'), {
+				val: true,
+				ack: false,
+			});
+		} else {
+			if (adapter.isDebugLogActive) {
+				writeLog(
+					`Motion registered at sensor '${matchedSensor.name || id}' but circulation pump execution suppressed due to anti-cycling protective interval timer.`,
+					'debug',
+				);
+			}
+		}
+	}
+
+	// Da es unser Sensor war, geben wir true zurück (auch wenn der Wert false war)
+	return true;
 }
