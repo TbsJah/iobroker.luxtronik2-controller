@@ -2379,6 +2379,20 @@
 					"lg": 4,
 					"xl": 4
 				},
+				"zip_aktiv_ww": {
+					"type": "number",
+					"label": {
+						"en": "ZIP duration ON Hotwate operation (s)",
+						"de": "ZIP Dauer an bei Warmwasserbetrieb (s)"
+					},
+					"default": 600,
+					"disabled": "!data.zip_optimierung_aktiv",
+					"xs": 12,
+					"sm": 12,
+					"md": 4,
+					"lg": 4,
+					"xl": 4
+				},
 				"motion_sensors_aktiv": {
 					"type": "checkbox",
 					"label": {

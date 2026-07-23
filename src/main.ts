@@ -372,8 +372,25 @@ class Luxtronik2Controller extends utils.Adapter {
 							'hotWaterTemperatureHysteresis',
 							config.sync_hotwater_temperature_hysteresis ?? 2,
 						);
-						// await this.syncConfigValue('zip_aktiv', config.zip_aktiv_ww ?? 0);
-						// await this.setOwnStateIfDifferent(getDpPath('Activate_Zip'), true, false);
+
+						// Prüfen, ob externe Aktoren konfiguriert sind
+						const actors = config.actors || [];
+						const validActors = actors.filter(
+							(a: any) => a.zip_external_relay_id && a.zip_external_relay_id.trim() !== '',
+						);
+
+						// Wenn Aktoren da sind, können wir die Zirkulation bedenkenlos starten (0 Flash-Schreibvorgänge!)
+						if (validActors.length > 0) {
+							if (this.isDebugLogActive) {
+								this.log.debug(
+									'[ZIP] Externe Aktoren gefunden. Starte Zirkulation synchron zur Warmwasserbereitung.',
+								);
+							}
+							// Dauer aus der Config holen (mit einem sinnvollen Fallback von z.B. 120 Sekunden)
+							await this.syncConfigValue('zip_aktiv', config.zip_aktiv_ww ?? 120);
+							// Makro über den Trigger-Datenpunkt auslösen
+							await this.setOwnStateIfDifferent(getDpPath('Activate_Zip'), true, false);
+						}
 
 						await this.syncConfigValue(
 							'heating_system_circ_pump_voltage_minimal',
